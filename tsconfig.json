@@ -4,8 +4,9 @@
         "outDir": "dist",
         "strict": true,
         "lib": ["esnext"],
-        "esModuleInterop": true
+        "esModuleInterop": true,
+        "allowJs": true
     },
     "include": ["src/**/*"],
-    "exclude": ["src/proto/**/*"]
+    "exclude": ["src/wmmt/**/*"]
 }

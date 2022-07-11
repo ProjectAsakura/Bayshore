@@ -1,10 +1,11 @@
 {
     "compilerOptions": {
         "sourceMap": true,
-        "outDir": "dist/proto",
+        "outDir": "dist/wmmt",
         "strict": true,
         "lib": ["esnext"],
-        "esModuleInterop": true
+        "esModuleInterop": true,
+        "allowJs": true
     },
-    "include": ["src/proto/**/*"]
+    "include": ["src/wmmt/**/*"]
 }
