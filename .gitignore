@@ -5,3 +5,5 @@ proto/
 .env
 dist/
 server_wangan.key
+cert.pfx
+key.pem

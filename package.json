@@ -21,8 +21,10 @@
   },
   "dependencies": {
     "@prisma/client": "^4.0.0",
+    "@types/pem": "^1.9.6",
     "body-parser": "^1.20.0",
     "express": "^4.18.1",
+    "pem": "^1.14.6",
     "protobufjs": "^7.0.0",
     "ts-proto": "^1.117.0"
   }

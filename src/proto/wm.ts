@@ -2974,15 +2974,9 @@ export const RegisterSystemInfoResponse = {
     message: RegisterSystemInfoResponse,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.error !== 0) {
       writer.uint32(8).int32(message.error);
-    }
-    if (message.regionId !== 0) {
       writer.uint32(16).uint32(message.regionId);
-    }
-    if (message.placeId !== "") {
       writer.uint32(26).string(message.placeId);
-    }
     writer.uint32(34).fork();
     for (const v of message.allowedClientLogTypes) {
       writer.int32(v);
@@ -3012,12 +3006,8 @@ export const RegisterSystemInfoResponse = {
         writer.uint32(218).fork()
       ).ldelim();
     }
-    if (message.ghostSelectionMinRedoWait !== 0) {
       writer.uint32(224).uint32(message.ghostSelectionMinRedoWait);
-    }
-    if (message.ghostSelectionMaxRedoWait !== 0) {
       writer.uint32(232).uint32(message.ghostSelectionMaxRedoWait);
-    }
     return writer;
   },
 
@@ -17713,18 +17703,10 @@ function createBasePlace(): Place {
 
 export const Place = {
   encode(message: Place, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.placeId !== "") {
-      writer.uint32(10).string(message.placeId);
-    }
-    if (message.shopName !== "") {
-      writer.uint32(18).string(message.shopName);
-    }
-    if (message.regionId !== 0) {
-      writer.uint32(24).uint32(message.regionId);
-    }
-    if (message.country !== "") {
-      writer.uint32(34).string(message.country);
-    }
+    writer.uint32(10).string(message.placeId);
+    writer.uint32(18).string(message.shopName);
+    writer.uint32(24).uint32(message.regionId);
+    writer.uint32(34).string(message.country);
     return writer;
   },
 

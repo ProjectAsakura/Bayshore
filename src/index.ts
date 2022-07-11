@@ -16,6 +16,11 @@ app.use(bodyParser.raw({
     type: '*/*'
 }));
 
+app.use((req, res, next) => {
+    console.log(`${req.method} ${req.url}`);
+    next()
+});
+
 let dirs = fs.readdirSync('dist/modules');
 for (let i of dirs) {
     if (i.endsWith('.js')) {
@@ -30,8 +35,8 @@ app.all('*', (req, res) => {
 })
 
 https.createServer({
-    key: fs.readFileSync('server_wangan.key'),
-    cert: fs.readFileSync('server_wangan.crt')
+    key: fs.readFileSync('./server_wangan.key'),
+    cert: fs.readFileSync('./server_wangan.crt')
 }, app).listen(9002, () => {
     console.log('Server listening on port 9002!');
 })
