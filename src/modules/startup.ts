@@ -8,7 +8,7 @@ export default class StartupModule extends Module {
             let msg = {
                 error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
                 regionId: 1,
-                placeId: "123",
+                placeId: "JPN0123",
                 allowedClientLogTypes: [],
                 ghostSelectionMinRedoWait: 30,
                 ghostSelectionMaxRedoWait: 4000,
@@ -33,17 +33,18 @@ export default class StartupModule extends Module {
             console.log('place list');
             let places: wm.wm.protobuf.Place[] = [];
             places.push(new wm.wm.protobuf.Place({
-                placeId: "123",
+                placeId: "JPN0123",
                 regionId: 1,
                 shopName: "WMMT6",
                 country: "JPN"
             }));
             let resp = wm.wm.protobuf.PlaceList.encode({places});
+            let end = resp.finish();
             let r = res
                 .header('Server', 'v388 wangan')
                 .header('Content-Type', 'application/x-protobuf; revision=8053')
                 .status(200);
-            r.send(resp);
+            r.send(Buffer.from(end));
         })
     }
 }
