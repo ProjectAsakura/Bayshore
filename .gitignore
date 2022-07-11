@@ -1,0 +1,4 @@
+node_modules/
+proto/
+!proto_src/proto/
+.env
