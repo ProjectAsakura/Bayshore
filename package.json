@@ -7,6 +7,9 @@
   "author": "Luna and Project Asakura",
   "license": "MIT",
   "private": false,
+  "scripts": {
+    "dev": "tsc && node dist"
+  },
   "devDependencies": {
     "@types/express": "^4.17.13",
     "@types/node": "^18.0.3",
