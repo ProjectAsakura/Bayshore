@@ -3,10 +3,18 @@
 
 import express from 'express';
 import {PrismaClient} from '@prisma/client';
-import https from 'https';
+import https, {globalAgent} from 'https';
 import fs from 'fs';
+import bodyParser from 'body-parser';
+globalAgent.options.keepAlive = true;
+
+// @ts-ignore
+require('http').globalAgent.options.keepAlive = true;
 
 const app = express();
+app.use(bodyParser.raw({
+    type: '*/*'
+}));
 
 let dirs = fs.readdirSync('dist/modules');
 for (let i of dirs) {

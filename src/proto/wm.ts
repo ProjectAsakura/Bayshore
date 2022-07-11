@@ -1418,7 +1418,7 @@ export interface RegisterSystemInfoResponse {
   featureVersion: GameFeatureVersion | undefined;
   latestCompetitionId: number;
   competitionSchedule: GhostCompetitionSchedule | undefined;
-  scratchNotes: string;
+  scratchNotes: string | undefined;
   inviteFriendCampaignSchedule: InviteFriendCampaignSchedule | undefined;
   ghostSelectionMinRedoWait: number;
   ghostSelectionMaxRedoWait: number;
@@ -3003,8 +3003,8 @@ export const RegisterSystemInfoResponse = {
         writer.uint32(98).fork()
       ).ldelim();
     }
-    if (message.scratchNotes !== "") {
-      writer.uint32(154).string(message.scratchNotes);
+    if (message.scratchNotes !== undefined && message.scratchNotes !== "") {
+      writer.uint32(154).string(message.scratchNotes as any as string);
     }
     if (message.inviteFriendCampaignSchedule !== undefined) {
       InviteFriendCampaignSchedule.encode(
