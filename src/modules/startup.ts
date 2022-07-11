@@ -25,6 +25,7 @@ export default class StartupModule extends Module {
             let r = res
                 .header('Server', 'v388 wangan')
                 .header('Content-Type', 'application/x-protobuf; revision=8053')
+                .header('Content-Length', end.length.toString())
                 .status(200);
             r.send(Buffer.from(end));
         })
@@ -43,6 +44,7 @@ export default class StartupModule extends Module {
             let r = res
                 .header('Server', 'v388 wangan')
                 .header('Content-Type', 'application/x-protobuf; revision=8053')
+                .header('Content-Length', end.length.toString())
                 .status(200);
             r.send(Buffer.from(end));
         })
