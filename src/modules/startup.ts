@@ -48,5 +48,22 @@ export default class StartupModule extends Module {
                 .status(200);
             r.send(Buffer.from(end));
         })
+
+        app.post('/method/ping', (req, res) => {
+            console.log('ping');
+            let body = wm.wm.protobuf.PingRequest.decode(req.body);
+            let ping = {
+                error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+                pong: body.ping || 1
+            };
+            let resp = wm.wm.protobuf.PingResponse.encode(ping);
+            let end = resp.finish();
+            let r = res
+                .header('Server', 'v388 wangan')
+                .header('Content-Type', 'application/x-protobuf; revision=8053')
+                .header('Content-Length', end.length.toString())
+                .status(200);
+            r.send(Buffer.from(end));
+        })
     }
 }

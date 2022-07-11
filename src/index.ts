@@ -31,7 +31,7 @@ for (let i of dirs) {
 }
 
 app.all('*', (req, res) => {
-    console.log(`CATCH-ALL: ${req.method} ${req.originalUrl}`);
+    res.status(200).end();
 })
 
 https.createServer({
