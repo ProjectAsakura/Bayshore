@@ -2,3 +2,5 @@ node_modules/
 proto/
 !proto_src/proto/
 .env
+dist/
+server_wangan.key
