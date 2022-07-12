@@ -24,6 +24,9 @@
     "@types/pem": "^1.9.6",
     "body-parser": "^1.20.0",
     "express": "^4.18.1",
+    "form-urlencoded": "^6.0.6",
+    "iconv-lite": "^0.6.3",
+    "moment": "^2.29.4",
     "pem": "^1.14.6",
     "protobufjs": "^7.0.0",
     "ts-proto": "^1.117.0"

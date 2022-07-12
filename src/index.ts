@@ -6,18 +6,40 @@ import {PrismaClient} from '@prisma/client';
 import https, {globalAgent} from 'https';
 import fs from 'fs';
 import bodyParser from 'body-parser';
+import AllnetModule from './allnet';
+import MuchaModule from './mucha';
+import { Config } from './config';
 globalAgent.options.keepAlive = true;
 
 // @ts-ignore
 require('http').globalAgent.options.keepAlive = true;
+
+const PORT_ALLNET = 80;
+const PORT_MUCHA = 10082;
+const PORT_BNGI = 9002;
+
+Config.load();
 
 const app = express();
 app.use(bodyParser.raw({
     type: '*/*'
 }));
 
+const muchaApp = express();
+const allnetApp = express();
+
 app.use((req, res, next) => {
-    console.log(`${req.method} ${req.url}`);
+    console.log(`[  MAIN] ${req.method} ${req.url}`);
+    next()
+});
+
+muchaApp.use((req, res, next) => {
+    console.log(`[ MUCHA] ${req.method} ${req.url}`);
+    next()
+});
+
+allnetApp.use((req, res, next) => {
+    console.log(`[ALLNET] ${req.method} ${req.url}`);
     next()
 });
 
@@ -34,9 +56,20 @@ app.all('*', (req, res) => {
     res.status(200).end();
 })
 
-https.createServer({
-    key: fs.readFileSync('./server_wangan.key'),
-    cert: fs.readFileSync('./server_wangan.crt')
-}, app).listen(9002, () => {
-    console.log('Server listening on port 9002!');
+new AllnetModule().register(allnetApp);
+new MuchaModule().register(muchaApp);
+
+let key = fs.readFileSync('./server_wangan.key');
+let cert = fs.readFileSync('./server_wangan.crt');
+
+https.createServer({key, cert}, allnetApp).listen(PORT_ALLNET, () => {
+    console.log(`ALL.net server listening on port ${PORT_ALLNET}!`);
+})
+
+https.createServer({key, cert}, muchaApp).listen(PORT_MUCHA, () => {
+    console.log(`Mucha server listening on port ${PORT_MUCHA}!`);
+})
+
+https.createServer({key, cert}, app).listen(PORT_BNGI, () => {
+    console.log(`Game server listening on port ${PORT_BNGI}!`);
 })
