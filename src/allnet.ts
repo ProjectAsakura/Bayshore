@@ -15,7 +15,9 @@ export default class AllnetModule extends Module {
             type: '*/*'
         }));
 
-        app.use("/sys/servlet/PowerOn", async function(req, res, next) {
+        app.use("/sys/servlet/PowerOn", function(req, res, next) {
+            console.log('amauthd');
+
             if (req.method !== "POST") {
                 return res.status(405).end();
             }

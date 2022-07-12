@@ -4,6 +4,7 @@
 import express from 'express';
 import {PrismaClient} from '@prisma/client';
 import https, {globalAgent} from 'https';
+import http from 'http';
 import fs from 'fs';
 import bodyParser from 'body-parser';
 import AllnetModule from './allnet';
@@ -62,14 +63,14 @@ new MuchaModule().register(muchaApp);
 let key = fs.readFileSync('./server_wangan.key');
 let cert = fs.readFileSync('./server_wangan.crt');
 
-https.createServer({key, cert}, allnetApp).listen(PORT_ALLNET, () => {
+http.createServer(allnetApp).listen(PORT_ALLNET, '0.0.0.0', 511, () => {
     console.log(`ALL.net server listening on port ${PORT_ALLNET}!`);
 })
 
-https.createServer({key, cert}, muchaApp).listen(PORT_MUCHA, () => {
+https.createServer({key, cert}, muchaApp).listen(PORT_MUCHA, '0.0.0.0', 511, () => {
     console.log(`Mucha server listening on port ${PORT_MUCHA}!`);
 })
 
-https.createServer({key, cert}, app).listen(PORT_BNGI, () => {
+https.createServer({key, cert}, app).listen(PORT_BNGI, '0.0.0.0', 511, () => {
     console.log(`Game server listening on port ${PORT_BNGI}!`);
 })
