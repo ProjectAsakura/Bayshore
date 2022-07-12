@@ -1,7 +1,7 @@
 // Bayshore - a Wangan Midnight Maximum Tune 6 private server.
 // Made with love by Luna, and part of Project Asakura.
 
-import express from 'express';
+import express, { Router } from 'express';
 import {PrismaClient} from '@prisma/client';
 import https, {globalAgent} from 'https';
 import http from 'http';
@@ -14,6 +14,8 @@ globalAgent.options.keepAlive = true;
 
 // @ts-ignore
 require('http').globalAgent.options.keepAlive = true;
+
+const appRouter = Router();
 
 const PORT_ALLNET = 80;
 const PORT_MUCHA = 10082;
@@ -49,9 +51,12 @@ for (let i of dirs) {
     if (i.endsWith('.js')) {
         let mod = require(`./modules/${i.substring(0, i.length - 3)}`); // .js extension
         let inst = new mod.default();
-        inst.register(app);
+        inst.register(appRouter);
     }
 }
+
+app.use('/', appRouter);
+app.use('/wmmt6/', appRouter);
 
 app.all('*', (req, res) => {
     res.status(200).end();
