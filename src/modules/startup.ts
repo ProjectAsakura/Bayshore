@@ -1,5 +1,6 @@
 import { Application } from "express";
 import {Module} from "module";
+import { Config } from "../config";
 import * as wm from "../wmmt/wm.proto";
 
 export default class StartupModule extends Module {
@@ -36,7 +37,7 @@ export default class StartupModule extends Module {
             places.push(new wm.wm.protobuf.Place({
                 placeId: "JPN0123",
                 regionId: 1,
-                shopName: "WMMT6",
+                shopName: Config.getConfig().shopName,
                 country: "JPN"
             }));
             let resp = wm.wm.protobuf.PlaceList.encode({places});
