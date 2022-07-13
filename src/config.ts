@@ -3,6 +3,8 @@ import fs from 'fs';
 export interface ConfigFile {
     shopName: string;
     shopNickname: string;
+    regionName: string;
+    serverIp?: string;
 }
 
 export class Config {
@@ -16,6 +18,9 @@ export class Config {
     }
 
     static getConfig(): ConfigFile {
+        if (!this.cfg)
+            this.load();
+        
         return this.cfg;
     }
 }

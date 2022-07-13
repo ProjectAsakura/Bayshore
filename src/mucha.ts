@@ -8,7 +8,7 @@ const PORT = 10082;
 
 export default class MuchaModule extends Module {
     register(app: Application): void {
-        const URL_BASE = `https://localhost:${PORT}`
+        const URL_BASE = `https://${Config.getConfig().serverIp || "localhost"}:${PORT}`
 
         app.use(express.urlencoded({
             type: '*/*',

@@ -6,8 +6,8 @@ import iconv from "iconv-lite";
 import { Config } from "./config";
 
 // TODO: Move this into the config
-const STARTUP_URI = "https://localhost:9002";
-const STARTUP_HOST = "localhost:9002";
+const STARTUP_URI = `https://${Config.getConfig().serverIp || "localhost"}:9002`;
+const STARTUP_HOST = `${Config.getConfig().serverIp || "localhost"}:9002`;
 
 export default class AllnetModule extends Module {
     register(app: Application): void {
@@ -71,6 +71,7 @@ export default class AllnetModule extends Module {
 
             let shopName = Config.getConfig().shopName;
             let shopNick = Config.getConfig().shopNickname;
+            let regionName = Config.getConfig().regionName;
         
             const resParams = {
                 stat: 1,
@@ -80,7 +81,7 @@ export default class AllnetModule extends Module {
                 name: shopName,
                 nickname: shopNick,
                 region0: "1",
-                region_name0: "W",
+                region_name0: regionName,
                 region_name1: "X",
                 region_name2: "Y",
                 region_name3: "Z",

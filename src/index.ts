@@ -9,7 +9,6 @@ import fs from 'fs';
 import bodyParser from 'body-parser';
 import AllnetModule from './allnet';
 import MuchaModule from './mucha';
-import { Config } from './config';
 globalAgent.options.keepAlive = true;
 
 // @ts-ignore
@@ -20,8 +19,6 @@ const appRouter = Router();
 const PORT_ALLNET = 80;
 const PORT_MUCHA = 10082;
 const PORT_BNGI = 9002;
-
-Config.load();
 
 const app = express();
 app.use(bodyParser.raw({

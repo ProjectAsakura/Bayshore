@@ -1,4 +1,6 @@
 {
     "shopName": "Bayshore",
-    "shopNickname": "BSH"
+    "shopNickname": "BSH",
+    "regionName": "Bayshore",
+    "serverIp": "127.0.0.1"
 }
