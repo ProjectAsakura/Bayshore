@@ -45,7 +45,7 @@ export default class GameModule extends Module {
 		
         //banapass loading
 		app.post('/method/load_user', (req, res) => {
-		//everything after this should be replaced with values from a database, but thats above my pay grade :P
+			//everything after this should be replaced with values from a database, but thats above my pay grade :P
             let msg = {
                 error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
 				accessCode: "12345678901234567890",
@@ -54,7 +54,7 @@ export default class GameModule extends Module {
 				userId: 0,
 				numOfOwnedCars: 1,
 				spappState: 0,
-				transferState: 0,
+				transferState: 1,
 				cars: [
 					{
 						carId: 8,
@@ -122,8 +122,17 @@ export default class GameModule extends Module {
                 error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
 				transferNotice: {
 					needToSeeTransferred: false,
+					totalMaxiGold: 0,
+					numOfPorscheCars: 0,
+					porscheModels: [],
+					hasR35: false,
 				},
-				
+				availableTickets: [
+					{
+						category: wm.wm.protobuf.ItemCategory.CAT_CAR_TICKET,
+						itemId: 1
+					}
+				]
             }
             let resp = wm.wm.protobuf.LoadDriveInformationResponse.encode(msg);
             let end = resp.finish();
@@ -140,42 +149,42 @@ export default class GameModule extends Module {
                 error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
 				//everything after this should be replaced with values from a database, but thats above my pay grade :P
 				car: {
-						carId: 8,
-						userId: 0,
-						regionId: 0,
-						name: "a",
-						manufacturer: 0,
-						model: 0,
-						visualModel: 8,
-						defaultColor: 0,
-						customColor: 0,
-						wheel: 0,
-						wheelColor: 0,
-						aero: 0,
-						bonnet: 0,
-						wing: 0,
-						mirror: 0,
-						neon: 0,
-						trunk: 0,
-						plate: 0,
-						plateColor: 0,
-						plateNumber: 0,
-						tunePower: 17,
-						tuneHandling: 17,
-						title: "Beli Kabel LAN",
-						level: 0,
-						windowSticker: false,
-						rivalMarker: 0,
-						lastPlayedAt: 0,
-						aura: 0,
-						auraMotif: 0,
-						ghostLevel: 0,
-						country: "JPN",
-						searchCode: "a",
+					carId: 1,
+					userId: 0,
+					regionId: 0,
+					name: "a",
+					manufacturer: 0,
+					model: 0,
+					visualModel: 8,
+					defaultColor: 0,
+					customColor: 0,
+					wheel: 0,
+					wheelColor: 0,
+					aero: 0,
+					bonnet: 0,
+					wing: 0,
+					mirror: 0,
+					neon: 0,
+					trunk: 0,
+					plate: 0,
+					plateColor: 0,
+					plateNumber: 0,
+					tunePower: 17,
+					tuneHandling: 17,
+					title: "Beli Kabel LAN",
+					level: 0,
+					windowSticker: false,
+					rivalMarker: 0,
+					lastPlayedAt: 0,
+					aura: 0,
+					auraMotif: 0,
+					ghostLevel: 0,
+					country: "JPN",
+					searchCode: "a",
 				},
 				tuningPoint: 34,
 				odometer: 0,
-				playCount: 10,
+				playCount: 3,
 				earnedCustomColor: false,
 				setting:
 				{
@@ -190,36 +199,36 @@ export default class GameModule extends Module {
 					nameplateColor: 0,
 					terminalBackground: 0,
 				},
-				vsPlayCount: 69699696,
-				vsBurstCount: 69696969,
-				vsStarCount: 696969,
-				vsStarCountMax: 6969696,
-				vsCoolOrWild: 0,
+				vsPlayCount: 1,
+				vsBurstCount: 1,
+				vsStarCount: 1,
+				vsStarCountMax: 1,
+				vsCoolOrWild: 1,
 				vsSmoothOrRough: 0,
-				vsTripleStarMedals: 69699696,
+				vsTripleStarMedals: 1,
 				vsDoubleStarMedals: 0,
 				vsSingleStarMedals: 0,
 				vsPlainMedals: 0,
-				rgPlayCount: 696996,
-				rgWinCount: 69696969,
-				rgTrophy: 453453,
+				rgPlayCount: 1,
+				rgWinCount: 1,
+				rgTrophy: 1,
 				rgPreviousVersionPlayCount: 0,
 				rgScore: 0,
-				rgStamp: 12345,
+				rgStamp: 1,
 				rgAcquireAllCrowns: true,
 				dressupLevel: 63,
 				dressupPoint: 0,
-				stPlayCount: 0,
+				stPlayCount: 1,
 				stClearBits: 0,
 				stClearDivCount: 0,
-				stClearCount: 0,
+				stClearCount: 1,
 				stLoseBits: 0,
-				stConsecutiveWins: 699999,
-				stConsecutiveWinsMax: 420,
+				stConsecutiveWins: 69,
+				stConsecutiveWinsMax: 69,
 				stCompleted_100Episodes: false,
 				auraMotifAutoChange: false,
 				screenshotCount: 0,
-				transferred: true,
+				transferred: false,
             }
             let resp = wm.wm.protobuf.LoadCarResponse.encode(msg);
             let end = resp.finish();
@@ -265,7 +274,7 @@ export default class GameModule extends Module {
             let msg = {
                 error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
 				userId: 69,
-				carId: 8,
+				carId: 1,
             }
             let resp = wm.wm.protobuf.CreateCarResponse.encode(msg);
             let end = resp.finish();

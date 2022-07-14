@@ -56,6 +56,7 @@ app.use('/', appRouter);
 app.use('/wmmt6/', appRouter);
 
 app.all('*', (req, res) => {
+    console.log(`[  MAIN] ${req.method} ${req.url} is unhandled`);
     res.status(200).end();
 })
 
