@@ -22,24 +22,6 @@ export default class GameModule extends Module {
         })
 		
 		//terminal specific
-		app.post('/method/start_transfer', (req, res) => {
-            let msg = {
-                error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
-				userId: 0,
-				
-            }
-            let resp = wm.wm.protobuf.StartTransferResponse.encode(msg);
-            let end = resp.finish();
-            let r = res
-                .header('Server', 'v388 wangan')
-                .header('Content-Type', 'application/x-protobuf; revision=8053')
-                .header('Content-Length', end.length.toString())
-                .status(200);
-            r.send(Buffer.from(end));
-        })
-		
-        //banapass loading
-		
 		app.post('/method/load_terminal_information', (req, res) => {
             let msg = {
                 error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
@@ -60,6 +42,58 @@ export default class GameModule extends Module {
                 .status(200);
             r.send(Buffer.from(end));
         })
+		
+		app.post('/method/load_scratch_information', (req, res) => {
+            let msg = {
+                error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+				currentSheet: 21,
+				numOfScratched: 0,
+            }
+            let resp = wm.wm.protobuf.LoadScratchInformationResponse.encode(msg);
+            let end = resp.finish();
+            let r = res
+                .header('Server', 'v388 wangan')
+                .header('Content-Type', 'application/x-protobuf; revision=8053')
+                .header('Content-Length', end.length.toString())
+                .status(200);
+            r.send(Buffer.from(end));
+        })
+		
+		app.post('/method/update_car', (req, res) => {
+            let msg = {
+                error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+            }
+            let resp = wm.wm.protobuf.UpdateCarResponse.encode(msg);
+            let end = resp.finish();
+            let r = res
+                .header('Server', 'v388 wangan')
+                .header('Content-Type', 'application/x-protobuf; revision=8053')
+                .header('Content-Length', end.length.toString())
+                .status(200);
+            r.send(Buffer.from(end));
+        })
+		
+		//banapass loading
+		
+		app.post('/method/start_transfer', (req, res) => {
+            let msg = {
+                error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+				userId: 0,
+				
+            }
+            let resp = wm.wm.protobuf.StartTransferResponse.encode(msg);
+            let end = resp.finish();
+            let r = res
+                .header('Server', 'v388 wangan')
+                .header('Content-Type', 'application/x-protobuf; revision=8053')
+                .header('Content-Length', end.length.toString())
+                .status(200);
+            r.send(Buffer.from(end));
+        })
+		
+		
+		
+
 		
 		app.post('/method/load_user', (req, res) => {
 		//everything after this should be replaced with values from a database, but thats above my pay grade :P
