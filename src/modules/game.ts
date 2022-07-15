@@ -45,7 +45,12 @@ export default class GameModule extends Module {
 						break;
 					}
 			}
-			let storedTutorials = new Array(36).fill(false);
+			let user = await prisma.user.findFirst({
+				where: {
+					id: body.car!.userId!
+				}
+			});
+			let storedTutorials = user!.tutorials;
 			body.confirmedTutorials.forEach(
 				(idx) => storedTutorials[idx] = true
 			);
