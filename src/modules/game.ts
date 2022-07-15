@@ -45,6 +45,19 @@ export default class GameModule extends Module {
 						break;
 					}
 			}
+			let storedTutorials = new Array(36).fill(false);
+			body.confirmedTutorials.forEach(
+				(idx) => storedTutorials[idx] = true
+			);
+			await prisma.user.update({
+				where: {
+					id: body.car!.userId!
+				},
+				data: {
+					tutorials: storedTutorials
+				}
+			});
+
 			let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
 			}
