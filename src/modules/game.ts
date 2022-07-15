@@ -7,6 +7,56 @@ import { User } from "@prisma/client";
 
 export default class GameModule extends Module {
     register(app: Application): void {
+		app.post('/method/save_game_result', async (req, res) => {
+			let body = wm.wm.protobuf.SaveGameResultRequest.decode(req.body);
+			let car = await prisma.car.findFirst({
+				where: {
+					carId: body.carId
+				}
+			});
+			switch (body.gameMode) {
+				case wm.wm.protobuf.GameMode.MODE_STORY:
+					{
+						let maxConsecutiveWins = car!.stConsecutiveWinsMax;
+						if (maxConsecutiveWins > body.stResult!.stConsecutiveWins!) {
+							maxConsecutiveWins = body.stResult!.stConsecutiveWins!;
+						}
+						await prisma.car.update({
+							where: {
+								carId: body.carId,
+							},
+							data: {
+								title: body.car!.title!,
+								level: body.car!.level!,
+								tunePower: body.car!.tunePower!,
+								tuneHandling: body.car!.tuneHandling!,
+								stClearBits: body.stResult!.stClearBits!,
+								tuningPoints: body.stResult!.tuningPoint!,
+								stPlayCount: body.stResult!.stPlayCount,
+								stClearCount: body.stResult!.stClearCount!,
+								stClearDivCount: body.stResult!.stClearDivCount!,
+								stCompleted100Episodes: body.stResult!.stCompleted_100Episodes!,
+								stConsecutiveWins: body.stResult!.stConsecutiveWins!,
+								stConsecutiveWinsMax: maxConsecutiveWins,
+								odometer: body.odometer,
+							}
+						})
+						break;
+					}
+			}
+			let msg = {
+				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+			}
+			let resp = wm.wm.protobuf.SaveGameResultResponse.encode(msg);
+			let end = resp.finish();
+			let r = res
+				.header('Server', 'v388 wangan')
+				.header('Content-Type', 'application/x-protobuf; revision=8053')
+				.header('Content-Length', end.length.toString())
+				.status(200);
+			r.send(Buffer.from(end));
+		})
+
 		app.post('/method/load_user', async (req, res) => {
 			let body = wm.wm.protobuf.LoadUserRequest.decode(req.body);
 			let user = await prisma.user.findFirst({
@@ -69,9 +119,9 @@ export default class GameModule extends Module {
 							false, //TUTORIAL_ID_UNUSED_30
 							false, //TUTORIAL_ID_DRESS_UP
 							false, //TUTORIAL_ID_MULTI_GHOST
-							false, //TUTORIAL_ID_STORY_NEW_FEATURE
-							false, //TUTORIAL_ID_GHOST_NEW_FEATURE
-							false, //TUTORIAL_ID_GHOST_REGION_MAP
+							true, //TUTORIAL_ID_STORY_NEW_FEATURE
+							true, //TUTORIAL_ID_GHOST_NEW_FEATURE
+							true, //TUTORIAL_ID_GHOST_REGION_MAP
 						],
 					}
 				});
