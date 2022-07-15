@@ -105,7 +105,6 @@ export default class GameModule extends Module {
 			if (user.userBanned) {
 				msg.error = wm.wm.protobuf.ErrorCode.ERR_ID_BANNED;
 			}
-			console.log(msg);
 			let resp = wm.wm.protobuf.LoadUserResponse.encode(msg);
 			let end = resp.finish();
 			let r = res
@@ -271,7 +270,6 @@ export default class GameModule extends Module {
 
 		app.post('/method/create_car', async (req, res) => {
 			let body = wm.wm.protobuf.CreateCarRequest.decode(req.body);
-			console.log(body);
 			let user: User | null;
 			if (body.userId) {
 				user = await prisma.user.findFirst({
@@ -287,7 +285,6 @@ export default class GameModule extends Module {
 					},
 				})
 			}
-			console.log(user);
 			if (!user) throw new Error();
 			let settings = await prisma.carSettings.create({
 				data: {}
