@@ -39,6 +39,7 @@ export default class GameModule extends Module {
 								stConsecutiveWins: body.stResult!.stConsecutiveWins!,
 								stConsecutiveWinsMax: maxConsecutiveWins,
 								odometer: body.odometer,
+								playCount: body.playCount
 							}
 						})
 						break;
