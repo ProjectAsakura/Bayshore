@@ -2,10 +2,138 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
-  url = "file:./bayshore.db"
+    provider = "postgresql"
+    url      = env("POSTGRES_URL")
+}
+
+model User {
+    id            Int        @id @default(autoincrement())
+    chipId        String     @unique
+    accessCode    String
+    cars          Car[]
+    unusedTickets UserItem[]
+    tutorials     Boolean[]
+    userBanned    Boolean    @default(false)
+}
+
+model UserItem {
+    dbId     Int  @id @default(autoincrement())
+    category Int
+    itemId   Int
+    User     User @relation(fields: [userId], references: [id])
+    userId   Int
+}
+
+model Car {
+    user   User @relation(fields: [userId], references: [id])
+    userId Int
+
+    // This is the Car object itself
+    id                  Int     @id @default(autoincrement())
+    name                String
+    manufacturer        Int
+    model               Int
+    visualModel         Int
+    customColor         Int     @default(0)
+    defaultColor        Int
+    wheel               Int     @default(0)
+    wheelColor          Int     @default(0)
+    aero                Int     @default(0)
+    bonnet              Int     @default(0)
+    wing                Int     @default(0)
+    mirror              Int     @default(0)
+    neon                Int     @default(0)
+    trunk               Int     @default(0)
+    plate               Int     @default(0)
+    plateColor          Int     @default(0)
+    plateNumber         Int     @default(0)
+    tunePower           Int     @default(0)
+    tuneHandling        Int     @default(0)
+    title               String  @default("New Car")
+    level               Int     @default(0)
+    windowSticker       Boolean @default(false)
+    windowStickerString String  @default("ＷＡＮＧＡＮ")
+    windowStickerFont   Int     @default(0)
+    rivalMarker         Int     @default(0)
+    aura                Int     @default(0)
+    auraMotif           Int     @default(0)
+    ghostLevel          Int     @default(1)
+    searchCode          String  @default("000000")
+
+    // This is more data about the car
+    tuningPoints           Int         @default(0)
+    odometer               Int         @default(0)
+    playCount              Int         @default(0)
+    earnedCustomColor      Boolean     @default(false)
+    carSettingsDbId        Int         @unique
+    settings               CarSettings @relation(fields: [carSettingsDbId], references: [dbId])
+    vsPlayCount            Int         @default(0)
+    vsBurstCount           Int         @default(0)
+    vsStarCount            Int         @default(0)
+    vsCoolOrWild           Int         @default(0)
+    vsSmoothOrRough        Int         @default(0)
+    vsTripleStarMedals     Int         @default(0)
+    vsDoubleStarMedals     Int         @default(0)
+    vsSingleStarMedals     Int         @default(0)
+    vsPlainMedals          Int         @default(0)
+    ghostPlayCount         Int         @default(0)
+    ghostWinCount          Int         @default(0)
+    ghostTrophy            Int         @default(0)
+    ghostScore             Int         @default(0)
+    ghostStamp             Int         @default(0)
+    ghostAcquireAllCrowns  Boolean     @default(false)
+    dressupLevel           Int         @default(0)
+    dressupPoint           Int         @default(0)
+    stPlayCount            Int         @default(0)
+    stClearBits            Int         @default(0)
+    stClearDivCount        Int         @default(0)
+    stClearCount           Int         @default(0)
+    stLoseBits             Int         @default(0)
+    stConsecutiveWins      Int         @default(0)
+    stConsecutiveWinsMax   Int         @default(0)
+    stCompleted100Episodes Boolean     @default(false)
+
+    items CarItem[]
+
+    carStateDbId Int      @unique
+    state        CarState @relation(fields: [carStateDbId], references: [dbId])
+}
+
+model CarItem {
+    Car   Car? @relation(fields: [carId], references: [id])
+    carId Int  @unique
+
+    category Int
+    itemId   Int
+    amount   Int
+}
+
+model CarSettings {
+    dbId Int  @id @default(autoincrement())
+    car  Car?
+
+    view               Boolean @default(true)
+    transmission       Boolean @default(false)
+    retire             Boolean @default(false)
+    meter              Int     @default(0)
+    navigationMap      Boolean @default(true)
+    volume             Int     @default(1)
+    bgm                Int     @default(0)
+    nameplate          Int     @default(0)
+    nameplateColor     Int     @default(0)
+    terminalBackground Int     @default(0)
+}
+
+model CarState {
+    dbId Int  @id @default(autoincrement())
+    car  Car?
+
+    hasOpponentGhost Boolean @default(true)
+    eventJoined      Boolean @default(false)
+    transferred      Boolean @default(false)
+    toBeDeleted      Boolean @default(false)
 }

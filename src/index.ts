@@ -14,6 +14,8 @@ globalAgent.options.keepAlive = true;
 // @ts-ignore
 require('http').globalAgent.options.keepAlive = true;
 
+export const prisma = new PrismaClient();
+
 const appRouter = Router();
 
 const PORT_ALLNET = 80;
