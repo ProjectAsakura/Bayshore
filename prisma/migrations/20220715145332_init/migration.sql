@@ -22,7 +22,7 @@ CREATE TABLE "UserItem" (
 -- CreateTable
 CREATE TABLE "Car" (
     "userId" INTEGER NOT NULL,
-    "id" SERIAL NOT NULL,
+    "carId" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "manufacturer" INTEGER NOT NULL,
     "model" INTEGER NOT NULL,
@@ -51,7 +51,6 @@ CREATE TABLE "Car" (
     "aura" INTEGER NOT NULL DEFAULT 0,
     "auraMotif" INTEGER NOT NULL DEFAULT 0,
     "ghostLevel" INTEGER NOT NULL DEFAULT 1,
-    "searchCode" TEXT NOT NULL DEFAULT '000000',
     "tuningPoints" INTEGER NOT NULL DEFAULT 0,
     "odometer" INTEGER NOT NULL DEFAULT 0,
     "playCount" INTEGER NOT NULL DEFAULT 0,
@@ -66,12 +65,12 @@ CREATE TABLE "Car" (
     "vsDoubleStarMedals" INTEGER NOT NULL DEFAULT 0,
     "vsSingleStarMedals" INTEGER NOT NULL DEFAULT 0,
     "vsPlainMedals" INTEGER NOT NULL DEFAULT 0,
-    "ghostPlayCount" INTEGER NOT NULL DEFAULT 0,
-    "ghostWinCount" INTEGER NOT NULL DEFAULT 0,
-    "ghostTrophy" INTEGER NOT NULL DEFAULT 0,
-    "ghostScore" INTEGER NOT NULL DEFAULT 0,
-    "ghostStamp" INTEGER NOT NULL DEFAULT 0,
-    "ghostAcquireAllCrowns" BOOLEAN NOT NULL DEFAULT false,
+    "rgPlayCount" INTEGER NOT NULL DEFAULT 0,
+    "rgWinCount" INTEGER NOT NULL DEFAULT 0,
+    "rgTrophy" INTEGER NOT NULL DEFAULT 0,
+    "rgScore" INTEGER NOT NULL DEFAULT 0,
+    "rgStamp" INTEGER NOT NULL DEFAULT 0,
+    "rgAcquireAllCrowns" BOOLEAN NOT NULL DEFAULT false,
     "dressupLevel" INTEGER NOT NULL DEFAULT 0,
     "dressupPoint" INTEGER NOT NULL DEFAULT 0,
     "stPlayCount" INTEGER NOT NULL DEFAULT 0,
@@ -84,7 +83,7 @@ CREATE TABLE "Car" (
     "stCompleted100Episodes" BOOLEAN NOT NULL DEFAULT false,
     "carStateDbId" INTEGER NOT NULL,
 
-    CONSTRAINT "Car_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Car_pkey" PRIMARY KEY ("carId")
 );
 
 -- CreateTable
@@ -115,7 +114,7 @@ CREATE TABLE "CarSettings" (
 -- CreateTable
 CREATE TABLE "CarState" (
     "dbId" SERIAL NOT NULL,
-    "hasOpponentGhost" BOOLEAN NOT NULL DEFAULT true,
+    "hasOpponentGhost" BOOLEAN NOT NULL DEFAULT false,
     "eventJoined" BOOLEAN NOT NULL DEFAULT false,
     "transferred" BOOLEAN NOT NULL DEFAULT false,
     "toBeDeleted" BOOLEAN NOT NULL DEFAULT false,
@@ -148,4 +147,4 @@ ALTER TABLE "Car" ADD CONSTRAINT "Car_carSettingsDbId_fkey" FOREIGN KEY ("carSet
 ALTER TABLE "Car" ADD CONSTRAINT "Car_carStateDbId_fkey" FOREIGN KEY ("carStateDbId") REFERENCES "CarState"("dbId") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "CarItem" ADD CONSTRAINT "CarItem_carId_fkey" FOREIGN KEY ("carId") REFERENCES "Car"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "CarItem" ADD CONSTRAINT "CarItem_carId_fkey" FOREIGN KEY ("carId") REFERENCES "Car"("carId") ON DELETE RESTRICT ON UPDATE CASCADE;

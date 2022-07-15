@@ -33,7 +33,7 @@ model Car {
     userId Int
 
     // This is the Car object itself
-    id                  Int     @id @default(autoincrement())
+    carId               Int     @id @default(autoincrement())
     name                String
     manufacturer        Int
     model               Int
@@ -62,7 +62,6 @@ model Car {
     aura                Int     @default(0)
     auraMotif           Int     @default(0)
     ghostLevel          Int     @default(1)
-    searchCode          String  @default("000000")
 
     // This is more data about the car
     tuningPoints           Int         @default(0)
@@ -80,12 +79,12 @@ model Car {
     vsDoubleStarMedals     Int         @default(0)
     vsSingleStarMedals     Int         @default(0)
     vsPlainMedals          Int         @default(0)
-    ghostPlayCount         Int         @default(0)
-    ghostWinCount          Int         @default(0)
-    ghostTrophy            Int         @default(0)
-    ghostScore             Int         @default(0)
-    ghostStamp             Int         @default(0)
-    ghostAcquireAllCrowns  Boolean     @default(false)
+    rgPlayCount            Int         @default(0)
+    rgWinCount             Int         @default(0)
+    rgTrophy               Int         @default(0)
+    rgScore                Int         @default(0)
+    rgStamp                Int         @default(0)
+    rgAcquireAllCrowns     Boolean     @default(false)
     dressupLevel           Int         @default(0)
     dressupPoint           Int         @default(0)
     stPlayCount            Int         @default(0)
@@ -104,7 +103,7 @@ model Car {
 }
 
 model CarItem {
-    Car   Car? @relation(fields: [carId], references: [id])
+    Car   Car? @relation(fields: [carId], references: [carId])
     carId Int  @unique
 
     category Int
@@ -132,7 +131,7 @@ model CarState {
     dbId Int  @id @default(autoincrement())
     car  Car?
 
-    hasOpponentGhost Boolean @default(true)
+    hasOpponentGhost Boolean @default(false)
     eventJoined      Boolean @default(false)
     transferred      Boolean @default(false)
     toBeDeleted      Boolean @default(false)

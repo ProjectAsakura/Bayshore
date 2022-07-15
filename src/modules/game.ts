@@ -89,7 +89,6 @@ export default class GameModule extends Module {
 				r.send(Buffer.from(end));
 				return;
 			}
-			console.log(user);
 			let carStates = user.cars.map(e => e.state);
 			let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
@@ -106,6 +105,7 @@ export default class GameModule extends Module {
 			if (user.userBanned) {
 				msg.error = wm.wm.protobuf.ErrorCode.ERR_ID_BANNED;
 			}
+			console.log(msg);
 			let resp = wm.wm.protobuf.LoadUserResponse.encode(msg);
 			let end = resp.finish();
 			let r = res
@@ -201,7 +201,7 @@ export default class GameModule extends Module {
 			let body = wm.wm.protobuf.UpdateCarRequest.decode(req.body);
 			let car = await prisma.car.findFirst({
 				where: {
-					id: body.carId
+					carId: body.carId
 				},
 				include: {
 					settings: true
@@ -311,11 +311,11 @@ export default class GameModule extends Module {
 					carStateDbId: state.dbId
 				}
 			})
-			console.log(`Created new car ${car.name} with ID ${car.id}`);
+			console.log(`Created new car ${car.name} with ID ${car.carId}`);
             let msg = {
                 error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
 				userId: body.userId,
-				carId: car.id,
+				carId: car.carId,
             }
             let resp = wm.wm.protobuf.CreateCarResponse.encode(msg);
             let end = resp.finish();
@@ -326,6 +326,42 @@ export default class GameModule extends Module {
                 .status(200);
             r.send(Buffer.from(end));
         })
+
+		app.post('/method/load_car', async (req, res) => {
+			let body = wm.wm.protobuf.LoadCarRequest.decode(req.body);
+			let car = await prisma.car.findFirst({
+				where: {
+					carId: body.carId
+				},
+				include: {
+					settings: true,
+					items: true,
+				}
+			});
+			let msg = {
+				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+				car: {
+					...car!!
+				},
+				tuningPoint: car!!.tuningPoints,
+				setting: car!!.settings,
+				vsStarCountMax: car!!.vsStarCount,
+				rgPreviousVersionPlayCount: 0,
+				stCompleted_100Episodes: car!!.stCompleted100Episodes,
+				auraMotifAutoChange: false,
+				screenshotCount: 0,
+				transferred: false,
+				...car!!
+			};
+			let resp = wm.wm.protobuf.LoadCarResponse.encode(msg);
+			let end = resp.finish();
+			let r = res
+				.header('Server', 'v388 wangan')
+				.header('Content-Type', 'application/x-protobuf; revision=8053')
+				.header('Content-Length', end.length.toString())
+				.status(200);
+			r.send(Buffer.from(end));
+		});
 
 		app.post('/method/load_game_history', (req, res) => {
             let msg = {
