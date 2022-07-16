@@ -58,32 +58,42 @@ export default class GameModule extends Module {
 							if (currentRecord && body.taResult!.time > currentRecord.time)
 								break;
 
-							await prisma.timeAttackRecord.upsert({
-								create: {
-									carId: body.carId,
-									model: body.car!.model!,
-									section1Time: body!.taResult!.section_1Time,
-									section2Time: body!.taResult!.section_2Time,
-									section3Time: body!.taResult!.section_3Time,
-									section4Time: body!.taResult!.section_4Time,
-									section5Time: body!.taResult!.section_5Time,
-									section6Time: body!.taResult!.section_6Time,
-									section7Time: body!.taResult!.section_7Time,
-									...body!.taResult!
-								},
-								update: {
-									section1Time: body!.taResult!.section_1Time,
-									section2Time: body!.taResult!.section_2Time,
-									section3Time: body!.taResult!.section_3Time,
-									section4Time: body!.taResult!.section_4Time,
-									section5Time: body!.taResult!.section_5Time,
-									section6Time: body!.taResult!.section_6Time,
-									section7Time: body!.taResult!.section_7Time,
-									...body!.taResult!
-								},
+							if (!currentRecord) {
+								console.log('Creating new time attack record');
+								await prisma.timeAttackRecord.create({
+									data: {
+										carId: body.carId,
+										model: body.car!.model!,
+										time: body.taResult!.time,
+										isMorning: body.taResult!.isMorning,
+										course: body.taResult!.course,
+										section1Time: body!.taResult!.section_1Time,
+										section2Time: body!.taResult!.section_2Time,
+										section3Time: body!.taResult!.section_3Time,
+										section4Time: body!.taResult!.section_4Time,
+										section5Time: body!.taResult!.section_5Time,
+										section6Time: body!.taResult!.section_6Time,
+										section7Time: body!.taResult!.section_7Time,
+									}
+								});
+								break;
+							}
+
+							console.log('Updating time attack record...')
+							await prisma.timeAttackRecord.update({
 								where: {
 									// Could be null - if it is null, this will insert.
-									dbId: currentRecord?.dbId
+									dbId: currentRecord!.dbId
+								},
+								data: {
+									time: body.taResult!.time,
+									section1Time: body!.taResult!.section_1Time,
+									section2Time: body!.taResult!.section_2Time,
+									section3Time: body!.taResult!.section_3Time,
+									section4Time: body!.taResult!.section_4Time,
+									section5Time: body!.taResult!.section_5Time,
+									section6Time: body!.taResult!.section_6Time,
+									section7Time: body!.taResult!.section_7Time,
 								}
 							});
 						}
