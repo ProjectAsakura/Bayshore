@@ -160,6 +160,13 @@ export default class GameModule extends Module {
 				return;
 			}
 			let carStates = user.cars.map(e => e.state);
+			let tickets = user!.unusedTickets.map(x => {
+				return {
+					itemId: x.itemId,
+					userItemId: x.dbId,
+					category: x.category
+				}
+			});
 			let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
 				numOfOwnedCars: user.cars.length,
@@ -171,7 +178,7 @@ export default class GameModule extends Module {
 				banapassportAmId: 1,
 				mbId: 1,
 				tutorials: user.tutorials,
-				unusedCarTickets: user.unusedTickets,
+				unusedCarTickets: tickets,
 			}
 			if (user.userBanned) {
 				msg.error = wm.wm.protobuf.ErrorCode.ERR_ID_BANNED;
@@ -196,6 +203,13 @@ export default class GameModule extends Module {
 					unusedTickets: true,
 				}
 			});
+			let tickets = user!.unusedTickets.map(x => {
+				return {
+					itemId: x.itemId,
+					userItemId: x.dbId,
+					category: x.category
+				}
+			});
             let msg = {
                 error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,	
 				noticeWindow: [],
@@ -210,7 +224,7 @@ export default class GameModule extends Module {
 				restrictedModels: [],
 				announceFeature: false,
 				announceMobile: false,
-				availableTickets: user!.unusedTickets
+				availableTickets: tickets,
             }
             let resp = wm.wm.protobuf.LoadDriveInformationResponse.encode(msg);
             let end = resp.finish();
@@ -322,32 +336,6 @@ export default class GameModule extends Module {
             r.send(Buffer.from(end));
         })
 
-		// THE GAME DOES NOT FUCKING USE THIS
-		/*
-		app.post('/method/create_user', async (req, res) => {
-			let body = wm.wm.protobuf.CreateUserRequest.decode(req.body);
-			let user = await prisma.user.create({
-				data: {
-					chipId: body.cardChipId,
-					accessCode: body.accessCode,
-				}
-			});
-
-			let msg = {
-                error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
-				userId: user.id,
-            }
-            let resp = wm.wm.protobuf.CreateUserResponse.encode(msg);
-            let end = resp.finish();
-            let r = res
-                .header('Server', 'v388 wangan')
-                .header('Content-Type', 'application/x-protobuf; revision=8053')
-                .header('Content-Length', end.length.toString())
-                .status(200);
-            r.send(Buffer.from(end));
-		})
-		*/
-
 		app.post('/method/create_car', async (req, res) => {
 			let body = wm.wm.protobuf.CreateCarRequest.decode(req.body);
 			let user: User | null;
@@ -372,27 +360,63 @@ export default class GameModule extends Module {
 			let state = await prisma.carState.create({
 				data: {}
 			})
+			let fullTuneUsed = false;
+			if (body.userItemId) {
+				console.log(`Item used - ID ${body.userItemId}`);
+				let item = await prisma.userItem.delete({
+					where: {
+						dbId: body.userItemId
+					}
+				});
+				console.log(`Item category was ${item.category} and item game ID was ${item.itemId}`);
+				if (item.category == wm.wm.protobuf.ItemCategory.CAT_CAR_TICKET_FREE &&
+					item.itemId == 5)
+				{
+					// This is a full-tune ticket
+					fullTuneUsed = true;
+				}
+				console.log('Item deleted!');
+			}
+			let carInsert = {
+				userId: user.id,
+				manufacturer: body.car.manufacturer!,
+				defaultColor: body.car.defaultColor!,
+				model: body.car.model!,
+				visualModel: body.car.visualModel!,
+				name: body.car.name!,
+				title: body.car.title!,
+				level: body.car.level!,
+				tunePower: body.car.tunePower!,
+				tuneHandling: body.car.tuneHandling!,
+				carSettingsDbId: settings.dbId,
+				carStateDbId: state.dbId
+			};
+			let additionalInsert = {}
+			if (fullTuneUsed) {
+				// Bleh, this could be merged into the car query.
+				additionalInsert = {
+					stClearBits: 0,
+					stLoseBits: 0,
+					stClearCount: 80,
+					stClearDivCount: 4,
+					stConsecutiveWins: 80,
+					...carInsert
+				};
+			}
 			let car = await prisma.car.create({
 				data: {
-					userId: user.id,
-					manufacturer: body.car.manufacturer!!,
-					defaultColor: body.car.defaultColor!!,
-					model: body.car.model!!,
-					visualModel: body.car.visualModel!!,
-					name: body.car.name!!,
-					title: body.car.title!!,
-					level: body.car.level!!,
-					tunePower: body.car.tunePower!!,
-					tuneHandling: body.car.tuneHandling!!,
-					carSettingsDbId: settings.dbId,
-					carStateDbId: state.dbId
+					...carInsert,
+					...additionalInsert
 				}
-			})
+			});
+
 			console.log(`Created new car ${car.name} with ID ${car.carId}`);
             let msg = {
                 error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
-				userId: body.userId,
 				carId: car.carId,
+				car,
+				...carInsert,
+				...additionalInsert
             }
             let resp = wm.wm.protobuf.CreateCarResponse.encode(msg);
             let end = resp.finish();
@@ -418,17 +442,17 @@ export default class GameModule extends Module {
 			let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
 				car: {
-					...car!!
+					...car!
 				},
-				tuningPoint: car!!.tuningPoints,
-				setting: car!!.settings,
-				vsStarCountMax: car!!.vsStarCount,
+				tuningPoint: car!.tuningPoints,
+				setting: car!.settings,
+				vsStarCountMax: car!.vsStarCount,
 				rgPreviousVersionPlayCount: 0,
-				stCompleted_100Episodes: car!!.stCompleted100Episodes,
+				stCompleted_100Episodes: car!.stCompleted100Episodes,
 				auraMotifAutoChange: false,
 				screenshotCount: 0,
 				transferred: false,
-				...car!!
+				...car!
 			};
 			let resp = wm.wm.protobuf.LoadCarResponse.encode(msg);
 			let end = resp.finish();
