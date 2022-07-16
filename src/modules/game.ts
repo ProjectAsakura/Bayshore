@@ -89,6 +89,7 @@ export default class GameModule extends Module {
 							state: true,
 						}
 					},
+					unusedTickets: true
 				}
 			});
 			if (!user) {
@@ -169,7 +170,8 @@ export default class GameModule extends Module {
 				userId: user.id,
 				banapassportAmId: 1,
 				mbId: 1,
-				tutorials: user.tutorials
+				tutorials: user.tutorials,
+				unusedCarTickets: user.unusedTickets,
 			}
 			if (user.userBanned) {
 				msg.error = wm.wm.protobuf.ErrorCode.ERR_ID_BANNED;
