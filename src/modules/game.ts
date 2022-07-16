@@ -184,7 +184,16 @@ export default class GameModule extends Module {
 			r.send(Buffer.from(end));
 		})
 
-		app.post('/method/load_drive_information', (req, res) => {
+		app.post('/method/load_drive_information', async (req, res) => {
+			let body = wm.wm.protobuf.LoadDriveInformationRequest.decode(req.body);
+			let user = await prisma.user.findFirst({
+				where: {
+					id: body.userId,
+				},
+				include: {
+					unusedTickets: true,
+				}
+			});
             let msg = {
                 error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,	
 				noticeWindow: [],
@@ -199,7 +208,7 @@ export default class GameModule extends Module {
 				restrictedModels: [],
 				announceFeature: false,
 				announceMobile: false,
-				availableTickets: []
+				availableTickets: user!.unusedTickets
             }
             let resp = wm.wm.protobuf.LoadDriveInformationResponse.encode(msg);
             let end = resp.finish();
@@ -438,21 +447,6 @@ export default class GameModule extends Module {
 				stampSheetCount: 100,
             }
             let resp = wm.wm.protobuf.LoadGameHistoryResponse.encode(msg);
-            let end = resp.finish();
-            let r = res
-                .header('Server', 'v388 wangan')
-                .header('Content-Type', 'application/x-protobuf; revision=8053')
-                .header('Content-Length', end.length.toString())
-                .status(200);
-            r.send(Buffer.from(end));
-        })
-
-		// TODO: make this actually save lmao
-		app.post('/method/save_game_result', (req, res) => {
-            let msg = {
-                error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
-            }
-            let resp = wm.wm.protobuf.SaveGameResultResponse.encode(msg);
             let end = resp.finish();
             let r = res
                 .header('Server', 'v388 wangan')
