@@ -44,6 +44,51 @@ export default class GameModule extends Module {
 						})
 						break;
 					}
+				case wm.wm.protobuf.GameMode.MODE_TIME_ATTACK:
+					{
+						if (!body.retired && !body.timeup) {
+							let currentRecord = await prisma.timeAttackRecord.findFirst({
+								where: {
+									carId: body.carId,
+									model: body.car!.model!,
+								}
+							});
+
+							// Make sure we don't save a worse record!
+							if (currentRecord && body.taResult!.time > currentRecord.time)
+								break;
+
+							await prisma.timeAttackRecord.upsert({
+								create: {
+									carId: body.carId,
+									model: body.car!.model!,
+									section1Time: body!.taResult!.section_1Time,
+									section2Time: body!.taResult!.section_2Time,
+									section3Time: body!.taResult!.section_3Time,
+									section4Time: body!.taResult!.section_4Time,
+									section5Time: body!.taResult!.section_5Time,
+									section6Time: body!.taResult!.section_6Time,
+									section7Time: body!.taResult!.section_7Time,
+									...body!.taResult!
+								},
+								update: {
+									section1Time: body!.taResult!.section_1Time,
+									section2Time: body!.taResult!.section_2Time,
+									section3Time: body!.taResult!.section_3Time,
+									section4Time: body!.taResult!.section_4Time,
+									section5Time: body!.taResult!.section_5Time,
+									section6Time: body!.taResult!.section_6Time,
+									section7Time: body!.taResult!.section_7Time,
+									...body!.taResult!
+								},
+								where: {
+									// Could be null - if it is null, this will insert.
+									dbId: currentRecord?.dbId
+								}
+							});
+						}
+						break;
+					}
 			}
 			await prisma.carSettings.update({
 				where: {
@@ -244,13 +289,64 @@ export default class GameModule extends Module {
             r.send(Buffer.from(end));
         })
 
-		app.post('/method/load_time_attack_record', (req, res) => {
-            console.log('load TA records');
+		app.post('/method/load_time_attack_record', async (req, res) => {
             let body = wm.wm.protobuf.LoadTimeAttackRecordRequest.decode(req.body);
-            let ping = {
+			let taRecordsForModel = await prisma.timeAttackRecord.findMany({
+				take: 100,
+				where: {
+					model: body.model,
+					course: body.course
+				},
+				orderBy: {
+					time: 'desc'
+				}
+			});
+			let taRecordsOverall = await prisma.timeAttackRecord.findMany({
+				take: 100,
+				where: {
+					course: body.course
+				},
+				orderBy: {
+					time: 'desc'
+				}
+			});
+			let taRecordPb = await prisma.timeAttackRecord.findFirst({
+				where: {
+					carId: body.carId,
+					course: body.course
+				},
+				orderBy: {
+					time: 'desc'
+				}
+			});
+			if (!taRecordPb) {
+				let msg = {
+					error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+				};
+				let resp = wm.wm.protobuf.LoadTimeAttackRecordResponse.encode(msg);
+				let end = resp.finish();
+				let r = res
+					.header('Server', 'v388 wangan')
+					.header('Content-Type', 'application/x-protobuf; revision=8053')
+					.header('Content-Length', end.length.toString())
+					.status(200);
+				r.send(Buffer.from(end));
+				return;
+			}
+            let msg = {
                 error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+				wholeRanking: taRecordsOverall.map(a => a.time),
+				modelRanking: taRecordsForModel.map(a => a.time),
+				personalBestTime: taRecordPb.time,
+				pbSection1Time: taRecordPb.section1Time,
+				pbSection2Time: taRecordPb.section2Time,
+				pbSection3Time: taRecordPb.section3Time,
+				pbSection4Time: taRecordPb.section4Time,
+				pbSection5Time: taRecordPb.section5Time,
+				pbSection6Time: taRecordPb.section6Time,
+				pbSection7Time: taRecordPb.section7Time,
             };
-            let resp = wm.wm.protobuf.LoadTimeAttackRecordResponse.encode(ping);
+            let resp = wm.wm.protobuf.LoadTimeAttackRecordResponse.encode(msg);
             let end = resp.finish();
             let r = res
                 .header('Server', 'v388 wangan')

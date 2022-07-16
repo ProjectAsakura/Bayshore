@@ -98,8 +98,9 @@ model Car {
 
     items CarItem[]
 
-    carStateDbId Int      @unique
-    state        CarState @relation(fields: [carStateDbId], references: [dbId])
+    carStateDbId     Int                @unique
+    state            CarState           @relation(fields: [carStateDbId], references: [dbId])
+    TimeAttackRecord TimeAttackRecord[]
 }
 
 model CarItem {
@@ -135,4 +136,23 @@ model CarState {
     eventJoined      Boolean @default(false)
     transferred      Boolean @default(false)
     toBeDeleted      Boolean @default(false)
+}
+
+model TimeAttackRecord {
+    dbId Int @id @default(autoincrement())
+
+    car   Car @relation(fields: [carId], references: [carId])
+    carId Int
+
+    model        Int // Car model, literally just the `model` field from Car
+    time         Int
+    course       Int
+    isMorning    Boolean
+    section1Time Int     @map("section1Time")
+    section2Time Int     @map("section2Time")
+    section3Time Int     @map("section3Time")
+    section4Time Int     @map("section4Time")
+    section5Time Int?    @map("section5Time")
+    section6Time Int?    @map("section6Time")
+    section7Time Int?    @map("section7Time")
 }
