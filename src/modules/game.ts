@@ -45,6 +45,14 @@ export default class GameModule extends Module {
 						break;
 					}
 			}
+			await prisma.carSettings.update({
+				where: {
+					dbId: car!.carSettingsDbId
+				},
+				data: {
+					...body.setting
+				}
+			});
 			let user = await prisma.user.findFirst({
 				where: {
 					id: body.car!.userId!
