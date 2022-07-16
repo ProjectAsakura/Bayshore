@@ -393,7 +393,6 @@ export default class GameModule extends Module {
 			};
 			let additionalInsert = {}
 			if (fullTuneUsed) {
-				// Bleh, this could be merged into the car query.
 				additionalInsert = {
 					stClearBits: 0,
 					stLoseBits: 0,
