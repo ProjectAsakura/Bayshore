@@ -332,6 +332,8 @@ export default class GameModule extends Module {
 			if (!taRecordPb) {
 				let msg = {
 					error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+					wholeRanking: taRecordsOverall.map(a => a.time),
+					modelRanking: taRecordsForModel.map(a => a.time)
 				};
 				let resp = wm.wm.protobuf.LoadTimeAttackRecordResponse.encode(msg);
 				let end = resp.finish();
