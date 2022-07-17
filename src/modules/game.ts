@@ -308,7 +308,7 @@ export default class GameModule extends Module {
 					course: body.course
 				},
 				orderBy: {
-					time: 'desc'
+					time: 'asc'
 				}
 			});
 			let taRecordsOverall = await prisma.timeAttackRecord.findMany({
@@ -317,7 +317,7 @@ export default class GameModule extends Module {
 					course: body.course
 				},
 				orderBy: {
-					time: 'desc'
+					time: 'asc'
 				}
 			});
 			let taRecordPb = await prisma.timeAttackRecord.findFirst({
@@ -326,7 +326,7 @@ export default class GameModule extends Module {
 					course: body.course
 				},
 				orderBy: {
-					time: 'desc'
+					time: 'asc'
 				}
 			});
 			if (!taRecordPb) {
