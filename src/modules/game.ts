@@ -367,13 +367,13 @@ export default class GameModule extends Module {
 				wholeRanking: taRecordsOverall.map(a => a.time),
 				modelRanking: taRecordsForModel.map(a => a.time),
 				personalBestTime: taRecordPb.time,
-				pbSection1Time: taRecordPb.section1Time,
-				pbSection2Time: taRecordPb.section2Time,
-				pbSection3Time: taRecordPb.section3Time,
-				pbSection4Time: taRecordPb.section4Time,
-				pbSection5Time: taRecordPb.section5Time,
-				pbSection6Time: taRecordPb.section6Time,
-				pbSection7Time: taRecordPb.section7Time,
+				pbSection_1Time: taRecordPb.section1Time,
+				pbSection_2Time: taRecordPb.section2Time,
+				pbSection_3Time: taRecordPb.section3Time,
+				pbSection_4Time: taRecordPb.section4Time,
+				pbSection_5Time: taRecordPb.section5Time,
+				pbSection_6Time: taRecordPb.section6Time,
+				pbSection_7Time: taRecordPb.section7Time,
             };
             let resp = wm.wm.protobuf.LoadTimeAttackRecordResponse.encode(msg);
             let end = resp.finish();
