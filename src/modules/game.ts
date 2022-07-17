@@ -165,6 +165,23 @@ export default class GameModule extends Module {
 					spappState: wm.wm.protobuf.SmartphoneAppState.SPAPP_UNREGISTERED,
 					transferState: wm.wm.protobuf.TransferState.NOT_REGISTERED
 				};
+				if (!body.cardChipId || !body.accessCode) {
+					let msg = {
+						error: wm.wm.protobuf.ErrorCode.ERR_ID_BANNED,
+						numOfOwnedCars: 0,
+						spappState: wm.wm.protobuf.SmartphoneAppState.SPAPP_UNREGISTERED,
+						transferState: wm.wm.protobuf.TransferState.NOT_REGISTERED
+					}
+					let resp = wm.wm.protobuf.LoadUserResponse.encode(msg);
+					let end = resp.finish();
+					let r = res
+						.header('Server', 'v388 wangan')
+						.header('Content-Type', 'application/x-protobuf; revision=8053')
+						.header('Content-Length', end.length.toString())
+						.status(200);
+					r.send(Buffer.from(end));
+					return;
+				}
 				let user = await prisma.user.create({
 					data: {
 						chipId: body.cardChipId,
