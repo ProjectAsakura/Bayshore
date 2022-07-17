@@ -5,6 +5,12 @@ export interface ConfigFile {
     shopNickname: string;
     regionName: string;
     serverIp?: string;
+    gameOptions: GameOptions;
+}
+
+export interface GameOptions {
+    // Amount of full-tunes to grant to newly registered cards
+    grantFullTuneTicketToNewUsers: number;
 }
 
 export class Config {

@@ -2,5 +2,8 @@
     "shopName": "Bayshore",
     "shopNickname": "BSH",
     "regionName": "Bayshore",
-    "serverIp": "127.0.0.1"
+    "serverIp": "127.0.0.1",
+    "gameOptions": {
+        "grantFullTuneTicketToNewUsers": 0
+    }
 }

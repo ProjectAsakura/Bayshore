@@ -4,6 +4,7 @@ import * as wm from "../wmmt/wm.proto";
 import * as svc from "../wmmt/service.proto";
 import { prisma } from "..";
 import { User } from "@prisma/client";
+import { Config } from "../config";
 
 export default class GameModule extends Module {
     register(app: Application): void {
@@ -212,6 +213,20 @@ export default class GameModule extends Module {
 				if (!user) {
 					msg.error = wm.wm.protobuf.ErrorCode.ERR_REQUEST;
 				}
+				let ftTicketGrant = Config.getConfig().gameOptions.grantFullTuneTicketToNewUsers;
+				if (ftTicketGrant > 0) {
+					console.log(`Granting Full-Tune Ticket x${ftTicketGrant} to new user...`);
+					for (let i=0; i<ftTicketGrant; i++) {
+						await prisma.userItem.create({
+							data: {
+								userId: user.id,
+								category: wm.wm.protobuf.ItemCategory.CAT_CAR_TICKET_FREE,
+								itemId: 5
+							}
+						});
+					}
+					console.log('Done!');
+				}
 				let resp = wm.wm.protobuf.LoadUserResponse.encode(msg);
 				let end = resp.finish();
 				let r = res
@@ -404,7 +419,7 @@ export default class GameModule extends Module {
 				.header('Content-Length', end.length.toString())
 				.status(200);
 			r.send(Buffer.from(end));
-		})
+		});
 
 		app.post('/method/update_car', async (req, res) => {
 			let body = wm.wm.protobuf.UpdateCarRequest.decode(req.body);
