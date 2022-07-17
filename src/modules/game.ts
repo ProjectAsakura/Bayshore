@@ -531,14 +531,13 @@ export default class GameModule extends Module {
 					stLoseBits: 0,
 					stClearCount: 80,
 					stClearDivCount: 4,
-					stConsecutiveWins: 80,
-					...carInsert
+					stConsecutiveWins: 80
 				};
 			}
 			let car = await prisma.car.create({
 				data: {
 					...carInsert,
-					...additionalInsert
+					...additionalInsert,
 				}
 			});
 
