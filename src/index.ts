@@ -75,8 +75,8 @@ http.createServer(allnetApp).listen(PORT_ALLNET, '0.0.0.0', 511, () => {
     let unix = Config.getConfig().unix;
     if (unix && process.platform == 'linux') {
         console.log('Downgrading permissions...');
-        process.setuid!(unix.setuid);
         process.setgid!(unix.setgid);
+        process.setuid!(unix.setuid);
         console.log('Done!');
     }
 })
