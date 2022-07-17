@@ -7,6 +7,7 @@ export interface ConfigFile {
     serverIp?: string;
     gameOptions: GameOptions;
     unix?: UnixOptions;
+    notices?: string[];
 }
 
 export interface UnixOptions {

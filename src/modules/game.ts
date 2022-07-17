@@ -288,10 +288,12 @@ export default class GameModule extends Module {
 					category: x.category
 				}
 			});
+			let notice = (Config.getConfig().notices || []);
+			let noticeWindows = notice.map(a => wm.wm.protobuf.NoticeEntry.NOTICE_UNUSED_1);
             let msg = {
                 error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,	
-				noticeWindow: [],
-				noticeWindowMessage: [],
+				noticeWindow: noticeWindows,
+				noticeWindowMessage: notice,
 				transferNotice: {
 					needToSeeTransferred: false,
 					totalMaxiGold: 0,
