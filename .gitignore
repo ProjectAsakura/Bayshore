@@ -7,3 +7,4 @@ dist/
 cert.pfx
 key.pem
 config.json
+ecosystem.config.js
