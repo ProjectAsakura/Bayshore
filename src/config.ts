@@ -6,6 +6,12 @@ export interface ConfigFile {
     regionName: string;
     serverIp?: string;
     gameOptions: GameOptions;
+    unix?: UnixOptions;
+}
+
+export interface UnixOptions {
+    setuid: number;
+    setgid: number;
 }
 
 export interface GameOptions {

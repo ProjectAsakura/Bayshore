@@ -9,6 +9,8 @@ import fs from 'fs';
 import bodyParser from 'body-parser';
 import AllnetModule from './allnet';
 import MuchaModule from './mucha';
+import { Config } from './config';
+import process from 'process';
 globalAgent.options.keepAlive = true;
 
 // @ts-ignore
@@ -70,6 +72,13 @@ let cert = fs.readFileSync('./server_wangan.crt');
 
 http.createServer(allnetApp).listen(PORT_ALLNET, '0.0.0.0', 511, () => {
     console.log(`ALL.net server listening on port ${PORT_ALLNET}!`);
+    let unix = Config.getConfig().unix;
+    if (unix && process.platform == 'linux') {
+        console.log('Downgrading permissions...');
+        process.setuid!(unix.setuid);
+        process.setgid!(unix.setgid);
+        console.log('Done!');
+    }
 })
 
 https.createServer({key, cert}, muchaApp).listen(PORT_MUCHA, '0.0.0.0', 511, () => {
