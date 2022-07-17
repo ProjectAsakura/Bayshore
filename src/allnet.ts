@@ -72,6 +72,8 @@ export default class AllnetModule extends Module {
             let shopName = Config.getConfig().shopName;
             let shopNick = Config.getConfig().shopNickname;
             let regionName = Config.getConfig().regionName;
+
+            // TODO: Implement board authentication here.
         
             const resParams = {
                 stat: 1,

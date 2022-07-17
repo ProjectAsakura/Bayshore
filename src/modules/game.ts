@@ -238,7 +238,7 @@ export default class GameModule extends Module {
 				return;
 			}
 			let carStates = user.cars.map(e => e.state);
-			let tickets = user!.unusedTickets.map(x => {
+			let tickets = (user.unusedTickets || []).map(x => {
 				return {
 					itemId: x.itemId,
 					userItemId: x.dbId,
@@ -281,7 +281,7 @@ export default class GameModule extends Module {
 					unusedTickets: true,
 				}
 			});
-			let tickets = user!.unusedTickets.map(x => {
+			let tickets = (user?.unusedTickets || []).map(x => {
 				return {
 					itemId: x.itemId,
 					userItemId: x.dbId,
