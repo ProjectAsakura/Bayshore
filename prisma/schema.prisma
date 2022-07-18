@@ -36,6 +36,7 @@ model Car {
     carId               Int     @id @default(autoincrement())
     name                String
     manufacturer        Int
+    regionId            Int     @default(0)
     model               Int
     visualModel         Int
     customColor         Int     @default(0)

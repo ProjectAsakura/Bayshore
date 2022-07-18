@@ -22,25 +22,24 @@ export default class GameModule extends Module {
 						if (maxConsecutiveWins > body.stResult!.stConsecutiveWins!) {
 							maxConsecutiveWins = body.stResult!.stConsecutiveWins!;
 						}
+						let divcount = body.stResult!.stClearDivCount;
+						let saveEx: any = {};
+						if (divcount !== null && divcount !== undefined) {
+							saveEx.stClearDivCount = divcount;
+						}
 						await prisma.car.update({
 							where: {
-								carId: body.carId,
+								carId: body.carId
 							},
 							data: {
-								title: body.car!.title!,
-								level: body.car!.level!,
-								tunePower: body.car!.tunePower!,
-								tuneHandling: body.car!.tuneHandling!,
 								stClearBits: body.stResult!.stClearBits!,
 								tuningPoints: body.stResult!.tuningPoint!,
 								stPlayCount: body.stResult!.stPlayCount,
 								stClearCount: body.stResult!.stClearCount!,
-								stClearDivCount: body.stResult!.stClearDivCount!,
 								stCompleted100Episodes: body.stResult!.stCompleted_100Episodes!,
 								stConsecutiveWins: body.stResult!.stConsecutiveWins!,
 								stConsecutiveWinsMax: maxConsecutiveWins,
-								odometer: body.odometer,
-								playCount: body.playCount
+								...saveEx!
 							}
 						})
 						break;
@@ -101,6 +100,19 @@ export default class GameModule extends Module {
 						break;
 					}
 			}
+			await prisma.car.update({
+				where: {
+					carId: body.carId,
+				},
+				data: {
+					odometer: body.odometer,
+					playCount: body.playCount,
+					level: body.car!.level!,
+					title: body.car!.title!,
+					tunePower: body.car!.tunePower!,
+					tuneHandling: body.car!.tuneHandling!,
+				}
+			})
 			await prisma.carSettings.update({
 				where: {
 					dbId: car!.carSettingsDbId
@@ -210,8 +222,8 @@ export default class GameModule extends Module {
 							false, //TUTORIAL_ID_GHOST_STAMP
 							false, //TUTORIAL_ID_GHOST_STAMP_DECLINED
 							false, //TUTORIAL_ID_GHOST_STAMP_FRIENDS
-							false, //TUTORIAL_ID_TERMINAL_SCRATCH
-							false, //TUTORIAL_ID_TURN_SCRATCH_SHEET
+							true, //TUTORIAL_ID_TERMINAL_SCRATCH
+							true, //TUTORIAL_ID_TURN_SCRATCH_SHEET
 							false, //TUTORIAL_ID_INVITE_FRIEND_CAMPAIGN
 							false, //TUTORIAL_ID_CAR_COUPON_FULL_TUNED_RECEIVABLE
 							false, //TUTORIAL_ID_VS_CONTINUE_TICKET
@@ -539,7 +551,8 @@ export default class GameModule extends Module {
 				tunePower: body.car.tunePower!,
 				tuneHandling: body.car.tuneHandling!,
 				carSettingsDbId: settings.dbId,
-				carStateDbId: state.dbId
+				carStateDbId: state.dbId,
+				country: body.car.country!,
 			};
 			let additionalInsert = {}
 			if (fullTuneUsed) {
