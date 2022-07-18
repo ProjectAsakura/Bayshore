@@ -27,19 +27,40 @@ export default class GameModule extends Module {
 						if (divcount !== null && divcount !== undefined) {
 							saveEx.stClearDivCount = divcount;
 						}
+						if (body.stResult!.stClearBits !== null && body.stResult!.stClearBits !== undefined) {
+							saveEx.stClearBits = body.stResult!.stClearBits!;
+						}
+						if (body.stResult!.stPlayCount !== null && body.stResult!.stPlayCount !== undefined) {
+							saveEx.stPlayCount = body.stResult!.stPlayCount!;
+						}
+						if (body.stResult!.stClearCount !== null && body.stResult!.stClearCount !== undefined) {
+							saveEx.stClearCount = body.stResult!.stClearCount!;
+						}
+						if (body.stResult!.stLoseBits !== null && body.stResult!.stLoseBits !== undefined) {
+							saveEx.stLoseBits = body.stResult!.stLoseBits!;
+						}
+						if (body.stResult!.stConsecutiveWins !== null && body.stResult!.stConsecutiveWins !== undefined) {
+							saveEx.stConsecutiveWins = body.stResult!.stConsecutiveWins!;
+						}
+						if (body.stResult!.tuningPoint !== null && body.stResult!.tuningPoint !== undefined) {
+							saveEx.tuningPoints = body.stResult!.tuningPoint!;
+						}
+						if (body.stResult!.stCompleted_100Episodes !== null && body.stResult!.stCompleted_100Episodes !== undefined) {
+							saveEx.stCompleted100Episodes = body.stResult!.stCompleted_100Episodes!;
+						}
 						console.log(body);
 						await prisma.car.update({
 							where: {
 								carId: body.carId
 							},
 							data: {
-								stClearBits: body.stResult!.stClearBits,
-								tuningPoints: body.stResult!.tuningPoint,
-								stPlayCount: body.stResult!.stPlayCount,
-								stClearCount: body.stResult!.stClearCount,
-								stCompleted100Episodes: body.stResult!.stCompleted_100Episodes,
-								stConsecutiveWins: body.stResult!.stConsecutiveWins,
-								stConsecutiveWinsMax: maxConsecutiveWins,
+								//stClearBits: body.stResult!.stClearBits,
+								//tuningPoints: body.stResult!.tuningPoint,
+								//stPlayCount: body.stResult!.stPlayCount,
+								//stClearCount: body.stResult!.stClearCount,
+								//stCompleted100Episodes: body.stResult!.stCompleted_100Episodes,
+								//stConsecutiveWins: body.stResult!.stConsecutiveWins,
+								//stConsecutiveWinsMax: maxConsecutiveWins,
 								...saveEx
 							}
 						})
