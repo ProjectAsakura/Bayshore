@@ -19,7 +19,7 @@ export default class GameModule extends Module {
 				case wm.wm.protobuf.GameMode.MODE_STORY:
 					{
 						let maxConsecutiveWins = car!.stConsecutiveWinsMax;
-						if (maxConsecutiveWins > body.stResult!.stConsecutiveWins!) {
+						if (maxConsecutiveWins < body.stResult!.stConsecutiveWins!) {
 							maxConsecutiveWins = body.stResult!.stConsecutiveWins!;
 						}
 						let divcount = body.stResult!.stClearDivCount;
