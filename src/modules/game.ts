@@ -27,6 +27,7 @@ export default class GameModule extends Module {
 						if (divcount !== null && divcount !== undefined) {
 							saveEx.stClearDivCount = divcount;
 						}
+						console.log(body);
 						await prisma.car.update({
 							where: {
 								carId: body.carId
