@@ -25,7 +25,7 @@ export default class GameModule extends Module {
 						}
 						let divcount = body.stResult?.stClearDivCount;
 						let saveEx: any = {};
-						if (divcount !== null && divcount !== undefined) {
+						if (divcount !== null && divcount !== undefined && divcount !== 0) {
 							console.log(body.stResult?.stClearDivCount);
 							saveEx.stClearDivCount = divcount;
 						} else {
