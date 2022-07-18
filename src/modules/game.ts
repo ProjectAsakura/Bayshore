@@ -26,24 +26,25 @@ export default class GameModule extends Module {
 						let divcount = body.stResult?.stClearDivCount;
 						let saveEx: any = {};
 						if (divcount !== null && divcount !== undefined) {
+							console.log(body.stResult?.stClearDivCount);
 							saveEx.stClearDivCount = divcount;
 						} else {
-							saveEx.stClearDivCount = car!.stClearDivCount;
+							saveEx.stClearDivCount = car?.stClearDivCount;
 						}
 						if (body.stResult?.stClearBits !== null && body.stResult?.stClearBits !== undefined) {
-							saveEx.stClearBits = body.stResult?.stClearBits!;
+							saveEx.stClearBits = body.stResult?.stClearBits;
 						} else {
-							saveEx.stClearBits = car!.stClearBits;
+							saveEx.stClearBits = car?.stClearBits;
 						}
 						if (body.stResult?.stPlayCount !== null && body.stResult?.stPlayCount !== undefined) {
 							saveEx.stPlayCount = body.stResult?.stPlayCount!;
 						} else {
-							saveEx.stPlayCount = car!.stPlayCount;
+							saveEx.stPlayCount = car?.stPlayCount;
 						}
 						if (body.stResult?.stClearCount !== null && body.stResult?.stClearCount !== undefined) {
 							saveEx.stClearCount = body.stResult?.stClearCount!;
 						} else {
-							saveEx.stClearCount = car!.stClearCount;
+							saveEx.stClearCount = car?.stClearCount;
 						}
 						if (body.stResult?.stLoseBits !== null && body.stResult?.stLoseBits !== undefined) {
 							let actualLoseBits = BigInt(0);
@@ -54,22 +55,22 @@ export default class GameModule extends Module {
 								saveEx.stLoseBits = actualLoseBits;
 							}
 						} else {
-							saveEx.stLoseBits = car!.stLoseBits;
+							saveEx.stLoseBits = car?.stLoseBits;
 						}
 						if (body.stResult?.stConsecutiveWins !== null && body.stResult?.stConsecutiveWins !== undefined) {
 							saveEx.stConsecutiveWins = body.stResult?.stConsecutiveWins!;
 						} else {
-							saveEx.stConsecutiveWins = car!.stConsecutiveWins;
+							saveEx.stConsecutiveWins = car?.stConsecutiveWins;
 						}
 						if (body.stResult?.tuningPoint !== null && body.stResult?.tuningPoint !== undefined) {
 							saveEx.tuningPoints = body.stResult?.tuningPoint!;
 						} else {
-							saveEx.tuningPoints = car!.tuningPoints;
+							saveEx.tuningPoints = car?.tuningPoints;
 						}
 						if (body.stResult?.stCompleted_100Episodes !== null && body.stResult?.stCompleted_100Episodes !== undefined) {
 							saveEx.stCompleted100Episodes = body.stResult?.stCompleted_100Episodes!;
 						} else {
-							saveEx.stCompleted100Episodes = car!.stCompleted100Episodes;
+							saveEx.stCompleted100Episodes = car?.stCompleted100Episodes;
 						}
 						console.log(body);
 						console.log(saveEx);
