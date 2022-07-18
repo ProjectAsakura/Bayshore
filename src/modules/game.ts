@@ -56,7 +56,8 @@ export default class GameModule extends Module {
 							saveEx.stCompleted100Episodes = body.stResult!.stCompleted_100Episodes!;
 						}
 						console.log(body);
-						await prisma.car.update({
+						console.log(saveEx);
+						let c = await prisma.car.update({
 							where: {
 								carId: body.carId
 							},
@@ -70,7 +71,8 @@ export default class GameModule extends Module {
 								//stConsecutiveWinsMax: maxConsecutiveWins,
 								...saveEx
 							}
-						})
+						});
+						console.log(c);
 						break;
 					}
 				case wm.wm.protobuf.GameMode.MODE_TIME_ATTACK:
