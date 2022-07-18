@@ -5,6 +5,7 @@ import * as svc from "../wmmt/service.proto";
 import { prisma } from "..";
 import { User } from "@prisma/client";
 import { Config } from "../config";
+import Long from "long";
 
 export default class GameModule extends Module {
     register(app: Application): void {
@@ -37,7 +38,13 @@ export default class GameModule extends Module {
 							saveEx.stClearCount = body.stResult!.stClearCount!;
 						}
 						if (body.stResult!.stLoseBits !== null && body.stResult!.stLoseBits !== undefined) {
-							saveEx.stLoseBits = body.stResult!.stLoseBits!;
+							let actualLoseBits = BigInt(0);
+							if (body.stResult!.stLoseBits! instanceof Long) {
+								actualLoseBits = actualLoseBits | BigInt(body.stResult!.stLoseBits.high);
+								actualLoseBits = actualLoseBits << BigInt(32);
+								actualLoseBits = actualLoseBits | BigInt(body.stResult!.stLoseBits.low);
+								saveEx.stLoseBits = actualLoseBits;
+							}
 						}
 						if (body.stResult!.stConsecutiveWins !== null && body.stResult!.stConsecutiveWins !== undefined) {
 							saveEx.stConsecutiveWins = body.stResult!.stConsecutiveWins!;
