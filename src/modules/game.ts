@@ -552,7 +552,6 @@ export default class GameModule extends Module {
 				tuneHandling: body.car.tuneHandling!,
 				carSettingsDbId: settings.dbId,
 				carStateDbId: state.dbId,
-				country: body.car.country!,
 			};
 			let additionalInsert = {}
 			if (fullTuneUsed) {
