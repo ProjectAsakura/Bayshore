@@ -629,6 +629,8 @@ export default class GameModule extends Module {
 					items: true,
 				}
 			});
+			// This is fucking terrible
+			let longLoseBits = Long.fromString(car!.stLoseBits.toString());
 			let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
 				car: {
@@ -642,7 +644,8 @@ export default class GameModule extends Module {
 				auraMotifAutoChange: false,
 				screenshotCount: 0,
 				transferred: false,
-				...car!
+				...car!,
+				stLoseBits: longLoseBits,
 			};
 			let resp = wm.wm.protobuf.LoadCarResponse.encode(msg);
 			let end = resp.finish();
