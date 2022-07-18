@@ -92,7 +92,7 @@ model Car {
     stClearBits            Int         @default(0)
     stClearDivCount        Int         @default(0)
     stClearCount           Int         @default(0)
-    stLoseBits             Int         @default(0)
+    stLoseBits             BigInt      @default(0)
     stConsecutiveWins      Int         @default(0)
     stConsecutiveWinsMax   Int         @default(0)
     stCompleted100Episodes Boolean     @default(false)

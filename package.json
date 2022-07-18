@@ -28,6 +28,7 @@
     "express": "^4.18.1",
     "form-urlencoded": "^6.0.6",
     "iconv-lite": "^0.6.3",
+    "long": "^5.2.0",
     "moment": "^2.29.4",
     "pem": "^1.14.6",
     "protobufjs": "^7.0.0",
