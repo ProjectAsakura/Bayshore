@@ -8,6 +8,7 @@ export interface ConfigFile {
     gameOptions: GameOptions;
     unix?: UnixOptions;
     notices?: string[];
+    sentryDsn?: string;
 }
 
 export interface UnixOptions {

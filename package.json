@@ -21,6 +21,8 @@
   },
   "dependencies": {
     "@prisma/client": "^4.0.0",
+    "@sentry/node": "^7.7.0",
+    "@sentry/tracing": "^7.7.0",
     "@types/pem": "^1.9.6",
     "body-parser": "^1.20.0",
     "express": "^4.18.1",

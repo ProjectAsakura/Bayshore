@@ -11,6 +11,8 @@ import AllnetModule from './allnet';
 import MuchaModule from './mucha';
 import { Config } from './config';
 import process from 'process';
+import * as Sentry from '@sentry/node';
+import * as Tracing from '@sentry/tracing';
 globalAgent.options.keepAlive = true;
 
 // @ts-ignore
@@ -29,8 +31,28 @@ app.use(bodyParser.raw({
     type: '*/*'
 }));
 
+let useSentry = !!Config.getConfig().sentryDsn;
+if (useSentry) {
+    Sentry.init({
+        dsn: Config.getConfig().sentryDsn,
+        integrations: [
+            new Sentry.Integrations.Http({tracing: true}),
+            new Tracing.Integrations.Express({
+                router: appRouter,
+            })
+        ],
+
+        tracesSampleRate: 0.5
+    });
+}
+
 const muchaApp = express();
 const allnetApp = express();
+
+if (useSentry) {
+    app.use(Sentry.Handlers.requestHandler());
+    app.use(Sentry.Handlers.tracingHandler());
+}
 
 app.use((req, res, next) => {
     console.log(`[  MAIN] ${req.method} ${req.url}`);
@@ -66,6 +88,9 @@ app.all('*', (req, res) => {
 
 new AllnetModule().register(allnetApp);
 new MuchaModule().register(muchaApp);
+
+if (useSentry)
+    app.use(Sentry.Handlers.errorHandler());
 
 let key = fs.readFileSync('./server_wangan.key');
 let cert = fs.readFileSync('./server_wangan.crt');
