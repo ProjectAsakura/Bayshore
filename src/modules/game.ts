@@ -77,16 +77,7 @@ export default class GameModule extends Module {
 							where: {
 								carId: body.carId
 							},
-							data: {
-								//stClearBits: body.stResult!.stClearBits,
-								//tuningPoints: body.stResult!.tuningPoint,
-								//stPlayCount: body.stResult!.stPlayCount,
-								//stClearCount: body.stResult!.stClearCount,
-								//stCompleted100Episodes: body.stResult!.stCompleted_100Episodes,
-								//stConsecutiveWins: body.stResult!.stConsecutiveWins,
-								//stConsecutiveWinsMax: maxConsecutiveWins,
-								...saveEx
-							}
+							data: saveEx
 						});
 						console.log(c);
 						break;
