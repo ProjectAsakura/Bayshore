@@ -13,6 +13,10 @@ import { Config } from './config';
 import process from 'process';
 import * as Sentry from '@sentry/node';
 import * as Tracing from '@sentry/tracing';
+
+import * as dotenv from "dotenv";
+dotenv.config({path: __dirname + '/.env'});
+
 globalAgent.options.keepAlive = true;
 
 // @ts-ignore
