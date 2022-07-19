@@ -128,7 +128,7 @@ export default class GameModule extends Module {
 							else // Creating a new record
 							{
 								console.log('Creating new time attack record');
-								
+
 								await prisma.timeAttackRecord.create({
 									data: {
 										carId: body.carId,
@@ -204,7 +204,9 @@ export default class GameModule extends Module {
 		})
 
 		app.post('/method/load_user', async (req, res) => {
+
 			let body = wm.wm.protobuf.LoadUserRequest.decode(req.body);
+
 			let user = await prisma.user.findFirst({
 				where: {
 					chipId: body.cardChipId,
@@ -219,7 +221,10 @@ export default class GameModule extends Module {
 					unusedTickets: true
 				}
 			});
+
+			// No user returned
 			if (!user) {
+
 				console.log('no such user');
 				let msg = {
 					error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
@@ -317,7 +322,11 @@ export default class GameModule extends Module {
 				r.send(Buffer.from(end));
 				return;
 			}
+
+			// console.log(user);
+
 			let carStates = user.cars.map(e => e.state);
+			
 			let tickets = (user.unusedTickets || []).map(x => {
 				return {
 					itemId: x.itemId,
@@ -325,6 +334,7 @@ export default class GameModule extends Module {
 					category: x.category
 				}
 			});
+			
 			let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
 				numOfOwnedCars: user.cars.length,
@@ -465,7 +475,7 @@ export default class GameModule extends Module {
             r.send(Buffer.from(end));
         })
 
-		//terminal specific
+		// Load upon enter terminal
 		app.post('/method/load_terminal_information', (req, res) => {
 			let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
@@ -486,13 +496,149 @@ export default class GameModule extends Module {
 				.status(200);
 			r.send(Buffer.from(end));
 		})
-		
-		app.post('/method/load_scratch_information', (req, res) => {
+
+		// Load unrecieved user items
+		app.post('/method/load_unrecieved_user_items', (req, res) => {
+
+			// In future, might want to check db for player items
+
 			let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
-				currentSheet: 21,
-				numOfScratched: 0,
+				owned_user_items: [
+					wm.wm.protobuf.UserItem.create({
+						category: 17, 
+						itemId: 1
+					})
+				]
 			}
+
+			let resp = wm.wm.protobuf.LoadUnreceivedUserItemsResponse.encode(msg);
+			let end = resp.finish();
+			let r = res
+				.header('Server', 'v388 wangan')
+				.header('Content-Type', 'application/x-protobuf; revision=8053')
+				.header('Content-Length', end.length.toString())
+				.status(200);
+			r.send(Buffer.from(end));
+		})
+
+		// Load user bookmarks
+		app.post('/method/load_bookmarks', (req, res) => {
+
+			// In future, check db for player bookmarks
+			console.log('todo: player bookmarks')
+
+			let msg = {
+				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+				cars: [
+					// No bookmarks
+				]
+			}
+
+			let resp = wm.wm.protobuf.LoadBookmarksResponse.encode(msg);
+			let end = resp.finish();
+			let r = res
+				.header('Server', 'v388 wangan')
+				.header('Content-Type', 'application/x-protobuf; revision=8053')
+				.header('Content-Length', end.length.toString())
+				.status(200);
+			r.send(Buffer.from(end));
+		})
+
+		// Car Summary Request (for bookmarks)
+		app.get('/resource/car_summary', async (req, res) => {
+
+			// Get the query from the request
+			let query = req.query;
+
+			// Get all of the cars matching the query
+			let cars = await prisma.car.findMany({
+				take: Number(query.limit), 
+				where: {
+					name: {
+						startsWith: String(query.name)
+					}
+				}, 
+			});
+
+			let msg = {
+				hitCount: cars.length,
+				cars: cars
+			}
+
+			let resp = wm.wm.protobuf.CarSummary.encode(msg);
+			let end = resp.finish();
+			let r = res
+				.header('Server', 'v388 wangan')
+				.header('Content-Type', 'application/x-protobuf; revision=8053')
+				.header('Content-Length', end.length.toString())
+				.status(200);
+			r.send(Buffer.from(end));
+
+		})
+
+		// Save upon timeout / exit terminal
+		app.post('/method/save_terminal_result', async (req, res) => {
+
+			// Get the contents from the request
+			let body = wm.wm.protobuf.SaveTerminalResultRequest.decode(req.body);
+
+			// user id is required field
+			let user = await prisma.user.findFirst({
+				where: { 
+					id: body.userId 
+				},
+			});
+
+			// Update the car order (NOT IMPLEMENTED)
+
+			// Update the completed tutorials
+			let storedTutorials = user!.tutorials;
+			
+			body.confirmedTutorials.forEach(
+				(idx) => storedTutorials[idx] = true
+			);
+			
+			await prisma.user.update({
+				where: {
+					id: body.userId
+				},
+				data: {
+					tutorials: storedTutorials
+				}
+			});
+
+			let msg = {
+				// Success error code
+				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+			}
+
+			// Encode the save terminal result response
+			let resp = wm.wm.protobuf.SaveTerminalResultResponse.encode(msg);
+			let end = resp.finish();
+			let r = res
+				.header('Server', 'v388 wangan')
+				.header('Content-Type', 'application/x-protobuf; revision=8053')
+				.header('Content-Length', end.length.toString())
+				.status(200);
+			r.send(Buffer.from(end));
+		})
+		
+		// Terminal scratch (VERY WIP)
+		app.post('/method/load_scratch_information', (req, res) => {
+
+			let msg = {
+				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+				currentSheet: 0,
+				numOfScratched: 0,
+				scratch_sheets: [
+
+				], 
+				owned_user_items: [
+
+				]
+			}
+
 			let resp = wm.wm.protobuf.LoadScratchInformationResponse.encode(msg);
 			let end = resp.finish();
 			let r = res
