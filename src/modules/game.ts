@@ -85,20 +85,50 @@ export default class GameModule extends Module {
 					}
 				case wm.wm.protobuf.GameMode.MODE_TIME_ATTACK:
 					{
-						if (!body.retired && !body.timeup) {
+						console.log(body);
+
+						// If the game was not timed out / retired
+						if (!(body.retired || body.timeup)) {
+
+							console.log('Game not retired / timed out, continuing ...')
+
+							// Get the current time attack record for the car
 							let currentRecord = await prisma.timeAttackRecord.findFirst({
-								where: {
-									carId: body.carId,
-									model: body.car!.model!,
+								where: { 
+									carId: body.carId, // , model: body.car!.model!, 
+									course: body.taResult!.course
 								}
 							});
 
-							// Make sure we don't save a worse record!
-							if (currentRecord && body.taResult!.time > currentRecord.time)
-								break;
+							// Record already exists 
+							if (currentRecord)
+							{
+								// If the existing record is faster, do not continue
+								if (body.taResult!.time > currentRecord.time) break;
 
-							if (!currentRecord) {
+								console.log('Updating time attack record...')
+
+								await prisma.timeAttackRecord.update({
+									where: {
+										// Could be null - if it is null, this will insert.
+										dbId: currentRecord!.dbId
+									},
+									data: {
+										time: body.taResult!.time,
+										section1Time: body!.taResult!.section_1Time,
+										section2Time: body!.taResult!.section_2Time,
+										section3Time: body!.taResult!.section_3Time,
+										section4Time: body!.taResult!.section_4Time,
+										section5Time: body!.taResult!.section_5Time,
+										section6Time: body!.taResult!.section_6Time,
+										section7Time: body!.taResult!.section_7Time,
+									}
+								});
+							}
+							else // Creating a new record
+							{
 								console.log('Creating new time attack record');
+								
 								await prisma.timeAttackRecord.create({
 									data: {
 										carId: body.carId,
@@ -117,24 +147,6 @@ export default class GameModule extends Module {
 								});
 								break;
 							}
-
-							console.log('Updating time attack record...')
-							await prisma.timeAttackRecord.update({
-								where: {
-									// Could be null - if it is null, this will insert.
-									dbId: currentRecord!.dbId
-								},
-								data: {
-									time: body.taResult!.time,
-									section1Time: body!.taResult!.section_1Time,
-									section2Time: body!.taResult!.section_2Time,
-									section3Time: body!.taResult!.section_3Time,
-									section4Time: body!.taResult!.section_4Time,
-									section5Time: body!.taResult!.section_5Time,
-									section6Time: body!.taResult!.section_6Time,
-									section7Time: body!.taResult!.section_7Time,
-								}
-							});
 						}
 						break;
 					}
