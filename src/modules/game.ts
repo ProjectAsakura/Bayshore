@@ -84,7 +84,19 @@ export default class GameModule extends Module {
 								},
 								data: saveEx
 							});
+							console.log('-------');
 							console.log(c);
+							
+							for(let i=0; i<body.earnedItems.length; i++){
+								await prisma.carItem.create({
+									data: {
+										carId: body.carId,
+										category: body.earnedItems[i].category,
+										itemId: body.earnedItems[i].itemId,
+										amount: 1
+									}
+								});
+							}
 						}
 						break;
 					}
@@ -673,6 +685,7 @@ export default class GameModule extends Module {
 				transferred: false,
 				...car!,
 				stLoseBits: longLoseBits,
+				ownedItems: car!.items
 			};
 			let resp = wm.wm.protobuf.LoadCarResponse.encode(msg);
 			let end = resp.finish();
