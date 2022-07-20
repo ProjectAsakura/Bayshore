@@ -127,8 +127,9 @@ model Car {
 }
 
 model CarItem {
-    Car   Car? @relation(fields: [carId], references: [carId])
-    carId Int  @unique
+    dbId  Int @id @default(autoincrement())
+    Car   Car @relation(fields: [carId], references: [carId])
+    carId Int
 
     category Int
     itemId   Int
