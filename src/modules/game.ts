@@ -16,71 +16,88 @@ export default class GameModule extends Module {
 					carId: body.carId
 				}
 			});
+			let storyLose: boolean = false;
 			switch (body.gameMode) {
 				case wm.wm.protobuf.GameMode.MODE_STORY:
 					{
-						let maxConsecutiveWins = car!.stConsecutiveWinsMax;
-						if (maxConsecutiveWins < body.stResult!.stConsecutiveWins!) {
-							maxConsecutiveWins = body.stResult!.stConsecutiveWins!;
-						}
-						let divcount = body.stResult?.stClearDivCount;
-						let saveEx: any = {};
-						if (divcount !== null && divcount !== undefined && divcount !== 0) {
-							console.log(body.stResult?.stClearDivCount);
-							saveEx.stClearDivCount = divcount;
-						} else {
-							saveEx.stClearDivCount = car?.stClearDivCount;
-						}
-						if (body.stResult?.stClearBits !== null && body.stResult?.stClearBits !== undefined) {
-							saveEx.stClearBits = body.stResult?.stClearBits;
-						} else {
-							saveEx.stClearBits = car?.stClearBits;
-						}
-						if (body.stResult?.stPlayCount !== null && body.stResult?.stPlayCount !== undefined) {
-							saveEx.stPlayCount = body.stResult?.stPlayCount!;
-						} else {
-							saveEx.stPlayCount = car?.stPlayCount;
-						}
-						if (body.stResult?.stClearCount !== null && body.stResult?.stClearCount !== undefined) {
-							saveEx.stClearCount = body.stResult?.stClearCount!;
-						} else {
-							saveEx.stClearCount = car?.stClearCount;
-						}
-						if (body.stResult?.stLoseBits !== null && body.stResult?.stLoseBits !== undefined) {
-							let actualLoseBits = BigInt(0);
-							if (body.stResult?.stLoseBits! instanceof Long) {
-								actualLoseBits = actualLoseBits | BigInt(body.stResult?.stLoseBits.high);
-								actualLoseBits = actualLoseBits << BigInt(32);
-								actualLoseBits = actualLoseBits | BigInt(body.stResult?.stLoseBits.low);
-								saveEx.stLoseBits = actualLoseBits;
+						if (!(body.retired)) {
+							let maxConsecutiveWins = car!.stConsecutiveWinsMax;
+							if (maxConsecutiveWins < body.stResult!.stConsecutiveWins!) {
+								maxConsecutiveWins = body.stResult!.stConsecutiveWins!;
 							}
-						} else {
-							saveEx.stLoseBits = car?.stLoseBits;
+							let divcount = body.stResult?.stClearDivCount;
+							let saveEx: any = {};
+							if (body.stResult?.stLoseBits !== null && body.stResult?.stLoseBits !== undefined) {
+								let actualLoseBits = BigInt(0);
+								if (body.stResult?.stLoseBits! instanceof Long) {
+									actualLoseBits = actualLoseBits | BigInt(body.stResult?.stLoseBits.high);
+									actualLoseBits = actualLoseBits << BigInt(32);
+									actualLoseBits = actualLoseBits | BigInt(body.stResult?.stLoseBits.low);
+									saveEx.stLoseBits = Number(actualLoseBits);
+									if(saveEx.stLoseBits > 0){
+										storyLose = true;
+									}
+								}
+							} else {
+								saveEx.stLoseBits = car?.stLoseBits;
+							}
+							if (divcount !== null && divcount !== undefined && divcount !== 0) {
+								console.log(body.stResult?.stClearDivCount);
+								saveEx.stClearDivCount = divcount;
+							} else {
+								saveEx.stClearDivCount = car?.stClearDivCount;
+							}
+							if (body.stResult?.stClearBits !== null && body.stResult?.stClearBits !== undefined && storyLose !== true) {
+								saveEx.stClearBits = body.stResult?.stClearBits;
+							} else {
+								saveEx.stClearBits = car?.stClearBits;
+							}
+							if (body.stResult?.stPlayCount !== null && body.stResult?.stPlayCount !== undefined) {
+								saveEx.stPlayCount = body.stResult?.stPlayCount!;
+							} else {
+								saveEx.stPlayCount = car?.stPlayCount;
+							}
+							if (body.stResult?.stClearCount !== null && body.stResult?.stClearCount !== undefined && body.stResult?.stClearCount !== 0) {
+								saveEx.stClearCount = body.stResult?.stClearCount!;
+							} else {
+								saveEx.stClearCount = car?.stClearCount;
+							}
+							if (body.stResult?.stConsecutiveWins !== null && body.stResult?.stConsecutiveWins !== undefined) {
+								saveEx.stConsecutiveWins = body.stResult?.stConsecutiveWins!;
+							} else {
+								saveEx.stConsecutiveWins = car?.stConsecutiveWins;
+							}
+							if (body.stResult?.tuningPoint !== null && body.stResult?.tuningPoint !== undefined) {
+								saveEx.tuningPoints = body.stResult?.tuningPoint!;
+							} else {
+								saveEx.tuningPoints = car?.tuningPoints;
+							}
+							if (body.stResult?.stCompleted_100Episodes !== null && body.stResult?.stCompleted_100Episodes !== undefined) {
+								saveEx.stCompleted100Episodes = body.stResult?.stCompleted_100Episodes!;
+							} else {
+								saveEx.stCompleted100Episodes = car?.stCompleted100Episodes;
+							}
+							console.log(saveEx);
+							let c = await prisma.car.update({
+								where: {
+									carId: body.carId
+								},
+								data: saveEx
+							});
+							console.log('-------');
+							console.log(c);
+							
+							for(let i=0; i<body.earnedItems.length; i++){
+								await prisma.carItem.create({
+									data: {
+										carId: body.carId,
+										category: body.earnedItems[i].category,
+										itemId: body.earnedItems[i].itemId,
+										amount: 1
+									}
+								});
+							}
 						}
-						if (body.stResult?.stConsecutiveWins !== null && body.stResult?.stConsecutiveWins !== undefined) {
-							saveEx.stConsecutiveWins = body.stResult?.stConsecutiveWins!;
-						} else {
-							saveEx.stConsecutiveWins = car?.stConsecutiveWins;
-						}
-						if (body.stResult?.tuningPoint !== null && body.stResult?.tuningPoint !== undefined) {
-							saveEx.tuningPoints = body.stResult?.tuningPoint!;
-						} else {
-							saveEx.tuningPoints = car?.tuningPoints;
-						}
-						if (body.stResult?.stCompleted_100Episodes !== null && body.stResult?.stCompleted_100Episodes !== undefined) {
-							saveEx.stCompleted100Episodes = body.stResult?.stCompleted_100Episodes!;
-						} else {
-							saveEx.stCompleted100Episodes = car?.stCompleted100Episodes;
-						}
-						console.log(body);
-						console.log(saveEx);
-						let c = await prisma.car.update({
-							where: {
-								carId: body.carId
-							},
-							data: saveEx
-						});
-						console.log(c);
 						break;
 					}
 				case wm.wm.protobuf.GameMode.MODE_TIME_ATTACK:
@@ -814,6 +831,7 @@ export default class GameModule extends Module {
 				transferred: false,
 				...car!,
 				stLoseBits: longLoseBits,
+				ownedItems: car!.items
 			};
 			let resp = wm.wm.protobuf.LoadCarResponse.encode(msg);
 			let end = resp.finish();
