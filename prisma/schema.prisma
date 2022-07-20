@@ -15,13 +15,14 @@ model User {
   chipId        String         @unique
   accessCode    String
   cars          Car[]
+  carOrder      Int[] // Order of cars
   unusedTickets UserItem[]
   tutorials     Boolean[]
   userBanned    Boolean        @default(false)
-  Bookmarks     Bookmarks[]
+  bookmarks     Int[]
   ScratchSheet  ScratchSheet[]
   currentSheet  Int            @default(0)
-  lastSheet Int @default(0)
+  lastSheet     Int            @default(0)
 }
 
 model ScratchSheet {
@@ -38,13 +39,6 @@ model ScratchSquare {
   category Int
   itemId   Int
   earned   Boolean
-}
-
-model Bookmarks {
-  id     Int   @id @default(autoincrement())
-  User   User  @relation(fields: [userId], references: [id])
-  userId Int   @unique
-  carId  Int[]
 }
 
 model UserItem {
@@ -183,4 +177,6 @@ model TimeAttackRecord {
   section5Time Int?    @map("section5Time")
   section6Time Int?    @map("section6Time")
   section7Time Int?    @map("section7Time")
+  tunePower    Int     @default(0) // Car Power
+  tuneHandling Int     @default(0) // Car Handling
 }

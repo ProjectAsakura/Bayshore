@@ -6,6 +6,8 @@ import { prisma } from "..";
 import { Car, ScratchSheet, ScratchSquare, User } from "@prisma/client";
 import { Config } from "../config";
 import Long from "long";
+import { userInfo } from "os";
+import { config } from "dotenv";
 
 export default class GameModule extends Module {
     register(app: Application): void {
@@ -102,8 +104,6 @@ export default class GameModule extends Module {
 					}
 				case wm.wm.protobuf.GameMode.MODE_TIME_ATTACK:
 					{
-						console.log(body);
-
 						// If the game was not timed out / retired
 						if (!(body.retired || body.timeup)) {
 
@@ -139,6 +139,8 @@ export default class GameModule extends Module {
 										section5Time: body!.taResult!.section_5Time,
 										section6Time: body!.taResult!.section_6Time,
 										section7Time: body!.taResult!.section_7Time,
+										tunePower: body!.car!.tunePower, 
+										tuneHandling: body!.car!.tuneHandling
 									}
 								});
 							}
@@ -160,6 +162,8 @@ export default class GameModule extends Module {
 										section5Time: body!.taResult!.section_5Time,
 										section6Time: body!.taResult!.section_6Time,
 										section7Time: body!.taResult!.section_7Time,
+										tunePower: body!.car!.tunePower, 
+										tuneHandling: body!.car!.tuneHandling
 									}
 								});
 								break;
@@ -546,20 +550,20 @@ export default class GameModule extends Module {
 			let body = wm.wm.protobuf.LoadBookmarksRequest.decode(req.body);
 
 			// Check if the user has any existing bookmarks
-			let bookmarks = await prisma.bookmarks.findFirst({
+			let user = await prisma.user.findFirst({
 				where: {
-					userId: Number(body.userId)
+					id: Number(body.userId)
 				}
 			});
 
 			// Car bookmarks placeholder
 			let cars : Car[] = [];
 
-			// Bookmarks have been created
-			if (bookmarks)
+			// User is not null
+			if (user)
 			{
 				// Loop over the bookmarked cars
-				for (let carId of bookmarks.carId)
+				for (let carId of user.bookmarks)
 				{
 					// Get the car with the bookmarked car id
 					let car = await prisma.car.findFirst({
@@ -598,36 +602,15 @@ export default class GameModule extends Module {
 			// Get the save bookmark request
 			let body = wm.wm.protobuf.SaveBookmarksRequest.decode(req.body);
 
-			// Check if the user has any existing bookmarks
-			let bookmarks = await prisma.bookmarks.findFirst({
+			// Update existing bookmarks
+			await prisma.user.update({
 				where: {
-					userId: Number(body.userId)
+					id: body.userId
+				}, 
+				data: {
+					bookmarks: body.cars
 				}
-			});
-
-			// Bookmarks already exist
-			if (bookmarks)
-			{
-				// Update existing bookmarks
-				await prisma.bookmarks.update({
-					where: {
-						userId: body.userId
-					}, 
-					data: {
-						carId: body.cars
-					}
-				})
-			}
-			else // Bookmarks not set
-			{
-				// Create new bookmark
-				await prisma.bookmarks.create({
-					data: {
-						userId: body.userId, 
-						carId: body.cars, 
-					}
-				})
-			}
+			})
 
 			// Generate the response to the terminal (success messsage)
 			let resp = wm.wm.protobuf.LoadBookmarksResponse.encode({
@@ -728,13 +711,9 @@ export default class GameModule extends Module {
 			// Get the information from the request
 			let body = wm.wm.protobuf.LoadScratchInformationRequest.decode(req.body);
 
-			// Get the user's current scratch sheet
-			let user = await prisma.user.findFirst({
-				where: {
-					userId: body.userId
-				}
-			});
+			// Commenting all of the scratch card shit out for now
 
+			/* 
 			// Get all of the scratch sheets for the user
 			let scratchSheets = await prisma.scratchSheet.findMany({
 				where: {
@@ -746,7 +725,7 @@ export default class GameModule extends Module {
 			});
 
 			// No scratch sheets for user
-			if (scratchSheets.length < user.currentSheet)
+			if (scratchSheets.length == 0)
 			{
 				// Create a new scratch sheet for the user
 				let sheet = await prisma.scratchSheet.create({
@@ -760,8 +739,8 @@ export default class GameModule extends Module {
 					await prisma.scratchSquare.create({
 						data: {
 							sheetId: sheet.id, 
-							category: wm.wm.protobuf.ItemCategory.CAT_CAR_TICKET_FREE,
-							itemId: 5, 
+							category: wm.wm.protobuf.ItemCategory.CAT_RIVAL_MARKER,
+							itemId: 1, 
 							earned: false
 						}
 					});
@@ -815,16 +794,109 @@ export default class GameModule extends Module {
 					})
 				);
 			}
+			*/
+
+			// Debug: Add all items to the 'acceptable items' list
+
+			// Owned user items list
+			let ownedUserItems : wm.wm.protobuf.UserItem[] = [];
+
+			// Get the current date
+			let date = Date.now();
+
+			// If the grant all scratch rewards switch is set, add them to the list
+			if (Config.getConfig().gameOptions.grantAllScratchRewards)
+			{
+				// Grant one of each item every time the menu is loaded
+
+				// Loop over all of the window sticker styles
+				for(let i=1; i<=60; i++)
+				{
+					// Add one of each of the window sticker styles to the list
+					ownedUserItems.push(wm.wm.protobuf.UserItem.create({
+						category: wm.wm.protobuf.ItemCategory.CAT_WINDOW_DECORATION, 
+						itemId: i, 
+						earnedAt: date, 
+					}));
+				}
+
+				// Loop over all of the rival markers
+				for(let i=1; i<=80; i++)
+				{
+					// Add one of each of the rival markers to the list
+					ownedUserItems.push(wm.wm.protobuf.UserItem.create({
+						category: wm.wm.protobuf.ItemCategory.CAT_RIVAL_MARKER, 
+						itemId: i, 
+						earnedAt: date, 
+					}));
+				}
+
+				// Item ID for the scratch cars
+				let scratchCarIds = [4, 3, 1, 2, 5, 6, 16, 17, 18, 19, 20, 21];
+				
+				// I literally ripped this from mozilla.org lmfao
+				let getValueInRange = (min: number, max: number) => {
+					return Math.random() * (max - min) + min;
+				}
+
+				// If the grant bonus scratch cars switch is set, switch on the value
+				switch(Config.getConfig().gameOptions.grantBonusScratchCars)
+				{
+					case 1: // Grant one of each bonus scratch car (random colour)
+
+						// Mini Cooper						
+						scratchCarIds.push(getValueInRange(7, 15));
+
+						// S660
+						scratchCarIds.push(getValueInRange(22, 27));
+
+						// S2000
+						scratchCarIds.push(getValueInRange(28, 36));
+
+						// Roadster RF, 280ZT, Leopard
+						scratchCarIds = scratchCarIds.concat([37, 38, 39]);
+
+						break;
+					case 2: // Grant every colour of each bonus scratch cars
+
+						// Mini Cooper						
+						scratchCarIds = scratchCarIds.concat([7, 8, 9, 10, 11, 12, 13, 14, 15]);
+
+						// S660
+						scratchCarIds = scratchCarIds.concat([22, 23, 24, 25, 26, 27]);
+
+						// S2000
+						scratchCarIds = scratchCarIds.concat([28, 29, 30, 31, 32, 33, 34, 35, 36]);
+
+						// Roadster RF, 280ZT, Leopard
+						scratchCarIds = scratchCarIds.concat([37, 38, 39]);
+
+						break;
+					default: // Do not grant bonus scratch cars
+						break;
+				}
+
+				// Loop over all of the scratch cars
+				for(let car of scratchCarIds)
+				{
+					// Add one of each of the rival markers to the list
+					ownedUserItems.push(wm.wm.protobuf.UserItem.create({
+						category: 201, // Scratch Car
+						itemId: car, 
+						earnedAt: date, 
+					}));
+				}
+			}
 
 			let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+				scratchSheets: [],
 				currentSheet: 0,
-				numOfScratched: 0,
-				scratch_sheets: scratch_sheets, 
-				owned_user_items: [
-
-				]
+				numOfScratched: 0, 
+				ownedUserItems: ownedUserItems
 			}
+
+			// console.log(scratch_sheets);
 
 			let resp = wm.wm.protobuf.LoadScratchInformationResponse.encode(msg);
 			let end = resp.finish();
@@ -912,7 +984,7 @@ export default class GameModule extends Module {
 
 			let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
-				scratch_sheets : scratch_sheets,
+				scratchSheets : scratch_sheets,
 				currentSheet: body.targetSheet, 
 				numOfScratched: numOfScratched, 
 				earnedItem: wm.wm.protobuf.UserItem.create({
@@ -978,15 +1050,23 @@ export default class GameModule extends Module {
         })
 
 		app.post('/method/create_car', async (req, res) => {
+
+			// Get the create car request body
 			let body = wm.wm.protobuf.CreateCarRequest.decode(req.body);
+
+			console.log(body);
+
+			// Retrieve user from card chip / user id
 			let user: User | null;
+
+			// User ID provided, use that
 			if (body.userId) {
 				user = await prisma.user.findFirst({
 					where: {
 						id: body.userId
 					},
 				});
-			} else {
+			} else { // No user id, use card chip
 				user = await prisma.user.findFirst({
 					where: {
 						chipId: body.cardChipId,
@@ -994,30 +1074,75 @@ export default class GameModule extends Module {
 					},
 				})
 			}
+
+			// User not found, terminate
 			if (!user) throw new Error();
+
+			// Generate blank car settings object
 			let settings = await prisma.carSettings.create({
 				data: {}
 			});
+
+			// Generate blank car state object
 			let state = await prisma.carState.create({
 				data: {}
 			})
-			let fullTuneUsed = false;
-			if (body.userItemId) {
+
+			// Sets if full tune is used or not
+			let fullyTuned = false;
+
+			// If a user item has been used
+			if (body.userItemId) 
+			{
 				console.log(`Item used - ID ${body.userItemId}`);
+
+				// Remove the user item from the database
 				let item = await prisma.userItem.delete({
 					where: {
 						dbId: body.userItemId
 					}
 				});
+
 				console.log(`Item category was ${item.category} and item game ID was ${item.itemId}`);
+				
+				// If the item used was a full tune ticket
 				if (item.category == wm.wm.protobuf.ItemCategory.CAT_CAR_TICKET_FREE &&
 					item.itemId == 5)
 				{
-					// This is a full-tune ticket
-					fullTuneUsed = true;
+					// Fully tuned is true
+					fullyTuned = true;
 				}
+
 				console.log('Item deleted!');
 			}
+			// User item not used, but car has 740 HP by default
+			else if (body.car && 
+				(body.car.tunePower == 17) && (body.car.tuneHandling == 17))
+			{
+				// Set fully tuned to be true
+				fullyTuned = true;
+			}
+			// User item not used, but gift cars fully tuned switch is set
+			else if (Config.getConfig().gameOptions.giftCarsFullyTuned)
+			{
+				// List of event / exclusive car IDs
+				let event_cars = [
+					0x7A, // Mini
+					0x82, // S660
+					0x83, // S2000
+					0x89, // NDERC
+					0x8B, // GS130 (Starts at 20 Stories by default)
+				]; 
+
+				// If the car visual model is not null and is in the list of event cars
+				if (body.car.visualModel && event_cars.includes(body.car.visualModel))
+				{
+					// Set full tune used to be true
+					fullyTuned = true;
+				}
+			}
+
+			// Default car values
 			let carInsert = {
 				userId: user.id,
 				manufacturer: body.car.manufacturer!,
@@ -1033,8 +1158,21 @@ export default class GameModule extends Module {
 				carStateDbId: state.dbId,
 				regionId: body.car.regionId!,
 			};
-			let additionalInsert = {}
-			if (fullTuneUsed) {
+
+			// Additional car values (for full tune)
+			let additionalInsert = {
+
+			}
+
+			// Car is fully tuned
+			if (fullyTuned) {
+
+				// Updated default values
+				carInsert.level = 8; // C3
+				carInsert.tunePower = 17; // 740 HP
+				carInsert.tuneHandling = 17; // 740 HP
+
+				// Additional full tune values
 				additionalInsert = {
 					stClearBits: 0,
 					stLoseBits: 0,
@@ -1043,6 +1181,8 @@ export default class GameModule extends Module {
 					stConsecutiveWins: 80
 				};
 			}
+
+			// Insert the car into the database
 			let car = await prisma.car.create({
 				data: {
 					...carInsert,
@@ -1108,14 +1248,122 @@ export default class GameModule extends Module {
 			r.send(Buffer.from(end));
 		});
 
-		app.post('/method/load_game_history', (req, res) => {
-            let msg = {
+		app.post('/method/load_game_history', async (req, res) => {
+			
+			// Get the request content
+			let body = wm.wm.protobuf.LoadGameHistoryRequest.decode(req.body);
+
+			// Empty list of time attack records for the player's car
+			let ta_records : wm.wm.protobuf.LoadGameHistoryResponse.TimeAttackRecord[] = [];
+
+			// Get the car info
+			let car = await prisma.car.findFirst({
+				where: {
+					carId: body.carId
+				}
+			});
+
+			// Get the car's time attack records
+			let records = await prisma.timeAttackRecord.findMany({
+				where: {
+					carId: body.carId
+				}
+			});
+
+			console.log(records);
+
+			// Loop over all of the records
+			for(let record of records)
+			{
+				// This code could probably be done with less DB calls in the future
+
+				// Calculate the total rank, total participants for the record
+				let wholeData = await prisma.timeAttackRecord.findMany({
+					where: {
+						course: record.course
+					}, 
+					orderBy: {
+						time: 'asc'
+					}
+				});
+
+				// Get the overall number of participants
+				let wholeParticipants = wholeData.length;
+
+				// Whole rank (default: 1)
+				let wholeRank = 1;
+
+				// Loop over all of the participants
+				for(let row of wholeData)
+				{
+					// If the car ID does not match
+					if (row.carId !== body.carId)
+					{
+						// Increment whole rank
+						wholeRank++; 
+					}
+					else // Model ID matches
+					{
+						// Break the loop
+						break;
+					}
+				}
+
+				// Calculate the model rank, model participants for the record
+				let modelData = await prisma.timeAttackRecord.findMany({
+					where: {
+						course: record.course, 
+						model: record.model
+					}, 
+					orderBy: {
+						time: 'asc'
+					}
+				});
+
+				// Get the overall number of participants (with the same car model)
+				let modelParticipants = modelData.length;
+
+				// Model rank (default: 1)
+				let modelRank = 1;
+
+				// Loop over all of the participants
+				for(let row of modelData)
+				{
+					// If the car ID does not match
+					if (row.carId !== body.carId)
+					{
+						// Increment whole rank
+						modelRank++; 
+					}
+					else // Model ID matches
+					{
+						// Break the loop
+						break;
+					}
+				}
+
+				// Generate the time attack record object and add it to the list
+				ta_records.push(wm.wm.protobuf.LoadGameHistoryResponse.TimeAttackRecord.create({
+					course: record.course, 
+					time: record.time, 
+					tunePower: record.tunePower,
+					tuneHandling: record.tuneHandling,
+					wholeParticipants: wholeParticipants, 
+					wholeRank: wholeRank, 
+					modelParticipants: modelParticipants, 
+					modelRank: modelRank
+				}));
+			}
+
+			let msg = {
                 error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
-				taRankingUpdatedAt: 0,
+				taRecords: ta_records,
+				taRankingUpdatedAt: 1,
 				ghostBattleCount: 0,
 				ghostBattleWinCount: 0,
-				stampSheetCount: 100,
+				stampSheetCount: 0,
             }
+
             let resp = wm.wm.protobuf.LoadGameHistoryResponse.encode(msg);
             let end = resp.finish();
             let r = res
