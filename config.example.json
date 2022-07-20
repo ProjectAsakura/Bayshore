@@ -4,6 +4,8 @@
     "regionName": "Bayshore",
     "serverIp": "127.0.0.1",
     "gameOptions": {
-        "grantFullTuneTicketToNewUsers": 0
+        "grantFullTuneTicketToNewUsers": 0,
+        "grantAllScratchRewards": 0, 
+        "grantBonusScratchCars": 0
     }
 }
