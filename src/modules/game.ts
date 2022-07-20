@@ -3,7 +3,7 @@ import { Module } from "../module";
 import * as wm from "../wmmt/wm.proto";
 import * as svc from "../wmmt/service.proto";
 import { prisma } from "..";
-import { Car, ScratchSheet, ScratchSquare, User } from "@prisma/client";
+import { Car, User } from "@prisma/client";
 import { Config } from "../config";
 import Long from "long";
 import { userInfo } from "os";

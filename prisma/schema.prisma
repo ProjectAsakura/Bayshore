@@ -11,35 +11,36 @@ datasource db {
 }
 
 model User {
-  id            Int            @id @default(autoincrement())
-  chipId        String         @unique
+  id            Int        @id @default(autoincrement())
+  chipId        String     @unique
   accessCode    String
   cars          Car[]
   carOrder      Int[] // Order of cars
   unusedTickets UserItem[]
   tutorials     Boolean[]
-  userBanned    Boolean        @default(false)
+  userBanned    Boolean    @default(false)
   bookmarks     Int[]
-  ScratchSheet  ScratchSheet[]
-  currentSheet  Int            @default(0)
-  lastSheet     Int            @default(0)
+  // ScratchSheet  ScratchSheet[]
+  currentSheet  Int        @default(0)
+  lastSheet     Int        @default(0)
 }
 
-model ScratchSheet {
-  id      Int             @id @default(autoincrement())
-  User    User            @relation(fields: [userId], references: [id])
-  userId  Int             @unique
-  squares ScratchSquare[]
-}
+// Not working yet, removing from schema
+// model ScratchSheet {
+//   id      Int             @id @default(autoincrement())
+//   User    User            @relation(fields: [userId], references: [id])
+//   userId  Int             @unique
+//   squares ScratchSquare[]
+// }
 
-model ScratchSquare {
-  id       Int          @id @default(autoincrement())
-  Sheet    ScratchSheet @relation(fields: [sheetId], references: [id])
-  sheetId  Int
-  category Int
-  itemId   Int
-  earned   Boolean
-}
+// model ScratchSquare {
+//   id       Int          @id @default(autoincrement())
+//   Sheet    ScratchSheet @relation(fields: [sheetId], references: [id])
+//   sheetId  Int
+//   category Int
+//   itemId   Int
+//   earned   Boolean
+// }
 
 model UserItem {
   dbId     Int  @id @default(autoincrement())
