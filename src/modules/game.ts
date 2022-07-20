@@ -518,8 +518,8 @@ export default class GameModule extends Module {
 			r.send(Buffer.from(end));
 		})
 
-		// Load unrecieved user items
-		app.post('/method/load_unrecieved_user_items', (req, res) => {
+		// Load unreceived user items
+		app.post('/method/load_unreceived_user_items', (req, res) => {
 
 			// In future, might want to check db for player items
 
