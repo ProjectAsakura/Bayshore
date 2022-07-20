@@ -913,6 +913,7 @@ export default class GameModule extends Module {
 			// Get the information from the request
 			let body = wm.wm.protobuf.SaveScratchSheetRequest.decode(req.body);
 
+			/*
 			// Get all of the scratch sheets for the user
 			let scratchSheets = await prisma.scratchSheet.findMany({
 				where: {
@@ -981,16 +982,13 @@ export default class GameModule extends Module {
 					})
 				);
 			}
+			*/
 
 			let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
-				scratchSheets : scratch_sheets,
+				scratchSheets : [],
 				currentSheet: body.targetSheet, 
-				numOfScratched: numOfScratched, 
-				earnedItem: wm.wm.protobuf.UserItem.create({
-					category: scratchSquare.category, 
-					itemId: scratchSquare.itemId, 
-				})
+				numOfScratched: 0, 
 			}
 
 			let resp = wm.wm.protobuf.SaveScratchSheetResponse.encode(msg);
