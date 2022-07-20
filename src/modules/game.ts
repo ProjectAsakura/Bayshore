@@ -3,7 +3,7 @@ import { Module } from "../module";
 import * as wm from "../wmmt/wm.proto";
 import * as svc from "../wmmt/service.proto";
 import { prisma } from "..";
-import { User } from "@prisma/client";
+import { Car, ScratchSheet, ScratchSquare, User } from "@prisma/client";
 import { Config } from "../config";
 import Long from "long";
 
@@ -523,19 +523,100 @@ export default class GameModule extends Module {
 		})
 
 		// Load user bookmarks
-		app.post('/method/load_bookmarks', (req, res) => {
+		app.post('/method/load_bookmarks', async (req, res) => {
 
-			// In future, check db for player bookmarks
-			console.log('todo: player bookmarks')
+			// Get the save bookmark request
+			let body = wm.wm.protobuf.LoadBookmarksRequest.decode(req.body);
+
+			// Check if the user has any existing bookmarks
+			let bookmarks = await prisma.bookmarks.findFirst({
+				where: {
+					userId: Number(body.userId)
+				}
+			});
+
+			// Car bookmarks placeholder
+			let cars : Car[] = [];
+
+			// Bookmarks have been created
+			if (bookmarks)
+			{
+				// Loop over the bookmarked cars
+				for (let carId of bookmarks.carId)
+				{
+					// Get the car with the bookmarked car id
+					let car = await prisma.car.findFirst({
+						where: {
+							carId: carId
+						}
+					});
+
+					// If the car is not null
+					if (car)
+					{
+						// Add the car to the cars list
+						cars.push(car);
+					}
+				}
+			}
 
 			let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
-				cars: [
-					// No bookmarks
-				]
+				cars: cars
 			}
 
 			let resp = wm.wm.protobuf.LoadBookmarksResponse.encode(msg);
+			let end = resp.finish();
+			let r = res
+				.header('Server', 'v388 wangan')
+				.header('Content-Type', 'application/x-protobuf; revision=8053')
+				.header('Content-Length', end.length.toString())
+				.status(200);
+			r.send(Buffer.from(end));
+		})
+
+		// Save user bookmarks
+		app.post('/method/save_bookmarks', async (req, res) => {
+
+			// Get the save bookmark request
+			let body = wm.wm.protobuf.SaveBookmarksRequest.decode(req.body);
+
+			// Check if the user has any existing bookmarks
+			let bookmarks = await prisma.bookmarks.findFirst({
+				where: {
+					userId: Number(body.userId)
+				}
+			});
+
+			// Bookmarks already exist
+			if (bookmarks)
+			{
+				// Update existing bookmarks
+				await prisma.bookmarks.update({
+					where: {
+						userId: body.userId
+					}, 
+					data: {
+						carId: body.cars
+					}
+				})
+			}
+			else // Bookmarks not set
+			{
+				// Create new bookmark
+				await prisma.bookmarks.create({
+					data: {
+						userId: body.userId, 
+						carId: body.cars, 
+					}
+				})
+			}
+
+			// Generate the response to the terminal (success messsage)
+			let resp = wm.wm.protobuf.LoadBookmarksResponse.encode({
+				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS
+			});
+
 			let end = resp.finish();
 			let r = res
 				.header('Server', 'v388 wangan')
@@ -625,15 +706,104 @@ export default class GameModule extends Module {
 		})
 		
 		// Terminal scratch (VERY WIP)
-		app.post('/method/load_scratch_information', (req, res) => {
+		app.post('/method/load_scratch_information', async (req, res) => {
+
+			// Get the information from the request
+			let body = wm.wm.protobuf.LoadScratchInformationRequest.decode(req.body);
+
+			// Get the user's current scratch sheet
+			let user = await prisma.user.findFirst({
+				where: {
+					userId: body.userId
+				}
+			});
+
+			// Get all of the scratch sheets for the user
+			let scratchSheets = await prisma.scratchSheet.findMany({
+				where: {
+					userId: body.userId
+				},
+				include: {
+					squares: true
+				}
+			});
+
+			// No scratch sheets for user
+			if (scratchSheets.length < user.currentSheet)
+			{
+				// Create a new scratch sheet for the user
+				let sheet = await prisma.scratchSheet.create({
+					data: {
+						userId: body.userId
+					}
+				})
+
+				// Populate each square (with FT ticket for now)
+				for (let i=0; i<50; i++) {
+					await prisma.scratchSquare.create({
+						data: {
+							sheetId: sheet.id, 
+							category: wm.wm.protobuf.ItemCategory.CAT_CAR_TICKET_FREE,
+							itemId: 5, 
+							earned: false
+						}
+					});
+				}
+
+				// In future, I will very the way this is populated based on settings
+				// i.e. totally random items, items based upon real arcade, etc. 
+
+				// Get the data for the newly created sheet
+				let newSheet = await prisma.scratchSheet.findFirst({
+					where: {
+						userId: body.userId
+					},
+					include: {
+						squares: true
+					}
+				});
+
+				// Sheet is created successfully
+				if (newSheet)
+				{
+					// Update the scratch sheet list
+					scratchSheets = [newSheet];
+				}
+			}
+
+			// Generate the scratch sheet proto
+			let scratch_sheets : wm.wm.protobuf.ScratchSheet[] = [];
+
+			// Loop over all of the protos
+			for(let sheet of scratchSheets)
+			{
+				// Get all of the scratch squares
+				let scratch_squares : wm.wm.protobuf.ScratchSheet.ScratchSquare[] = [];
+
+				// Loop over all of the squares
+				for (let square of sheet.squares)
+				{
+					// Add the current square to the protobuf array
+					scratch_squares.push(wm.wm.protobuf.ScratchSheet.ScratchSquare.create({
+						category: square.category, 
+						itemId: square.itemId, 
+						earned: square.earned
+					}));
+				}
+
+				// Add the scratch sheet to the sheets list
+				scratch_sheets.push(
+					wm.wm.protobuf.ScratchSheet.create({
+						squares: scratch_squares
+					})
+				);
+			}
 
 			let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
 				currentSheet: 0,
 				numOfScratched: 0,
-				scratch_sheets: [
-
-				], 
+				scratch_sheets: scratch_sheets, 
 				owned_user_items: [
 
 				]
@@ -648,6 +818,101 @@ export default class GameModule extends Module {
 				.status(200);
 			r.send(Buffer.from(end));
 		});
+
+		app.post('/method/save_scratch_sheet', async (req, res) => {
+
+			// Get the information from the request
+			let body = wm.wm.protobuf.SaveScratchSheetRequest.decode(req.body);
+
+			// Get all of the scratch sheets for the user
+			let scratchSheets = await prisma.scratchSheet.findMany({
+				where: {
+					userId: body.userId
+				}, 
+				include: {
+					squares: true
+				}
+			})
+
+			// Get the target scratch sheet 
+			let scratchSheet = scratchSheets[Number(body.targetSheet)];
+
+			// Get all of the squares for the scratch sheet
+			let scratchSquares = await prisma.scratchSquare.findMany({
+				where: {
+					sheetId: scratchSheet.id
+				}
+			});
+
+			// Get the target scratch square
+			let scratchSquare = scratchSquares[Number(body.targetSquare)];
+
+			// Update the revealed scratch square
+			await prisma.scratchSquare.update({
+				where: {
+					id: scratchSquare.id
+				}, 
+				data: {
+					earned: true
+				}
+			});
+
+			// Get the number of scratched squares on the page
+			let numOfScratched = await prisma.scratchSquare.count({
+				where: {
+					sheetId: scratchSheet.id, 
+					earned: true
+				}
+			})
+
+			// Generate the scratch sheet proto
+			let scratch_sheets : wm.wm.protobuf.ScratchSheet[] = [];
+
+			// Loop over all of the protos
+			for(let sheet of scratchSheets)
+			{
+				// Get all of the scratch squares
+				let scratch_squares : wm.wm.protobuf.ScratchSheet.ScratchSquare[] = [];
+
+				// Loop over all of the squares
+				for (let square of sheet.squares)
+				{
+					// Add the current square to the protobuf array
+					scratch_squares.push(wm.wm.protobuf.ScratchSheet.ScratchSquare.create({
+						category: square.category, 
+						itemId: square.itemId, 
+						earned: square.earned
+					}));
+				}
+
+				// Add the scratch sheet to the sheets list
+				scratch_sheets.push(
+					wm.wm.protobuf.ScratchSheet.create({
+						squares: scratch_squares
+					})
+				);
+			}
+
+			let msg = {
+				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+				scratch_sheets : scratch_sheets,
+				currentSheet: body.targetSheet, 
+				numOfScratched: numOfScratched, 
+				earnedItem: wm.wm.protobuf.UserItem.create({
+					category: scratchSquare.category, 
+					itemId: scratchSquare.itemId, 
+				})
+			}
+
+			let resp = wm.wm.protobuf.SaveScratchSheetResponse.encode(msg);
+			let end = resp.finish();
+			let r = res
+				.header('Server', 'v388 wangan')
+				.header('Content-Type', 'application/x-protobuf; revision=8053')
+				.header('Content-Length', end.length.toString())
+				.status(200);
+			r.send(Buffer.from(end));
+		})
 
 		app.post('/method/update_car', async (req, res) => {
 			let body = wm.wm.protobuf.UpdateCarRequest.decode(req.body);
