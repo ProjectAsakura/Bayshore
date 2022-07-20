@@ -20,7 +20,6 @@ export default class GameModule extends Module {
 			switch (body.gameMode) {
 				case wm.wm.protobuf.GameMode.MODE_STORY:
 					{
-						console.log(body);
 						if (!(body.retired)) {
 							let maxConsecutiveWins = car!.stConsecutiveWinsMax;
 							if (maxConsecutiveWins < body.stResult!.stConsecutiveWins!) {
