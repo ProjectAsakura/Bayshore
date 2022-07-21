@@ -259,6 +259,14 @@ export default class GameModule extends Module {
 							saveEx.ghostLevel = car?.ghostLevel;
 						}
 
+						let winCount = 0;
+						if(body.rgResult?.rgRegionMapScore !== null && body.rgResult?.rgRegionMapScore !== undefined && body.rgResult?.rgRegionMapScore.length !== 0){
+							for(let i=0; i<body.rgResult.rgRegionMapScore.length; i++){
+								winCount += body.rgResult.rgRegionMapScore[i];
+							}
+						}
+						saveEx.rgWinCount = winCount;
+
 						let c = await prisma.car.update({
 							where: {
 								carId: body.carId
