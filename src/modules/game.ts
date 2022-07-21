@@ -18,6 +18,7 @@ export default class GameModule extends Module {
 					carId: body.carId
 				}
 			});
+			console.log(body);
 			let storyLose: boolean = false;
 			switch (body.gameMode) {
 				case wm.wm.protobuf.GameMode.MODE_STORY:

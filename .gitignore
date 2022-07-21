@@ -9,4 +9,3 @@ key.pem
 config.json
 package-lock.json
 ecosystem.config.js
-prisma/*.sql
