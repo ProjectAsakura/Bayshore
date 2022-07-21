@@ -108,6 +108,7 @@ model Car {
     rgScore                Int         @default(0)
     rgStamp                Int         @default(0)
     rgAcquireAllCrowns     Boolean     @default(false)
+    rgRegionMapScore       Int[]       
     dressupLevel           Int         @default(0)
     dressupPoint           Int         @default(0)
     stPlayCount            Int         @default(0)

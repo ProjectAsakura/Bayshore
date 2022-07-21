@@ -15,3 +15,6 @@ Special thanks:
 Donations are not required, however I'm only one person, and I'm still a student, so if you want to thank me for my work, [please buy me a coffee or two](https://ko-fi.com/lostkagamine).
 
 This won't get you anything other than my gratitude, the entire project is and will always remain available to everyone for free.
+
+## On TeknoParrot
+The TeknoParrot team (TeknoGods) are not authorised to use **any part** of this project. **Do not integrate any portion of Bayshore into TeknoParrot.**
