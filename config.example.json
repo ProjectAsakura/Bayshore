@@ -5,7 +5,6 @@
     "serverIp": "127.0.0.1",
     "gameOptions": {
         "grantFullTuneTicketToNewUsers": 3, 
-        "grantBonusScratchCars": 0, 
         "giftCarsFullyTuned": 0, 
         "scratchEnabled": 1, 
         "scratchType": 1

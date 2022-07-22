@@ -18,10 +18,6 @@ export interface UnixOptions {
 
 export interface GameOptions {
 
-    // If set to 1, gives the player a random colour for each of the special cars.
-    // If set to 2, allows the player to pick any of the colours (more cluttered)
-	grantBonusScratchCars: number;
-
     // If set to 1, all gift cars (i.e. S2000, S660, etc. will be fully tuned.)
     // If set to 0, they will be left at their default tune (i.e. stock, basic tune, etc.)
     giftCarsFullyTuned: number;
