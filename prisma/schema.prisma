@@ -11,43 +11,46 @@ datasource db {
 }
 
 model User {
-  id            Int        @id @default(autoincrement())
-  chipId        String     @unique
+  id            Int            @id @default(autoincrement())
+  chipId        String         @unique
   accessCode    String
   cars          Car[]
-  carOrder      Int[] // Order of cars
-  unusedTickets UserItem[]
+  carOrder      Int[]
+  items         UserItem[]
   tutorials     Boolean[]
-  userBanned    Boolean    @default(false)
+  userBanned    Boolean        @default(false)
   bookmarks     Int[]
-  // ScratchSheet  ScratchSheet[]
-  currentSheet  Int        @default(0)
-  lastSheet     Int        @default(0)
+  ScratchSheet  ScratchSheet[]
+  currentSheet  Int            @default(1)
+  lastSheet     Int            @default(1)
+  lastScratched Int            @default(0) // Timestamp
 }
 
-// Not working yet, removing from schema
-// model ScratchSheet {
-//   id      Int             @id @default(autoincrement())
-//   User    User            @relation(fields: [userId], references: [id])
-//   userId  Int             @unique
-//   squares ScratchSquare[]
-// }
+model ScratchSheet {
+  id      Int             @id @default(autoincrement())
+  User    User            @relation(fields: [userId], references: [id])
+  userId  Int
+  sheetNo Int // Player's sheet number (i.e. first sheet)
+  squares ScratchSquare[]
+}
 
-// model ScratchSquare {
-//   id       Int          @id @default(autoincrement())
-//   Sheet    ScratchSheet @relation(fields: [sheetId], references: [id])
-//   sheetId  Int
-//   category Int
-//   itemId   Int
-//   earned   Boolean
-// }
-
-model UserItem {
-  dbId     Int  @id @default(autoincrement())
+model ScratchSquare {
+  id       Int          @id @default(autoincrement())
+  Sheet    ScratchSheet @relation(fields: [sheetId], references: [id])
+  sheetId  Int
   category Int
   itemId   Int
-  User     User @relation(fields: [userId], references: [id])
-  userId   Int
+  earned   Boolean
+}
+
+model UserItem {
+  userItemId Int  @id @default(autoincrement())
+  category   Int
+  itemId     Int
+  User       User @relation(fields: [userId], references: [id])
+  userId     Int
+  type       Int  @default(0)
+  earnedAt   Int  @default(0)
 }
 
 model Car {
@@ -82,6 +85,7 @@ model Car {
   windowStickerString String  @default("ＷＡＮＧＡＮ")
   windowStickerFont   Int     @default(0)
   rivalMarker         Int     @default(0)
+  lastPlayedAt        Int     @default(0)
   aura                Int     @default(0)
   auraMotif           Int     @default(0)
   ghostLevel          Int     @default(1)
@@ -127,9 +131,9 @@ model Car {
 }
 
 model CarItem {
-  Car   Car? @relation(fields: [carId], references: [carId])
-  carId Int  @unique
-
+  dbId     Int @id @default(autoincrement())
+  Car      Car @relation(fields: [carId], references: [carId])
+  carId    Int
   category Int
   itemId   Int
   amount   Int
