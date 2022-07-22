@@ -305,6 +305,7 @@ export default class GameModule extends Module {
 					title: body.car!.title!,
 					tunePower: body.car!.tunePower!,
 					tuneHandling: body.car!.tuneHandling!,
+					windowSticker: body.car!.windowSticker!,
 				}
 			})
 			await prisma.carSettings.update({
@@ -1198,6 +1199,11 @@ export default class GameModule extends Module {
 					saveEx.rivalMarker = body.car?.rivalMarker!;
 			} else {
 				saveEx.rivalMarker = car?.rivalMarker;
+			}
+			if (body.car?.windowSticker !== null && body.car?.windowSticker !== undefined) {
+					saveEx.windowSticker = body.car?.windowSticker!;
+			} else {
+				saveEx.windowSticker = car?.windowSticker;
 			}
 
 			await prisma.carSettings.update({
