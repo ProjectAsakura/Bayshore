@@ -20,6 +20,7 @@ export default class GameModule extends Module {
 					carId: body.carId
 				}
 			});
+			console.log(body);
 			let storyLose: boolean = false;
 			switch (body.gameMode) {
 				case wm.wm.protobuf.GameMode.MODE_STORY:
@@ -91,15 +92,18 @@ export default class GameModule extends Module {
 							console.log('-------');
 							console.log(c);
 							
-							for(let i=0; i<body.earnedItems.length; i++){
-								await prisma.carItem.create({
-									data: {
-										carId: body.carId,
-										category: body.earnedItems[i].category,
-										itemId: body.earnedItems[i].itemId,
-										amount: 1
-									}
-								});
+							if(body.earnedItems.length !== 0){
+								console.log('Game reward available, continuing ...');
+								for(let i=0; i<body.earnedItems.length; i++){
+									await prisma.carItem.create({
+										data: {
+											carId: body.carId,
+											category: body.earnedItems[i].category,
+											itemId: body.earnedItems[i].itemId,
+											amount: 1
+										}
+									});
+								}
 							}
 						}
 						break;
@@ -173,6 +177,122 @@ export default class GameModule extends Module {
 						}
 						break;
 					}
+				case wm.wm.protobuf.GameMode.MODE_GHOST_BATTLE:
+					{
+						if (!(body.retired)) {
+							let saveEx: any = {};
+							if (body.rgResult?.rgRegionMapScore !== null && body.rgResult?.rgRegionMapScore !== undefined) {
+									saveEx.rgRegionMapScore = body.rgResult?.rgRegionMapScore!;
+							} else {
+								saveEx.rgRegionMapScore = car?.rgRegionMapScore;
+							}
+							if (body.rgResult?.rgPlayCount !== null && body.rgResult?.rgPlayCount !== undefined) {
+									saveEx.rgPlayCount = body.rgResult?.rgPlayCount!;
+							} else {
+								saveEx.rgPlayCount = car?.rgPlayCount;
+							}
+							if (body.rgResult?.dressupLevel !== null && body.rgResult?.dressupLevel !== undefined) {
+									saveEx.dressupLevel = body.rgResult?.dressupLevel!;
+							} else {
+								saveEx.dressupLevel = car?.dressupLevel;
+							}
+							if (body.rgResult?.dressupPoint !== null && body.rgResult?.dressupPoint !== undefined) {
+									saveEx.dressupPoint = body.rgResult?.dressupPoint!;
+							} else {
+								saveEx.dressupPoint = car?.dressupPoint;
+							}
+							if (body.car?.wheel !== null && body.car?.wheel !== undefined) {
+									saveEx.wheel = body.car?.wheel!;
+							} else {
+								saveEx.wheel = car?.wheel;
+							}
+							if (body.car?.wheelColor !== null && body.car?.wheelColor !== undefined) {
+									saveEx.wheelColor = body.car?.wheelColor!;
+							} else {
+								saveEx.wheelColor = car?.wheelColor;
+							}
+							if (body.car?.aero !== null && body.car?.aero !== undefined) {
+									saveEx.aero = body.car?.aero!;
+							} else {
+								saveEx.aero = car?.aero;
+							}
+							if (body.car?.bonnet !== null && body.car?.bonnet !== undefined) {
+									saveEx.bonnet = body.car?.bonnet!;
+							} else {
+								saveEx.bonnet = car?.bonnet;
+							}
+							if (body.car?.wing !== null && body.car?.wing !== undefined) {
+									saveEx.wing = body.car?.wing!;
+							} else {
+								saveEx.wing = car?.wing;
+							}
+							if (body.car?.mirror !== null && body.car?.mirror !== undefined) {
+									saveEx.mirror = body.car?.mirror!;
+							} else {
+								saveEx.mirror = car?.mirror;
+							}
+							if (body.car?.neon !== null && body.car?.neon !== undefined) {
+									saveEx.neon = body.car?.neon!;
+							} else {
+								saveEx.neon = car?.neon;
+							}
+							if (body.car?.trunk !== null && body.car?.trunk !== undefined) {
+									saveEx.trunk = body.car?.trunk!;
+							} else {
+								saveEx.trunk = car?.trunk;
+							}
+							if (body.car?.plate !== null && body.car?.plate !== undefined) {
+									saveEx.plate = body.car?.plate!;
+							} else {
+								saveEx.plate = car?.plate;
+							}
+							if (body.car?.plateColor !== null && body.car?.plateColor !== undefined) {
+									saveEx.plateColor = body.car?.plateColor!;
+							} else {
+								saveEx.plateColor = car?.plateColor;
+							}
+							if (body.car?.plateNumber !== null && body.car?.plateNumber !== undefined) {
+									saveEx.plateNumber = body.car?.plateNumber!;
+							} else {
+								saveEx.plateNumber = car?.plateNumber;
+							}
+							if (body.car?.ghostLevel !== null && body.car?.ghostLevel !== undefined) {
+									saveEx.ghostLevel = body.car?.ghostLevel!;
+							} else {
+								saveEx.ghostLevel = car?.ghostLevel;
+							}
+
+							let winCounter = 0;
+							if(body.rgResult?.rgRegionMapScore !== null && body.rgResult?.rgRegionMapScore !== undefined && body.rgResult?.rgRegionMapScore.length !== 0){
+								for(let i=0; i<body.rgResult.rgRegionMapScore.length; i++){
+									winCounter += body.rgResult.rgRegionMapScore[i];
+								}
+							}
+							saveEx.rgWinCount = winCounter;
+							saveEx.rgScore = winCounter;
+
+							let c = await prisma.car.update({
+								where: {
+									carId: body.carId
+								},
+								data: saveEx
+							});
+
+							if(body.earnedItems.length !== 0){
+								console.log('Game reward available, continuing ...');
+								for(let i=0; i<body.earnedItems.length; i++){
+									await prisma.carItem.create({
+										data: {
+											carId: body.carId,
+											category: body.earnedItems[i].category,
+											itemId: body.earnedItems[i].itemId,
+											amount: 1
+										}
+									});
+								}
+							}
+						}
+					}
 			}
 
 			// Update car
@@ -181,12 +301,15 @@ export default class GameModule extends Module {
 					carId: body.carId,
 				},
 				data: {
+					aura: body.car!.aura!,
+					auraMotif: body.car!.auraMotif!,
 					odometer: body.odometer,
 					playCount: body.playCount,
 					level: body.car!.level!,
 					title: body.car!.title!,
 					tunePower: body.car!.tunePower!,
 					tuneHandling: body.car!.tuneHandling!,
+					windowSticker: body.car!.windowSticker!,
 				}
 			})
 
@@ -1131,6 +1254,7 @@ export default class GameModule extends Module {
 		})
 
 		app.post('/method/update_car', async (req, res) => {
+			
 			let body = wm.wm.protobuf.UpdateCarRequest.decode(req.body);
 
 			let car = await prisma.car.findFirst({
@@ -1177,6 +1301,13 @@ export default class GameModule extends Module {
 
 					...body.setting
 				}
+			});
+
+			let c = await prisma.car.update({
+				where: {
+					carId: body.carId
+				},
+				data: saveEx
 			});
 
             let msg = {
@@ -1398,7 +1529,7 @@ export default class GameModule extends Module {
 				case 1: // Basic Tune
 
 					// Updated default values
-					carInsert.level = 2; // C3
+					carInsert.level = 2; // C8
 					carInsert.tunePower = 10; // 600 HP
 					carInsert.tuneHandling = 10; // 600 HP
 	
@@ -1415,14 +1546,13 @@ export default class GameModule extends Module {
 				case 2: // Fully Tuned
 
 					// Updated default values
+					carInsert.level = 8; // C3
 					carInsert.tunePower = 17; // 740 HP
 					carInsert.tuneHandling = 17; // 740 HP
 
-					// Rank
-					carInsert.level = 8; // C3
-	
 					// Additional full tune values
 					additionalInsert = {
+						ghostLevel: 10,
 						stClearBits: 0,
 						stLoseBits: 0,
 						stClearCount: 80,
@@ -1643,6 +1773,129 @@ export default class GameModule extends Module {
                 error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
             }
             let resp = wm.wm.protobuf.UpdateUserSessionResponse.encode(msg);
+            let end = resp.finish();
+            let r = res
+                .header('Server', 'v388 wangan')
+                .header('Content-Type', 'application/x-protobuf; revision=8053')
+                .header('Content-Length', end.length.toString())
+                .status(200);
+            r.send(Buffer.from(end));
+        })
+
+        app.post('/method/load_ghost_battle_info', async (req, res) => {
+            let body = wm.wm.protobuf.LoadGhostBattleInfoRequest.decode(req.body);
+			//---------------MAYBE NOT CORRECT---------------
+			let msg = {
+					error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+					stampSheetCount: 100,
+				};
+			//-----------------------------------------------
+			let resp = wm.wm.protobuf.LoadGhostBattleInfoResponse.encode(msg);
+            let end = resp.finish();
+            let r = res
+                .header('Server', 'v388 wangan')
+                .header('Content-Type', 'application/x-protobuf; revision=8053')
+                .header('Content-Length', end.length.toString())
+                .status(200);
+            r.send(Buffer.from(end));
+        })
+        app.post('/method/search_cars_by_level', async (req, res) => {
+            let body = wm.wm.protobuf.SearchCarsByLevelRequest.decode(req.body);
+            console.log(body);
+			//---------------MAYBE NOT CORRECT---------------
+			let rampVal = 0;
+			let pathVal = 0;
+			if(body.area === 0){ //GID_RUNAREA_C1
+				rampVal = 0;
+				pathVal = Math.floor(Math.random() * 10);
+			}
+			else if(body.area === 1){ //GID_RUNAREA_RING
+				rampVal = 0;
+				pathVal = Math.floor(Math.random() * 6) + 10;
+			}
+			else if(body.area === 2){ //GID_RUNAREA_SUBTOKYO_3_4
+				rampVal = 0;
+				pathVal = Math.floor(Math.random() * 2) + 16;
+			}
+			else if(body.area === 3){ //GID_RUNAREA_SUBTOKYO_5
+				rampVal = 0;
+				pathVal = Math.floor(Math.random() * 2) + 18;
+			}
+			else if(body.area === 4){ //GID_RUNAREA_WANGAN
+				rampVal = 0;
+				pathVal = Math.floor(Math.random() * 7) + 20;
+			}
+			else if(body.area === 5){ //GID_RUNAREA_K1
+				rampVal = 0;
+				pathVal = Math.floor(Math.random() * 7) + 27;
+			}
+			else if(body.area === 6){ //GID_RUNAREA_YAESU
+				rampVal = 0;
+				pathVal = Math.floor(Math.random() * 4) + 34;
+			}
+			else if(body.area === 7){ //GID_RUNAREA_YOKOHAMA
+				rampVal = 0;
+				pathVal = Math.floor(Math.random() * 11) + 38;
+			}
+			else if(body.area === 8){ //GID_RUNAREA_NAGOYA
+				rampVal = 0;
+				pathVal = 49;
+			}
+			else if(body.area === 9){ //GID_RUNAREA_OSAKA
+				rampVal = 0;
+				pathVal = Math.floor(Math.random() * 4) + 50;
+			}
+			else if(body.area === 10){ //GID_RUNAREA_KOBE
+				rampVal = 0;
+				pathVal = Math.floor(Math.random() * 2) + 54;
+			}
+			else if(body.area === 11){ //GID_RUNAREA_FUKUOKA
+				rampVal = 0;
+				pathVal = Math.floor(Math.random() * 4) + 58;
+			}
+			else if(body.area === 12){ //GID_RUNAREA_HAKONE
+				rampVal = 0;
+				pathVal = Math.floor(Math.random() * 2) + 62;
+			}
+			else if(body.area === 13){ //GID_RUNAREA_TURNPIKE
+				rampVal = 0;
+				pathVal = Math.floor(Math.random() * 2) + 64;
+			}
+			//14 - 16 is dummy area
+			else if(body.area === 17){ //GID_RUNAREA_C1_CLOSED
+				rampVal = 0;
+				pathVal = Math.floor(Math.random() * 10); //probably not correct
+			}
+			else if(body.area === 18){ //GID_RUNAREA_HIROSHIMA
+				rampVal = 0;
+				pathVal = Math.floor(Math.random() * 2) + 56;
+			}
+			let msg = {
+					error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+					ramp: rampVal,
+					path: pathVal,
+					selectionMethod: 2,
+				};
+			//-----------------------------------------------
+			let resp = wm.wm.protobuf.SearchCarsByLevelResponse.encode(msg);
+            let end = resp.finish();
+            let r = res
+                .header('Server', 'v388 wangan')
+                .header('Content-Type', 'application/x-protobuf; revision=8053')
+                .header('Content-Length', end.length.toString())
+                .status(200);
+            r.send(Buffer.from(end));
+        })
+        app.post('/method/load_ghost_drive_data', async (req, res) => {
+            let body = wm.wm.protobuf.LoadGhostDriveDataRequest.decode(req.body);
+            console.log(body);
+			//---------------MAYBE NOT CORRECT---------------
+			let msg = {
+					error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+					path: body.path
+				};
+			//-----------------------------------------------
+			let resp = wm.wm.protobuf.LoadGhostDriveDataResponse.encode(msg);
             let end = resp.finish();
             let r = res
                 .header('Server', 'v388 wangan')
