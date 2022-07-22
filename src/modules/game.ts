@@ -1864,8 +1864,7 @@ export default class GameModule extends Module {
 
         app.post('/method/load_ghost_drive_data', async (req, res) => {
             let body = wm.wm.protobuf.LoadGhostDriveDataRequest.decode(req.body);
-            console.log(body);
-			//---------------MAYBE NOT CORRECT---------------
+            //---------------MAYBE NOT CORRECT---------------
 			let msg = {
 					error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
 					path: body.path
