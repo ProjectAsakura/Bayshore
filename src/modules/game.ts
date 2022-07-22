@@ -177,116 +177,117 @@ export default class GameModule extends Module {
 					}
 				case wm.wm.protobuf.GameMode.MODE_GHOST_BATTLE:
 					{
-						console.log(body);
-						let saveEx: any = {};
-						if (body.rgResult?.rgRegionMapScore !== null && body.rgResult?.rgRegionMapScore !== undefined) {
-								saveEx.rgRegionMapScore = body.rgResult?.rgRegionMapScore!;
-						} else {
-							saveEx.rgRegionMapScore = car?.rgRegionMapScore;
-						}
-						if (body.rgResult?.rgPlayCount !== null && body.rgResult?.rgPlayCount !== undefined) {
-								saveEx.rgPlayCount = body.rgResult?.rgPlayCount!;
-						} else {
-							saveEx.rgPlayCount = car?.rgPlayCount;
-						}
-						if (body.rgResult?.dressupLevel !== null && body.rgResult?.dressupLevel !== undefined) {
-								saveEx.dressupLevel = body.rgResult?.dressupLevel!;
-						} else {
-							saveEx.dressupLevel = car?.dressupLevel;
-						}
-						if (body.rgResult?.dressupPoint !== null && body.rgResult?.dressupPoint !== undefined) {
-								saveEx.dressupPoint = body.rgResult?.dressupPoint!;
-						} else {
-							saveEx.dressupPoint = car?.dressupPoint;
-						}
-						if (body.car?.wheel !== null && body.car?.wheel !== undefined) {
-								saveEx.wheel = body.car?.wheel!;
-						} else {
-							saveEx.wheel = car?.wheel;
-						}
-						if (body.car?.wheelColor !== null && body.car?.wheelColor !== undefined) {
-								saveEx.wheelColor = body.car?.wheelColor!;
-						} else {
-							saveEx.wheelColor = car?.wheelColor;
-						}
-						if (body.car?.aero !== null && body.car?.aero !== undefined) {
-								saveEx.aero = body.car?.aero!;
-						} else {
-							saveEx.aero = car?.aero;
-						}
-						if (body.car?.bonnet !== null && body.car?.bonnet !== undefined) {
-								saveEx.bonnet = body.car?.bonnet!;
-						} else {
-							saveEx.bonnet = car?.bonnet;
-						}
-						if (body.car?.wing !== null && body.car?.wing !== undefined) {
-								saveEx.wing = body.car?.wing!;
-						} else {
-							saveEx.wing = car?.wing;
-						}
-						if (body.car?.mirror !== null && body.car?.mirror !== undefined) {
-								saveEx.mirror = body.car?.mirror!;
-						} else {
-							saveEx.mirror = car?.mirror;
-						}
-						if (body.car?.neon !== null && body.car?.neon !== undefined) {
-								saveEx.neon = body.car?.neon!;
-						} else {
-							saveEx.neon = car?.neon;
-						}
-						if (body.car?.trunk !== null && body.car?.trunk !== undefined) {
-								saveEx.trunk = body.car?.trunk!;
-						} else {
-							saveEx.trunk = car?.trunk;
-						}
-						if (body.car?.plate !== null && body.car?.plate !== undefined) {
-								saveEx.plate = body.car?.plate!;
-						} else {
-							saveEx.plate = car?.plate;
-						}
-						if (body.car?.plateColor !== null && body.car?.plateColor !== undefined) {
-								saveEx.plateColor = body.car?.plateColor!;
-						} else {
-							saveEx.plateColor = car?.plateColor;
-						}
-						if (body.car?.plateNumber !== null && body.car?.plateNumber !== undefined) {
-								saveEx.plateNumber = body.car?.plateNumber!;
-						} else {
-							saveEx.plateNumber = car?.plateNumber;
-						}
-						if (body.car?.ghostLevel !== null && body.car?.ghostLevel !== undefined) {
-								saveEx.ghostLevel = body.car?.ghostLevel!;
-						} else {
-							saveEx.ghostLevel = car?.ghostLevel;
-						}
-
-						let winCounter = 0;
-						if(body.rgResult?.rgRegionMapScore !== null && body.rgResult?.rgRegionMapScore !== undefined && body.rgResult?.rgRegionMapScore.length !== 0){
-							for(let i=0; i<body.rgResult.rgRegionMapScore.length; i++){
-								winCounter += body.rgResult.rgRegionMapScore[i];
+						if (!(body.retired)) {
+							let saveEx: any = {};
+							if (body.rgResult?.rgRegionMapScore !== null && body.rgResult?.rgRegionMapScore !== undefined) {
+									saveEx.rgRegionMapScore = body.rgResult?.rgRegionMapScore!;
+							} else {
+								saveEx.rgRegionMapScore = car?.rgRegionMapScore;
 							}
-						}
-						saveEx.rgWinCount = winCounter;
-						saveEx.rgScore = winCounter;
+							if (body.rgResult?.rgPlayCount !== null && body.rgResult?.rgPlayCount !== undefined) {
+									saveEx.rgPlayCount = body.rgResult?.rgPlayCount!;
+							} else {
+								saveEx.rgPlayCount = car?.rgPlayCount;
+							}
+							if (body.rgResult?.dressupLevel !== null && body.rgResult?.dressupLevel !== undefined) {
+									saveEx.dressupLevel = body.rgResult?.dressupLevel!;
+							} else {
+								saveEx.dressupLevel = car?.dressupLevel;
+							}
+							if (body.rgResult?.dressupPoint !== null && body.rgResult?.dressupPoint !== undefined) {
+									saveEx.dressupPoint = body.rgResult?.dressupPoint!;
+							} else {
+								saveEx.dressupPoint = car?.dressupPoint;
+							}
+							if (body.car?.wheel !== null && body.car?.wheel !== undefined) {
+									saveEx.wheel = body.car?.wheel!;
+							} else {
+								saveEx.wheel = car?.wheel;
+							}
+							if (body.car?.wheelColor !== null && body.car?.wheelColor !== undefined) {
+									saveEx.wheelColor = body.car?.wheelColor!;
+							} else {
+								saveEx.wheelColor = car?.wheelColor;
+							}
+							if (body.car?.aero !== null && body.car?.aero !== undefined) {
+									saveEx.aero = body.car?.aero!;
+							} else {
+								saveEx.aero = car?.aero;
+							}
+							if (body.car?.bonnet !== null && body.car?.bonnet !== undefined) {
+									saveEx.bonnet = body.car?.bonnet!;
+							} else {
+								saveEx.bonnet = car?.bonnet;
+							}
+							if (body.car?.wing !== null && body.car?.wing !== undefined) {
+									saveEx.wing = body.car?.wing!;
+							} else {
+								saveEx.wing = car?.wing;
+							}
+							if (body.car?.mirror !== null && body.car?.mirror !== undefined) {
+									saveEx.mirror = body.car?.mirror!;
+							} else {
+								saveEx.mirror = car?.mirror;
+							}
+							if (body.car?.neon !== null && body.car?.neon !== undefined) {
+									saveEx.neon = body.car?.neon!;
+							} else {
+								saveEx.neon = car?.neon;
+							}
+							if (body.car?.trunk !== null && body.car?.trunk !== undefined) {
+									saveEx.trunk = body.car?.trunk!;
+							} else {
+								saveEx.trunk = car?.trunk;
+							}
+							if (body.car?.plate !== null && body.car?.plate !== undefined) {
+									saveEx.plate = body.car?.plate!;
+							} else {
+								saveEx.plate = car?.plate;
+							}
+							if (body.car?.plateColor !== null && body.car?.plateColor !== undefined) {
+									saveEx.plateColor = body.car?.plateColor!;
+							} else {
+								saveEx.plateColor = car?.plateColor;
+							}
+							if (body.car?.plateNumber !== null && body.car?.plateNumber !== undefined) {
+									saveEx.plateNumber = body.car?.plateNumber!;
+							} else {
+								saveEx.plateNumber = car?.plateNumber;
+							}
+							if (body.car?.ghostLevel !== null && body.car?.ghostLevel !== undefined) {
+									saveEx.ghostLevel = body.car?.ghostLevel!;
+							} else {
+								saveEx.ghostLevel = car?.ghostLevel;
+							}
 
-						let c = await prisma.car.update({
-							where: {
-								carId: body.carId
-							},
-							data: saveEx
-						});
+							let winCounter = 0;
+							if(body.rgResult?.rgRegionMapScore !== null && body.rgResult?.rgRegionMapScore !== undefined && body.rgResult?.rgRegionMapScore.length !== 0){
+								for(let i=0; i<body.rgResult.rgRegionMapScore.length; i++){
+									winCounter += body.rgResult.rgRegionMapScore[i];
+								}
+							}
+							saveEx.rgWinCount = winCounter;
+							saveEx.rgScore = winCounter;
 
-						if(body.earnedItems.length !== 0){
-							console.log('Game reward available, continuing ...');
-							for(let i=0; i<body.earnedItems.length; i++){
-								await prisma.carItem.create({
-									data: {
-										carId: body.carId,
-										category: body.earnedItems[i].category,
-										itemId: body.earnedItems[i].itemId,
-										amount: 1
-									}
-								});
+							let c = await prisma.car.update({
+								where: {
+									carId: body.carId
+								},
+								data: saveEx
+							});
+
+							if(body.earnedItems.length !== 0){
+								console.log('Game reward available, continuing ...');
+								for(let i=0; i<body.earnedItems.length; i++){
+									await prisma.carItem.create({
+										data: {
+											carId: body.carId,
+											category: body.earnedItems[i].category,
+											itemId: body.earnedItems[i].itemId,
+											amount: 1
+										}
+									});
+								}
 							}
 						}
 					}
@@ -304,6 +305,7 @@ export default class GameModule extends Module {
 					title: body.car!.title!,
 					tunePower: body.car!.tunePower!,
 					tuneHandling: body.car!.tuneHandling!,
+					windowSticker: body.car!.windowSticker!,
 				}
 			})
 			await prisma.carSettings.update({
@@ -1123,7 +1125,7 @@ export default class GameModule extends Module {
 		})
 
 		app.post('/method/update_car', async (req, res) => {
-			let body = wm.wm.protobuf.UpdateCarRequest.decode(req.body);
+			let body = wm.wm.protobuf.UpdateCarRequest.decode(req.body);			
 			let car = await prisma.car.findFirst({
 				where: {
 					carId: body.carId
@@ -1132,6 +1134,88 @@ export default class GameModule extends Module {
 					settings: true
 				}
 			});
+			let saveEx: any = {};
+			if (body.car?.wheel !== null && body.car?.wheel !== undefined) {
+					saveEx.wheel = body.car?.wheel!;
+			} else {
+				saveEx.wheel = car?.wheel;
+			}
+			if (body.car?.wheelColor !== null && body.car?.wheelColor !== undefined) {
+					saveEx.wheelColor = body.car?.wheelColor!;
+			} else {
+				saveEx.wheelColor = car?.wheelColor;
+			}
+			if (body.car?.aero !== null && body.car?.aero !== undefined) {
+					saveEx.aero = body.car?.aero!;
+			} else {
+				saveEx.aero = car?.aero;
+			}
+			if (body.car?.bonnet !== null && body.car?.bonnet !== undefined) {
+					saveEx.bonnet = body.car?.bonnet!;
+			} else {
+				saveEx.bonnet = car?.bonnet;
+			}
+			if (body.car?.wing !== null && body.car?.wing !== undefined) {
+					saveEx.wing = body.car?.wing!;
+			} else {
+				saveEx.wing = car?.wing;
+			}
+			if (body.car?.mirror !== null && body.car?.mirror !== undefined) {
+					saveEx.mirror = body.car?.mirror!;
+			} else {
+				saveEx.mirror = car?.mirror;
+			}
+			if (body.car?.neon !== null && body.car?.neon !== undefined) {
+					saveEx.neon = body.car?.neon!;
+			} else {
+				saveEx.neon = car?.neon;
+			}
+			if (body.car?.trunk !== null && body.car?.trunk !== undefined) {
+					saveEx.trunk = body.car?.trunk!;
+			} else {
+				saveEx.trunk = car?.trunk;
+			}
+			if (body.car?.plate !== null && body.car?.plate !== undefined) {
+					saveEx.plate = body.car?.plate!;
+			} else {
+				saveEx.plate = car?.plate;
+			}
+			if (body.car?.plateColor !== null && body.car?.plateColor !== undefined) {
+					saveEx.plateColor = body.car?.plateColor!;
+			} else {
+				saveEx.plateColor = car?.plateColor;
+			}
+			if (body.car?.plateNumber !== null && body.car?.plateNumber !== undefined) {
+					saveEx.plateNumber = body.car?.plateNumber!;
+			} else {
+				saveEx.plateNumber = car?.plateNumber;
+			}
+			if (body.car?.customColor !== null && body.car?.customColor !== undefined) {
+					saveEx.customColor = body.car?.customColor!;
+			} else {
+				saveEx.customColor = car?.customColor;
+			}
+			if (body.car?.windowStickerString !== null && body.car?.windowStickerString !== undefined) {
+					saveEx.windowStickerString = body.car?.windowStickerString!;
+			} else {
+				saveEx.windowStickerString = car?.windowStickerString;
+			}
+			if (body.car?.windowStickerFont !== null && body.car?.windowStickerFont !== undefined) {
+					saveEx.windowStickerFont = body.car?.windowStickerFont!;
+			} else {
+				saveEx.windowStickerFont = car?.windowStickerFont;
+			}
+			if (body.car?.rivalMarker !== null && body.car?.rivalMarker !== undefined) {
+					saveEx.rivalMarker = body.car?.rivalMarker!;
+			} else {
+				saveEx.rivalMarker = car?.rivalMarker;
+			}
+			if (body.car?.windowSticker !== null && body.car?.windowSticker !== undefined) {
+					saveEx.windowSticker = body.car?.windowSticker!;
+			} else {
+				saveEx.windowSticker = car?.windowSticker;
+			}
+
 			await prisma.carSettings.update({
 				where: {
 					dbId: car?.carSettingsDbId,
@@ -1139,6 +1223,13 @@ export default class GameModule extends Module {
 				data: {
 					...body.setting
 				}
+			});
+
+			let c = await prisma.car.update({
+				where: {
+					carId: body.carId
+				},
+				data: saveEx
 			});
 
             let msg = {
