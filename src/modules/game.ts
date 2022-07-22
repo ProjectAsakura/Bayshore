@@ -305,7 +305,6 @@ export default class GameModule extends Module {
 					title: body.car!.title!,
 					tunePower: body.car!.tunePower!,
 					tuneHandling: body.car!.tuneHandling!,
-					windowSticker: body.car!.windowSticker!,
 				}
 			})
 			await prisma.carSettings.update({
@@ -1195,25 +1194,10 @@ export default class GameModule extends Module {
 			} else {
 				saveEx.customColor = car?.customColor;
 			}
-			if (body.car?.windowStickerString !== null && body.car?.windowStickerString !== undefined) {
-					saveEx.windowStickerString = body.car?.windowStickerString!;
-			} else {
-				saveEx.windowStickerString = car?.windowStickerString;
-			}
-			if (body.car?.windowStickerFont !== null && body.car?.windowStickerFont !== undefined) {
-					saveEx.windowStickerFont = body.car?.windowStickerFont!;
-			} else {
-				saveEx.windowStickerFont = car?.windowStickerFont;
-			}
 			if (body.car?.rivalMarker !== null && body.car?.rivalMarker !== undefined) {
 					saveEx.rivalMarker = body.car?.rivalMarker!;
 			} else {
 				saveEx.rivalMarker = car?.rivalMarker;
-			}
-			if (body.car?.windowSticker !== null && body.car?.windowSticker !== undefined) {
-					saveEx.windowSticker = body.car?.windowSticker!;
-			} else {
-				saveEx.windowSticker = car?.windowSticker;
 			}
 
 			await prisma.carSettings.update({
@@ -1705,8 +1689,7 @@ export default class GameModule extends Module {
         })
         app.post('/method/load_ghost_drive_data', async (req, res) => {
             let body = wm.wm.protobuf.LoadGhostDriveDataRequest.decode(req.body);
-            console.log(body);
-			//---------------MAYBE NOT CORRECT---------------
+            //---------------MAYBE NOT CORRECT---------------
 			let msg = {
 					error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
 					path: body.path
