@@ -13,6 +13,7 @@ import { envelopeItemTypeToDataCategory } from "@sentry/utils";
 
 export default class GameModule extends Module {
     register(app: Application): void {
+
 		app.post('/method/save_game_result', async (req, res) => {
 			let body = wm.wm.protobuf.SaveGameResultRequest.decode(req.body);
 			let car = await prisma.car.findFirst({
@@ -513,12 +514,25 @@ export default class GameModule extends Module {
 				}
 			})
 
-			// While the user's scratch sheet count is greater
-			// than the number of scratch sheets generated
-			while (scratchSheetCount < user!.lastSheet)
+			console.log("Current sheet count:", scratchSheetCount);
+
+			// If the user has no scratch sheets
+			if (scratchSheetCount == 0)
 			{
+				console.log("Generating first sheet ...");
+
 				// Generate a new scratch sheet for the user
-				await scratch.generateScratchSheet(user!.id, ++scratchSheetCount);
+				await scratch.generateScratchSheet(user!.id, 1);
+
+				// Set the current scratch sheet to 1
+				await prisma.user.update({
+					where: {
+						id: user!.id
+					}, 
+					data: {
+						currentSheet: 1
+					}
+				});
 			}
 
 			// Get the user's cars
@@ -1013,7 +1027,7 @@ export default class GameModule extends Module {
 					}
 				});
 
-				// Get the protobuf data for the scratch sheet
+				// Get the updated scratch sheet proto
 				scratchSheetProto = await scratch.getScratchSheetProto(body.userId);
 
 				// User is defined
@@ -1030,27 +1044,11 @@ export default class GameModule extends Module {
 					}
 					else // Otherwise, daily scratches
 					{
-						// Get the days since epoch
-						let daysSinceEpoch = (date: Date) => {
-							return Math.floor(Number(date)/8.64e7);
-						};
-
-						// Get the days since epoch for current date, last scratched date
-						let currentDate = daysSinceEpoch(new Date(date*1000));
-						let lastScratched = daysSinceEpoch(new Date(user.lastScratched*1000));
-
-						// If unlimited scratches are enabled, or it is at least 
-						// the next day since the user last scratched off
-						if (currentDate > lastScratched)
-						{
-							// User can scratch again
-							scratched = 0;
-						}
-						else // It is not the next day / other error
-						{
-							// User cannot scratch
-							scratched = 1;
-						}
+						// If a day has passed, allow the user to scratch again
+						scratched = scratch.dayPassed(
+							new Date(date*1000), // Todays date
+							new Date(user.lastScratched*1000) // Last Scratched date
+						);
 					}
 				}
 			}
@@ -1197,29 +1195,8 @@ export default class GameModule extends Module {
 				// If the box we uncovered is the car
 				if (scratchSquare.category == 201)
 				{
-					// If the current sheet is the last sheet
-					if (body.targetSheet == user?.lastSheet)
-					{
-						// Update the last sheet value
-						let lastSheet = body.targetSheet + 1;
-
-						// Increment the player's maximum scratch sheets
-						await prisma.user.update({
-							where: {
-								id: body.userId
-							}, 
-							data: {
-								lastSheet: lastSheet
-							}
-						});
-
-						// Generate a new scratch sheet for the user
-						await scratch.generateScratchSheet(body.userId, lastSheet)
-					}
-					else // We are not on the last sheet
-					{
-						// Should never happen, do nothing
-					}
+					// Generate a new scratch sheet for the user
+					await scratch.generateScratchSheet(body.userId, body.targetSheet + 1)
 				}
 			} 
 			catch (error) // Failed to update scratch sheet
@@ -1301,13 +1278,6 @@ export default class GameModule extends Module {
 
 					...body.setting
 				}
-			});
-
-			let c = await prisma.car.update({
-				where: {
-					carId: body.carId
-				},
-				data: saveEx
 			});
 
             let msg = {
@@ -1769,6 +1739,10 @@ export default class GameModule extends Module {
         })
 
 		app.post('/method/update_user_session', (req, res) => {
+
+			// Get the request body
+			// let body = wm.wm.protobuf.UpdateUserSessionRequest.decode(req.body);
+
             let msg = {
                 error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
             }
@@ -1799,6 +1773,7 @@ export default class GameModule extends Module {
                 .status(200);
             r.send(Buffer.from(end));
         })
+
         app.post('/method/search_cars_by_level', async (req, res) => {
             let body = wm.wm.protobuf.SearchCarsByLevelRequest.decode(req.body);
             console.log(body);
@@ -1886,6 +1861,7 @@ export default class GameModule extends Module {
                 .status(200);
             r.send(Buffer.from(end));
         })
+
         app.post('/method/load_ghost_drive_data', async (req, res) => {
             let body = wm.wm.protobuf.LoadGhostDriveDataRequest.decode(req.body);
             console.log(body);

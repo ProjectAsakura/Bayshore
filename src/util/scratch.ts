@@ -42,7 +42,8 @@ let scratchSheets = [
         [26, 29], [26, 29], [26, 29], [26, 29], // BAT
         [26, 2], [26, 2], [26, 2], [26, 2], // ANIMAL
         [26, 8], [26, 8], [26, 8], [26, 8], // PAINT SPLASH
-    ], 
+    ]
+    /*
     [ // Sheet 3 (Incomplete)
         [201, 1], // Hiace Van
 
@@ -137,6 +138,7 @@ let scratchSheets = [
         [26, 11], [26, 11], [26, 11], [26, 11], // Steel
         [26, 26], [26, 26], [26, 26], [26, 26], // Wall 2
     ], 
+    */ 
 ]
 
 // Terminal scratch cars only
@@ -161,28 +163,6 @@ export const stockTunedCars = [
     29, 30, 31, 32, 33, 34, 35, 36
 ];
 
-// Non-story racing meters
-const nonStoryMeters = [
-
-    // Meters are added
-    // to scratch as a set
-
-    // Namco / Special Meters
-    [1,4],
-
-    // VSORG / Other Meters
-    [8, 9], 
-    [10, 11], 
-    [12, 13],
-    [14, 15], 
-    [16, 17],
-    [18, 19], 
-    [20, 21], 
-    [22, 23], 
-    [24, 25], 
-    [26, 27]
-];
-
 // *** FUNCTIONS *** 
 
 // Get a random integer within a range
@@ -192,54 +172,12 @@ function getRandom(a: number, b: number)
     return Math.floor(Math.random() * (b - a)) + a;
 }
 
-// Generates a random scratch sheet
-// Contents: 
-// 1 Random Scratch Car
-// 25 Random Scratch Stickers
-// 24 Random Scratch Versus Markers
-function getRandomScratchSheet () 
+// Get the days since epoch
+function daysSinceEpoch(date: Date)
 {
-    // Scratch items list
-    let items : number[][] = [];
-    
-    // Add the random scratch car
-    items.push([201, scratchCars[getRandom(0, scratchCars.length)]])
-
-    // Add the random scratch stickers
-
-    // Five different sticker styles
-    for(let i=0; i<5; i++)
-    {
-        // Get a random versus marker
-        let marker = getRandom(0, 61);
-
-        // Five different instances
-        for(let j=0; j<5; j++)
-        {
-            // Add marker to the list
-            items.push([25, marker])
-        }
-    }
-
-    // Add the random versus markers
-
-    // Six different marker styles
-    for(let i=0; i<6; i++)
-    {
-        // Get a random versus marker
-        let marker = getRandom(0, 81);
-
-        // Four different instances
-        for(let j=0; j<4; j++)
-        {
-            // Add marker to the list
-            items.push([26, marker])
-        }
-    }
-    
-    // Return the items list
-    return items;
-}
+    // Return the days since the epoch
+    return Math.floor(Number(date)/8.64e7);
+};
 
 // Fisher yates shuffle for the scratch card elements
 function shuffleScratchSheet (array: number[][])
@@ -258,6 +196,64 @@ function shuffleScratchSheet (array: number[][])
     return array;
 }
 
+// Generates a random scratch sheet
+// Contents: 
+// 1 Random Scratch Car
+// 25 Random Scratch Stickers
+// 24 Random Scratch Versus Markers
+function getRandomScratchSheet (carId: number) 
+{
+    // Scratch items list
+    let items : number[][] = [];
+    
+    // Add the scratch car for the given index
+    items.push([201, scratchCars[carId % scratchCars.length]]);
+
+    // Add the random scratch stickers
+
+    // Five different sticker styles
+    for(let i=0; i<5; i++)
+    {
+        // Get a random versus marker
+        let sticker = getRandom(0, 60);
+
+        // Five different instances
+        for(let j=0; j<5; j++)
+        {
+            // Add marker to the list
+            items.push([25, sticker + 1])
+        }
+    }
+
+    // Add the random versus markers
+
+    // Six different marker styles
+    for(let i=0; i<6; i++)
+    {
+        // Get a random versus marker
+        let marker = getRandom(0, 80);
+
+        // Four different instances
+        for(let j=0; j<4; j++)
+        {
+            // Add marker to the list
+            items.push([26, marker + 1])
+        }
+    }
+    
+    // Return the items list
+    return items;
+}
+
+
+
+// Get the days passed between dates 'a' and 'b'
+export function dayPassed(a: Date, b: Date)
+{
+    // Return 1 if a day has passed since the last scratch, 0 otherwise
+    return daysSinceEpoch(a) > daysSinceEpoch(b) ? 0 : 1;
+}
+
 // Async function for generating a new scratch sheet
 export async function generateScratchSheet (userId: number, sheetNo: number)
 {
@@ -272,7 +268,7 @@ export async function generateScratchSheet (userId: number, sheetNo: number)
     {
         // More options maybe added in the future
         
-        case 0: // Same as actual game
+        case 0: // Same as actual game (randomised after last set)
 
             // If the sheet number has associated data
             if (scratchSheets.length >= sheetNo)
@@ -282,15 +278,16 @@ export async function generateScratchSheet (userId: number, sheetNo: number)
             }
             else // Sheet is out of range
             {
-                console.log("No data for sheet:", sheetNo);
+                // Generate a random (standard) scratch sheet
+                scratchItems = getRandomScratchSheet(sheetNo-1);
             }
-            
             break;
 
         case 1: // Infinite random scratch sheets (Standard Items)
 
             // Generate a random (standard) scratch sheet
-            scratchItems = getRandomScratchSheet();
+            scratchItems = getRandomScratchSheet(sheetNo-1);
+            break;
 
         default: // Not implemented
             console.log("Method not implemented: " + scratchType);
