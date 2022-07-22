@@ -1,4 +1,4 @@
-import { Application } from "express";
+import e, { Application } from "express";
 import { Module } from "../module";
 import * as wm from "../wmmt/wm.proto";
 import * as svc from "../wmmt/service.proto";
@@ -8,9 +8,12 @@ import { Config } from "../config";
 import Long from "long";
 import { userInfo } from "os";
 import { config } from "dotenv";
+import * as scratch from "../util/scratch";
+import { envelopeItemTypeToDataCategory } from "@sentry/utils";
 
 export default class GameModule extends Module {
     register(app: Application): void {
+
 		app.post('/method/save_game_result', async (req, res) => {
 			let body = wm.wm.protobuf.SaveGameResultRequest.decode(req.body);
 			let car = await prisma.car.findFirst({
@@ -292,6 +295,8 @@ export default class GameModule extends Module {
 						}
 					}
 			}
+
+			// Update car
 			await prisma.car.update({
 				where: {
 					carId: body.carId,
@@ -308,6 +313,8 @@ export default class GameModule extends Module {
 					windowSticker: body.car!.windowSticker!,
 				}
 			})
+
+			// Update car settings
 			await prisma.carSettings.update({
 				where: {
 					dbId: car!.carSettingsDbId
@@ -316,23 +323,54 @@ export default class GameModule extends Module {
 					...body.setting
 				}
 			});
+
+			// Update user
 			let user = await prisma.user.findFirst({
 				where: {
 					id: body.car!.userId!
 				}
 			});
-			let storedTutorials = user!.tutorials;
-			body.confirmedTutorials.forEach(
-				(idx) => storedTutorials[idx] = true
-			);
-			await prisma.user.update({
-				where: {
-					id: body.car!.userId!
-				},
-				data: {
-					tutorials: storedTutorials
+
+			// User object exists
+			if (user)
+			{
+				// Get user tutorials
+				let storedTutorials = user!.tutorials;
+
+				// Update any seen tutorials
+				body.confirmedTutorials.forEach(
+					(idx) => storedTutorials[idx] = true
+				);
+
+				// Get the order of the user's cars
+				let carOrder = user?.carOrder;
+
+				// Get the index of the selected car
+				let index = carOrder.indexOf(body.carId);
+
+				// If the selected car is not first
+				if (index > 0)
+				{
+					// Remove that index from the array
+					carOrder.slice(index);
+
+					// Add it back to the front
+					carOrder.unshift(body.carId);
 				}
-			});
+
+				// Otherwise, just ignore it
+
+				// Update the values
+				await prisma.user.update({
+					where: {
+						id: body.car!.userId!
+					},
+					data: {
+						tutorials: storedTutorials, 
+						carOrder: carOrder
+					}
+				});
+			}
 
 			let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
@@ -351,6 +389,8 @@ export default class GameModule extends Module {
 
 			let body = wm.wm.protobuf.LoadUserRequest.decode(req.body);
 
+			
+
 			let user = await prisma.user.findFirst({
 				where: {
 					chipId: body.cardChipId,
@@ -361,8 +401,7 @@ export default class GameModule extends Module {
 						include: {
 							state: true,
 						}
-					},
-					unusedTickets: true
+					}
 				}
 			});
 
@@ -450,7 +489,8 @@ export default class GameModule extends Module {
 							data: {
 								userId: user.id,
 								category: wm.wm.protobuf.ItemCategory.CAT_CAR_TICKET_FREE,
-								itemId: 5
+								itemId: 5, 
+								type: 0 // Car Ticket
 							}
 						});
 					}
@@ -467,25 +507,105 @@ export default class GameModule extends Module {
 				return;
 			}
 
-			// console.log(user);
-
-			let carStates = user.cars.map(e => e.state);
-			
-			let tickets = (user.unusedTickets || []).map(x => {
-				return {
-					itemId: x.itemId,
-					userItemId: x.dbId,
-					category: x.category
+			// Get the number of scratch cards for the user
+			let scratchSheetCount = await prisma.scratchSheet.count({
+				where: {
+					userId: user!.id
 				}
-			});
-			
+			})
+
+			console.log("Current sheet count:", scratchSheetCount);
+
+			// If the user has no scratch sheets
+			if (scratchSheetCount == 0)
+			{
+				console.log("Generating first sheet ...");
+
+				// Generate a new scratch sheet for the user
+				await scratch.generateScratchSheet(user!.id, 1);
+
+				// Set the current scratch sheet to 1
+				await prisma.user.update({
+					where: {
+						id: user!.id
+					}, 
+					data: {
+						currentSheet: 1
+					}
+				});
+			}
+
+			// Get the user's cars
+			let cars = user.cars; 
+
+			// If the car order array has not been created
+			if (user.carOrder.length > 0)
+			{
+				// Sort the player's car list using the car order property
+				user.cars = user.cars.sort(function(a, b){
+
+					// User, and both car IDs exist
+					if (user)
+					{
+						// Compare both values using the car order array
+						let compare = user?.carOrder.indexOf(a!.carId) - user?.carOrder.indexOf(b!.carId);
+
+						// Return the comparison
+						return compare;
+					}
+					else // Car IDs not present in car order list
+					{
+						throw Error("UserNotFoundException");
+					}
+				});
+			}
+			else // Car order undefined
+			{
+				// We will define it here
+				let carOrder : number[] = [];
+
+				// Loop over all of the user cars
+				for(let car of user.cars)
+				{
+					// Add the car id to the list
+					carOrder.push(car.carId);
+				}
+
+				// Update the car id property for the user
+				await prisma.user.update({
+					where: {
+						id: user.id
+					}, 
+					data: {
+						carOrder: carOrder
+					}
+				})
+			}
+
+			// Get the states of the user's cars
+			let carStates = user.cars.map(e => e.state);
+
+			// Get all of the user's tickets
+			let tickets = await prisma.userItem.findMany({
+				where: {
+					userId: user.id, 
+					type: 0
+				}, 
+				select: {
+					itemId: true, 
+					category: true, 
+					userItemId: true
+				}
+			})
+
 			let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
 				numOfOwnedCars: user.cars.length,
 				spappState: wm.wm.protobuf.SmartphoneAppState.SPAPP_UNREGISTERED,
 				transferState: wm.wm.protobuf.TransferState.TRANSFERRED,
 				carStates,
-				cars: user.cars,
+				// 5 cars in-game, 200 cars on terminal
+				cars: user.cars.slice(0, body.maxCars),
 				userId: user.id,
 				banapassportAmId: 1,
 				mbId: 1,
@@ -510,18 +630,22 @@ export default class GameModule extends Module {
 			let user = await prisma.user.findFirst({
 				where: {
 					id: body.userId,
-				},
-				include: {
-					unusedTickets: true,
 				}
 			});
-			let tickets = (user?.unusedTickets || []).map(x => {
-				return {
-					itemId: x.itemId,
-					userItemId: x.dbId,
-					category: x.category
+			
+			// Get all of the user's tickets
+			let tickets = await prisma.userItem.findMany({
+				where: {
+					userId: body.userId, 
+					type: 0
+				}, 
+				select: {
+					itemId: true, 
+					category: true, 
+					userItemId: true 
 				}
-			});
+			})
+
 			let notice = (Config.getConfig().notices || []);
 			let noticeWindows = notice.map(a => wm.wm.protobuf.NoticeEntry.NOTICE_UNUSED_1);
             let msg = {
@@ -641,22 +765,53 @@ export default class GameModule extends Module {
 			r.send(Buffer.from(end));
 		})
 
-		// Load unreceived user items
-		app.post('/method/load_unreceived_user_items', (req, res) => {
+		// Recieve user items
+		app.post('/method/receive_user_items', async (req, res) => {
+			
+			// Get the request body
+			let body = wm.wm.protobuf.ReceiveUserItemsRequest.decode(req.body);
 
-			// In future, might want to check db for player items
+			// Loop over all of the item IDs 
+			for(let targetItem of body.targetItemIds)
+			{
+				// Get the item info for the target item
+				let item = await prisma.userItem.findFirst({
+					where: {
+						userItemId: targetItem
+					}
+				});
 
-			let msg = {
-				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
-				owned_user_items: [
-					wm.wm.protobuf.UserItem.create({
-						category: 17, 
-						itemId: 1
-					})
-				]
+				// Item is returned
+				if (item)
+				{
+					// Insert the item into the car items
+					await prisma.carItem.create({
+						data: {
+							carId: body.carId, 
+							category: item.category, 
+							itemId: item.itemId, 
+							amount: 1
+						}
+					});
+
+					// Delete the accepted item
+					await prisma.userItem.delete({
+						where: {
+							userItemId: targetItem
+						}
+					});
+				}
+				else // No item found
+				{
+					console.log("Warning: Item " + targetItem + " not found. Item not added.");
+				}
 			}
 
-			let resp = wm.wm.protobuf.LoadUnreceivedUserItemsResponse.encode(msg);
+			let msg = {
+				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS
+			}
+
+			let resp = wm.wm.protobuf.LoadBookmarksResponse.encode(msg);
 			let end = resp.finish();
 			let r = res
 				.header('Server', 'v388 wangan')
@@ -794,8 +949,6 @@ export default class GameModule extends Module {
 				},
 			});
 
-			// Update the car order (NOT IMPLEMENTED)
-
 			// Update the completed tutorials
 			let storedTutorials = user!.tutorials;
 			
@@ -812,6 +965,21 @@ export default class GameModule extends Module {
 				}
 			});
 
+			// If the car order was modified
+
+			// Update the car order in the table
+			if (body.carOrder.length > 0)
+			{
+				await prisma.user.update({
+					where: {
+						id: body.userId
+					},
+					data: {
+						carOrder: body.carOrder
+					}
+				});
+			}
+
 			let msg = {
 				// Success error code
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
@@ -827,199 +995,77 @@ export default class GameModule extends Module {
 				.status(200);
 			r.send(Buffer.from(end));
 		})
-		
-		// Terminal scratch (VERY WIP)
+
+		// Terminal scratch
 		app.post('/method/load_scratch_information', async (req, res) => {
 
 			// Get the information from the request
 			let body = wm.wm.protobuf.LoadScratchInformationRequest.decode(req.body);
 
-			// Commenting all of the scratch card shit out for now
+			// Get the current date/time (unix epoch)
+			let date = Math.floor(new Date().getTime() / 1000)
 
-			/* 
-			// Get all of the scratch sheets for the user
-			let scratchSheets = await prisma.scratchSheet.findMany({
-				where: {
-					userId: body.userId
-				},
-				include: {
-					squares: true
-				}
-			});
+			// Scratch sheet proto
+			let scratchSheetProto : wm.wm.protobuf.ScratchSheet[] = [];
 
-			// No scratch sheets for user
-			if (scratchSheets.length == 0)
+			// Current scratch sheet (default: Sheet 1 (R2))
+			let currentSheet = 1;
+
+			// User has scratched already (default: True)
+			let scratched = 1;
+
+			// Get the scratch sheet configuration
+			let scratchEnabled = Config.getConfig().gameOptions.scratchEnabled;
+
+			// If the scratch game is enabled
+			if (scratchEnabled)
 			{
-				// Create a new scratch sheet for the user
-				let sheet = await prisma.scratchSheet.create({
-					data: {
-						userId: body.userId
-					}
-				})
-
-				// Populate each square (with FT ticket for now)
-				for (let i=0; i<50; i++) {
-					await prisma.scratchSquare.create({
-						data: {
-							sheetId: sheet.id, 
-							category: wm.wm.protobuf.ItemCategory.CAT_RIVAL_MARKER,
-							itemId: 1, 
-							earned: false
-						}
-					});
-				}
-
-				// In future, I will very the way this is populated based on settings
-				// i.e. totally random items, items based upon real arcade, etc. 
-
-				// Get the data for the newly created sheet
-				let newSheet = await prisma.scratchSheet.findFirst({
+				// Get all of the info for the user
+				let user = await prisma.user.findFirst({
 					where: {
-						userId: body.userId
-					},
-					include: {
-						squares: true
+						id: body.userId
 					}
 				});
 
-				// Sheet is created successfully
-				if (newSheet)
+				// Get the updated scratch sheet proto
+				scratchSheetProto = await scratch.getScratchSheetProto(body.userId);
+
+				// User is defined
+				if (user)
 				{
-					// Update the scratch sheet list
-					scratchSheets = [newSheet];
+					// Update the currentSheet, scratched values
+					currentSheet = user.currentSheet;
+
+					// If unlimited scratches is set
+					if (scratchEnabled == 2)
+					{
+						// User can scratch again
+						scratched = 0;
+					}
+					else // Otherwise, daily scratches
+					{
+						// If a day has passed, allow the user to scratch again
+						scratched = scratch.dayPassed(
+							new Date(date*1000), // Todays date
+							new Date(user.lastScratched*1000) // Last Scratched date
+						);
+					}
 				}
 			}
-
-			// Generate the scratch sheet proto
-			let scratch_sheets : wm.wm.protobuf.ScratchSheet[] = [];
-
-			// Loop over all of the protos
-			for(let sheet of scratchSheets)
-			{
-				// Get all of the scratch squares
-				let scratch_squares : wm.wm.protobuf.ScratchSheet.ScratchSquare[] = [];
-
-				// Loop over all of the squares
-				for (let square of sheet.squares)
-				{
-					// Add the current square to the protobuf array
-					scratch_squares.push(wm.wm.protobuf.ScratchSheet.ScratchSquare.create({
-						category: square.category, 
-						itemId: square.itemId, 
-						earned: square.earned
-					}));
-				}
-
-				// Add the scratch sheet to the sheets list
-				scratch_sheets.push(
-					wm.wm.protobuf.ScratchSheet.create({
-						squares: scratch_squares
-					})
-				);
-			}
-			*/
-
-			// Debug: Add all items to the 'acceptable items' list
 
 			// Owned user items list
 			let ownedUserItems : wm.wm.protobuf.UserItem[] = [];
 
-			// Get the current date
-			let date = Date.now();
-
-			// If the grant all scratch rewards switch is set, add them to the list
-			if (Config.getConfig().gameOptions.grantAllScratchRewards)
-			{
-				// Grant one of each item every time the menu is loaded
-
-				// Loop over all of the window sticker styles
-				for(let i=1; i<=60; i++)
-				{
-					// Add one of each of the window sticker styles to the list
-					ownedUserItems.push(wm.wm.protobuf.UserItem.create({
-						category: wm.wm.protobuf.ItemCategory.CAT_WINDOW_DECORATION, 
-						itemId: i, 
-						earnedAt: date, 
-					}));
-				}
-
-				// Loop over all of the rival markers
-				for(let i=1; i<=80; i++)
-				{
-					// Add one of each of the rival markers to the list
-					ownedUserItems.push(wm.wm.protobuf.UserItem.create({
-						category: wm.wm.protobuf.ItemCategory.CAT_RIVAL_MARKER, 
-						itemId: i, 
-						earnedAt: date, 
-					}));
-				}
-
-				// Item ID for the scratch cars
-				let scratchCarIds = [4, 3, 1, 2, 5, 6, 16, 17, 18, 19, 20, 21];
-				
-				// I literally ripped this from mozilla.org lmfao
-				let getValueInRange = (min: number, max: number) => {
-					return Math.random() * (max - min) + min;
-				}
-
-				// If the grant bonus scratch cars switch is set, switch on the value
-				switch(Config.getConfig().gameOptions.grantBonusScratchCars)
-				{
-					case 1: // Grant one of each bonus scratch car (random colour)
-
-						// Mini Cooper						
-						scratchCarIds.push(getValueInRange(7, 15));
-
-						// S660
-						scratchCarIds.push(getValueInRange(22, 27));
-
-						// S2000
-						scratchCarIds.push(getValueInRange(28, 36));
-
-						// Roadster RF, 280ZT, Leopard
-						scratchCarIds = scratchCarIds.concat([37, 38, 39]);
-
-						break;
-					case 2: // Grant every colour of each bonus scratch cars
-
-						// Mini Cooper						
-						scratchCarIds = scratchCarIds.concat([7, 8, 9, 10, 11, 12, 13, 14, 15]);
-
-						// S660
-						scratchCarIds = scratchCarIds.concat([22, 23, 24, 25, 26, 27]);
-
-						// S2000
-						scratchCarIds = scratchCarIds.concat([28, 29, 30, 31, 32, 33, 34, 35, 36]);
-
-						// Roadster RF, 280ZT, Leopard
-						scratchCarIds = scratchCarIds.concat([37, 38, 39]);
-
-						break;
-					default: // Do not grant bonus scratch cars
-						break;
-				}
-
-				// Loop over all of the scratch cars
-				for(let car of scratchCarIds)
-				{
-					// Add one of each of the rival markers to the list
-					ownedUserItems.push(wm.wm.protobuf.UserItem.create({
-						category: 201, // Scratch Car
-						itemId: car, 
-						earnedAt: date, 
-					}));
-				}
-			}
+			// Get the user items list
+			ownedUserItems = await scratch.getScratchItemList(body.userId, date);
 
 			let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
-				scratchSheets: [],
-				currentSheet: 0,
-				numOfScratched: 0, 
+				scratchSheets: scratchSheetProto,
+				currentSheet: currentSheet, 
+				numOfScratched: scratched, 
 				ownedUserItems: ownedUserItems
 			}
-
-			// console.log(scratch_sheets);
 
 			let resp = wm.wm.protobuf.LoadScratchInformationResponse.encode(msg);
 			let end = resp.finish();
@@ -1031,87 +1077,147 @@ export default class GameModule extends Module {
 			r.send(Buffer.from(end));
 		});
 
+		// Change terminal scratch page
+		app.post('/method/turn_scratch_sheet', async (req, res) => {
+
+			let body = wm.wm.protobuf.TurnScratchSheetRequest.decode(req.body);
+
+			// Update the active scratch sheet
+			await prisma.user.update({
+				where: {
+					id: body.userId
+				}, 
+				data: {
+					currentSheet: body.targetSheet
+				}
+			});
+
+			let msg = {
+				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+			}
+
+			let resp = wm.wm.protobuf.TurnScratchSheetResponse.encode(msg);
+			let end = resp.finish();
+			let r = res
+				.header('Server', 'v388 wangan')
+				.header('Content-Type', 'application/x-protobuf; revision=8053')
+				.header('Content-Length', end.length.toString())
+				.status(200);
+			r.send(Buffer.from(end));
+		})
+
+		// Update scratch sheet
 		app.post('/method/save_scratch_sheet', async (req, res) => {
 
 			// Get the information from the request
 			let body = wm.wm.protobuf.SaveScratchSheetRequest.decode(req.body);
 
-			/*
+			// Get the current date/time (unix epoch)
+			let date = Math.floor(new Date().getTime() / 1000)
+
+			// Get all of the info for the user
+			let user = await prisma.user.findFirst({
+				where: {
+					id: body.userId
+				}
+			});
+
 			// Get all of the scratch sheets for the user
 			let scratchSheets = await prisma.scratchSheet.findMany({
 				where: {
 					userId: body.userId
 				}, 
 				include: {
-					squares: true
+					squares: {
+						orderBy: {
+							id: 'asc'
+						}
+					}
 				}
 			})
 
-			// Get the target scratch sheet 
-			let scratchSheet = scratchSheets[Number(body.targetSheet)];
+			// Get the target scratch sheet (subtract one for zero-index)
+			let scratchSheet = scratchSheets[Number(body.targetSheet)-1];
 
 			// Get all of the squares for the scratch sheet
 			let scratchSquares = await prisma.scratchSquare.findMany({
 				where: {
 					sheetId: scratchSheet.id
+				}, 
+				orderBy: {
+					id: 'asc'
 				}
 			});
 
 			// Get the target scratch square
 			let scratchSquare = scratchSquares[Number(body.targetSquare)];
 
-			// Update the revealed scratch square
-			await prisma.scratchSquare.update({
-				where: {
-					id: scratchSquare.id
-				}, 
-				data: {
-					earned: true
-				}
+			// Get the item from the scratch square
+			let earnedItem = wm.wm.protobuf.UserItem.create({
+				category: scratchSquare.category, 
+				itemId: scratchSquare.itemId, 
+				earnedAt: date
 			});
 
-			// Get the number of scratched squares on the page
-			let numOfScratched = await prisma.scratchSquare.count({
-				where: {
-					sheetId: scratchSheet.id, 
-					earned: true
-				}
-			})
-
-			// Generate the scratch sheet proto
-			let scratch_sheets : wm.wm.protobuf.ScratchSheet[] = [];
-
-			// Loop over all of the protos
-			for(let sheet of scratchSheets)
+			try // Attempt to update scratch sheet
 			{
-				// Get all of the scratch squares
-				let scratch_squares : wm.wm.protobuf.ScratchSheet.ScratchSquare[] = [];
+				// Add the item to the user's scratch items list
+				await prisma.userItem.create({
+					data: {
+						userId: body.userId,
+						category: scratchSquare.category, 
+						itemId: scratchSquare.itemId, 
+						type: 1,  // Scratch item
+						earnedAt: date
+					}
+				});
 
-				// Loop over all of the squares
-				for (let square of sheet.squares)
+				// Update the revealed scratch square
+				await prisma.scratchSquare.update({
+					where: {
+						id: scratchSquare.id
+					}, 
+					data: {
+						earned: true
+					}
+				});
+
+				// Update the last scratched timestamp
+				await prisma.user.update({
+					where: {
+						id: body.userId
+					}, 
+					data: {
+						lastScratched: date
+					}
+				}); 
+				
+				// If the box we uncovered is the car
+				if (scratchSquare.category == 201)
 				{
-					// Add the current square to the protobuf array
-					scratch_squares.push(wm.wm.protobuf.ScratchSheet.ScratchSquare.create({
-						category: square.category, 
-						itemId: square.itemId, 
-						earned: square.earned
-					}));
+					// Generate a new scratch sheet for the user
+					await scratch.generateScratchSheet(body.userId, body.targetSheet + 1)
 				}
-
-				// Add the scratch sheet to the sheets list
-				scratch_sheets.push(
-					wm.wm.protobuf.ScratchSheet.create({
-						squares: scratch_squares
-					})
-				);
+			} 
+			catch (error) // Failed to update scratch sheet
+			{
+				console.log("Failed to update scratch sheet! Reason:", error);	
 			}
-			*/
+			
+			// Get the updated content for the scratch sheet
+
+			// Scratch sheet proto
+			let scratchSheetProto : wm.wm.protobuf.ScratchSheet[] = []
+
+			// Get the updated scratch sheet proto
+			scratchSheetProto = await scratch.getScratchSheetProto(body.userId);
 
 			let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
-				scratchSheets : [],
+				scratchSheets : scratchSheetProto,
 				currentSheet: body.targetSheet, 
-				numOfScratched: 0, 
+				numOfScratched: 1, 
+				earnedItem: earnedItem
 			}
 
 			let resp = wm.wm.protobuf.SaveScratchSheetResponse.encode(msg);
@@ -1125,7 +1231,9 @@ export default class GameModule extends Module {
 		})
 
 		app.post('/method/update_car', async (req, res) => {
-			let body = wm.wm.protobuf.UpdateCarRequest.decode(req.body);			
+			
+			let body = wm.wm.protobuf.UpdateCarRequest.decode(req.body);
+
 			let car = await prisma.car.findFirst({
 				where: {
 					carId: body.carId
@@ -1134,92 +1242,42 @@ export default class GameModule extends Module {
 					settings: true
 				}
 			});
-			let saveEx: any = {};
-			if (body.car?.wheel !== null && body.car?.wheel !== undefined) {
-					saveEx.wheel = body.car?.wheel!;
-			} else {
-				saveEx.wheel = car?.wheel;
-			}
-			if (body.car?.wheelColor !== null && body.car?.wheelColor !== undefined) {
-					saveEx.wheelColor = body.car?.wheelColor!;
-			} else {
-				saveEx.wheelColor = car?.wheelColor;
-			}
-			if (body.car?.aero !== null && body.car?.aero !== undefined) {
-					saveEx.aero = body.car?.aero!;
-			} else {
-				saveEx.aero = car?.aero;
-			}
-			if (body.car?.bonnet !== null && body.car?.bonnet !== undefined) {
-					saveEx.bonnet = body.car?.bonnet!;
-			} else {
-				saveEx.bonnet = car?.bonnet;
-			}
-			if (body.car?.wing !== null && body.car?.wing !== undefined) {
-					saveEx.wing = body.car?.wing!;
-			} else {
-				saveEx.wing = car?.wing;
-			}
-			if (body.car?.mirror !== null && body.car?.mirror !== undefined) {
-					saveEx.mirror = body.car?.mirror!;
-			} else {
-				saveEx.mirror = car?.mirror;
-			}
-			if (body.car?.neon !== null && body.car?.neon !== undefined) {
-					saveEx.neon = body.car?.neon!;
-			} else {
-				saveEx.neon = car?.neon;
-			}
-			if (body.car?.trunk !== null && body.car?.trunk !== undefined) {
-					saveEx.trunk = body.car?.trunk!;
-			} else {
-				saveEx.trunk = car?.trunk;
-			}
-			if (body.car?.plate !== null && body.car?.plate !== undefined) {
-					saveEx.plate = body.car?.plate!;
-			} else {
-				saveEx.plate = car?.plate;
-			}
-			if (body.car?.plateColor !== null && body.car?.plateColor !== undefined) {
-					saveEx.plateColor = body.car?.plateColor!;
-			} else {
-				saveEx.plateColor = car?.plateColor;
-			}
-			if (body.car?.plateNumber !== null && body.car?.plateNumber !== undefined) {
-					saveEx.plateNumber = body.car?.plateNumber!;
-			} else {
-				saveEx.plateNumber = car?.plateNumber;
-			}
-			if (body.car?.customColor !== null && body.car?.customColor !== undefined) {
-					saveEx.customColor = body.car?.customColor!;
-			} else {
-				saveEx.customColor = car?.customColor;
-			}
-			if (body.car?.rivalMarker !== null && body.car?.rivalMarker !== undefined) {
-					saveEx.rivalMarker = body.car?.rivalMarker!;
-			} else {
-				saveEx.rivalMarker = car?.rivalMarker;
-			}
-			if (body.car?.windowSticker !== null && body.car?.windowSticker !== undefined) {
-					saveEx.windowSticker = body.car?.windowSticker!;
-			} else {
-				saveEx.windowSticker = car?.windowSticker;
-			}
 
+			// Update the car info
+			await prisma.car.update({
+				where: {
+					carId: body.carId
+				}, 
+				data: {
+					// Car components customisable in terminal
+					customColor: body.car?.customColor || 0,
+					wheel: body.car?.wheel || 0,
+					aero: body.car?.aero || 0,
+					bonnet: body.car?.bonnet || 0,
+					wing: body.car?.wing || 0,
+					mirror: body.car?.mirror || 0,
+					neon: body.car?.neon || 0,
+					trunk: body.car?.trunk || 0,
+					plate: body.car?.plate || 0,
+					plateColor: body.car?.plateColor || 0,
+					windowSticker: body.car?.windowSticker || false, 
+					windowStickerString: body.car?.windowStickerString || 'ＷＡＮＧＡＮ',
+					windowStickerFont: body.car?.windowStickerFont || 0,
+					rivalMarker: body.car?.rivalMarker || 0,
+					aura: body.car?.aura || 0,
+					auraMotif: body.car?.auraMotif || 0
+				}
+			})
+			
+			// Update the car settings
 			await prisma.carSettings.update({
 				where: {
 					dbId: car?.carSettingsDbId,
 				},
 				data: {
+
 					...body.setting
 				}
-			});
-
-			let c = await prisma.car.update({
-				where: {
-					carId: body.carId
-				},
-				data: saveEx
 			});
 
             let msg = {
@@ -1254,7 +1312,8 @@ export default class GameModule extends Module {
 			// Get the create car request body
 			let body = wm.wm.protobuf.CreateCarRequest.decode(req.body);
 
-			console.log(body);
+			// Get the current date/time (unix epoch)
+			let date = Math.floor(new Date().getTime() / 1000)
 
 			// Retrieve user from card chip / user id
 			let user: User | null;
@@ -1289,7 +1348,12 @@ export default class GameModule extends Module {
 			})
 
 			// Sets if full tune is used or not
-			let fullyTuned = false;
+			// let fullyTuned = false;
+
+			// 0: Stock Tune
+			// 1: Basic Tune (600 HP)
+			// 2: Fully Tuned (840 HP)
+			let tune = 0;
 
 			// If a user item has been used
 			if (body.userItemId) 
@@ -1299,28 +1363,90 @@ export default class GameModule extends Module {
 				// Remove the user item from the database
 				let item = await prisma.userItem.delete({
 					where: {
-						dbId: body.userItemId
+						userItemId: body.userItemId
 					}
 				});
 
-				console.log(`Item category was ${item.category} and item game ID was ${item.itemId}`);
-				
-				// If the item used was a full tune ticket
-				if (item.category == wm.wm.protobuf.ItemCategory.CAT_CAR_TICKET_FREE &&
-					item.itemId == 5)
-				{
-					// Fully tuned is true
-					fullyTuned = true;
-				}
-
 				console.log('Item deleted!');
+
+				switch(item.category)
+				{
+					case 203: // Car Tune Ticket
+
+						// Switch on item id
+						switch(item.itemId)
+						{
+							// Discarded Vehicle Card
+							case 1: tune = 1; break;
+							case 2: tune = 1; break;
+							case 3: tune = 1; break;
+
+							// Fully Tuned Ticket
+							case 5: tune = 2; break;
+
+							default: // Unknown item type, throw unsupported error
+								throw Error("Unsupported itemId: " + item.itemId); 
+						}
+						break;
+
+					case 201: // Special Car Ticket
+
+						// Fully tuned special cars
+						if (scratch.fullyTunedCars.includes(item.itemId))
+						{
+							// Car is fully tuned
+							tune = 2;
+						}
+						// Basic tuned special cars
+						if (scratch.basicTunedCars.includes(item.itemId))
+						{
+							// If gift cars fully tuned is set
+							if (Config.getConfig().gameOptions.giftCarsFullyTuned)
+							{
+								// Car is fully tuned
+								tune = 2;
+							}
+							else // Gift cars fully tuned not set
+							{
+								// Car is basic tuned
+								tune = 1;
+							}
+						}
+						// Stock tuned special cars
+						if (scratch.stockTunedCars.includes(item.itemId))
+						{
+							// If gift cars fully tuned is set
+							if (Config.getConfig().gameOptions.giftCarsFullyTuned)
+							{
+								// Car is fully tuned
+								tune = 2;
+							}
+							else // Gift cars fully tuned not set
+							{
+								// Car is stock
+								tune = 0;
+							}
+						}
+						break;
+				}
+				console.log(`Item category was ${item.category} and item game ID was ${item.itemId}`);
 			}
+
+			// Other cases, may occur if item is not detected as 'used'
+
 			// User item not used, but car has 740 HP by default
 			else if (body.car && 
 				(body.car.tunePower == 17) && (body.car.tuneHandling == 17))
 			{
-				// Set fully tuned to be true
-				fullyTuned = true;
+				// Car is fully tuned
+				tune = 2;
+			}
+			// User item not used, but car has 600 HP by default
+			else if (body.car && 
+				(body.car.tunePower == 10) && (body.car.tuneHandling == 10))
+			{
+				// Car is basic tuned
+				tune = 1;
 			}
 			// User item not used, but gift cars fully tuned switch is set
 			else if (Config.getConfig().gameOptions.giftCarsFullyTuned)
@@ -1338,7 +1464,7 @@ export default class GameModule extends Module {
 				if (body.car.visualModel && event_cars.includes(body.car.visualModel))
 				{
 					// Set full tune used to be true
-					fullyTuned = true;
+					tune = 2;
 				}
 			}
 
@@ -1357,30 +1483,52 @@ export default class GameModule extends Module {
 				carSettingsDbId: settings.dbId,
 				carStateDbId: state.dbId,
 				regionId: body.car.regionId!,
+				lastPlayedAt: date,
 			};
 
-			// Additional car values (for full tune)
+			// Additional car values (for basic / full tune)
 			let additionalInsert = {
 
 			}
 
-			// Car is fully tuned
-			if (fullyTuned) {
+			// Switch on tune status
+			switch(tune)
+			{
+				// 0: Stock, nothing extra
 
-				// Updated default values
-				carInsert.level = 8; // C3
-				carInsert.tunePower = 17; // 740 HP
-				carInsert.tuneHandling = 17; // 740 HP
+				case 1: // Basic Tune
 
-				// Additional full tune values
-				additionalInsert = {
-					ghostLevel: 10,
-					stClearBits: 0,
-					stLoseBits: 0,
-					stClearCount: 80,
-					stClearDivCount: 4,
-					stConsecutiveWins: 80
-				};
+					// Updated default values
+					carInsert.level = 2; // C8
+					carInsert.tunePower = 10; // 600 HP
+					carInsert.tuneHandling = 10; // 600 HP
+	
+					// Additional basic tune values
+					additionalInsert = {
+						stClearBits: 0,
+						stLoseBits: 0,
+						stClearCount: 20,
+						stClearDivCount: 1,
+						stConsecutiveWins: 20
+					};
+					break;
+
+				case 2: // Fully Tuned
+
+					// Updated default values
+					carInsert.level = 8; // C3
+					carInsert.tunePower = 17; // 740 HP
+					carInsert.tuneHandling = 17; // 740 HP
+
+					// Additional full tune values
+					additionalInsert = {
+						ghostLevel: 10,
+						stClearBits: 0,
+						stLoseBits: 0,
+						stClearCount: 80,
+						stClearDivCount: 4,
+						stConsecutiveWins: 80
+					};
 			}
 
 			// Insert the car into the database
@@ -1388,6 +1536,22 @@ export default class GameModule extends Module {
 				data: {
 					...carInsert,
 					...additionalInsert,
+				}
+			});
+
+			// Get the user's current car order
+			let carOrder = user.carOrder;
+
+			// Add the new car to the front of the id
+			carOrder.unshift(car.carId);
+
+			// Add the car to the front of the order
+			await prisma.user.update({
+				where: {
+					id: user.id
+				}, 
+				data: {
+					carOrder: carOrder
 				}
 			});
 
@@ -1437,7 +1601,8 @@ export default class GameModule extends Module {
 				transferred: false,
 				...car!,
 				stLoseBits: longLoseBits,
-				ownedItems: car!.items
+				ownedItems: car!.items,
+				lastPlayedAt: car!.lastPlayedAt
 			};
 			let resp = wm.wm.protobuf.LoadCarResponse.encode(msg);
 			let end = resp.finish();
@@ -1470,8 +1635,6 @@ export default class GameModule extends Module {
 					carId: body.carId
 				}
 			});
-
-			console.log(records);
 
 			// Loop over all of the records
 			for(let record of records)
@@ -1576,6 +1739,10 @@ export default class GameModule extends Module {
         })
 
 		app.post('/method/update_user_session', (req, res) => {
+
+			// Get the request body
+			// let body = wm.wm.protobuf.UpdateUserSessionRequest.decode(req.body);
+
             let msg = {
                 error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
             }
@@ -1606,6 +1773,7 @@ export default class GameModule extends Module {
                 .status(200);
             r.send(Buffer.from(end));
         })
+
         app.post('/method/search_cars_by_level', async (req, res) => {
             let body = wm.wm.protobuf.SearchCarsByLevelRequest.decode(req.body);
             console.log(body);
@@ -1693,6 +1861,7 @@ export default class GameModule extends Module {
                 .status(200);
             r.send(Buffer.from(end));
         })
+
         app.post('/method/load_ghost_drive_data', async (req, res) => {
             let body = wm.wm.protobuf.LoadGhostDriveDataRequest.decode(req.body);
             //---------------MAYBE NOT CORRECT---------------
