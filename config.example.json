@@ -7,6 +7,7 @@
         "grantFullTuneTicketToNewUsers": 3, 
         "giftCarsFullyTuned": 0, 
         "scratchEnabled": 1, 
-        "scratchType": 1
+        "scratchType": 1, 
+        "giveMeterReward": 0
     }
 }

@@ -256,6 +256,7 @@ export default class GameModule extends Module {
 							}
 							saveEx.rgWinCount = winCounter;
 							saveEx.rgScore = winCounter;
+							saveEx.rgTrophy = winCounter;
 
 							let c = await prisma.car.update({
 								where: {
@@ -312,8 +313,7 @@ export default class GameModule extends Module {
 					title: body.car!.title!,
 					tunePower: body.car!.tunePower!,
 					tuneHandling: body.car!.tuneHandling!,
-					windowSticker: body.car!.windowSticker!,
-					earnedCustomColor: body.earnedCustomColor!
+					windowSticker: body.car!.windowSticker!
 				}
 			})
 
@@ -326,6 +326,111 @@ export default class GameModule extends Module {
 					...body.setting
 				}
 			});
+
+			// Every n*100 play give reward
+			let giveMeterReward = Config.getConfig().gameOptions.giveMeterReward;
+			if(giveMeterReward === 1 && body.playCount % 100 === 0){
+				let carItemCount = await prisma.carItem.findMany({
+					where: {
+						carId: body.carId,
+						category: 15,
+						itemId: {
+							lte: 22,
+							gte: 1,
+						},
+					},
+				})
+				let sqlVal = 0;
+				for(let i=0; i<carItemCount.length; i++){
+					if(carItemCount[i].itemId !== 2 && carItemCount[i].itemId !== 3 && carItemCount[i].itemId !== 5 && carItemCount[i].itemId !== 6){
+						sqlVal = sqlVal + 1;
+					}
+				}
+
+				let itemIdVal = 0;
+				if(sqlVal === 0){
+					itemIdVal = 1;
+				}
+				else if(sqlVal === 1){
+					itemIdVal = 4;
+				}
+				else if(sqlVal === 2){
+					itemIdVal = 7;
+				}
+				else if(sqlVal === 3){
+					itemIdVal = 8;
+				}
+				else if(sqlVal === 4){
+					itemIdVal = 9;
+				}
+				else if(sqlVal === 5){
+					itemIdVal = 10;
+				}
+				else if(sqlVal === 6){
+					itemIdVal = 11;
+				}
+				else if(sqlVal === 7){
+					itemIdVal = 12;
+				}
+				else if(sqlVal === 8){
+					itemIdVal = 13;
+				}
+				else if(sqlVal === 9){
+					itemIdVal = 14;
+				}
+				else if(sqlVal === 10){
+					itemIdVal = 15;
+				}
+				else if(sqlVal === 11){
+					itemIdVal = 16;
+				}
+				else if(sqlVal === 12){
+					itemIdVal = 17;
+				}
+				else if(sqlVal === 13){
+					itemIdVal = 18;
+				}
+				else if(sqlVal === 14){
+					itemIdVal = 19;
+				}
+				else if(sqlVal === 15){
+					itemIdVal = 20;
+				}
+				else if(sqlVal === 16){
+					itemIdVal = 21;
+				}
+				else if(sqlVal === 17){
+					itemIdVal = 22;
+				}
+				else if(sqlVal === 18){
+					itemIdVal = 23;
+				}
+				else if(sqlVal === 19){
+					itemIdVal = 24;
+				}
+				else if(sqlVal === 20){
+					itemIdVal = 25;
+				}
+				else if(sqlVal === 21){
+					itemIdVal = 26;
+				}
+				else if(sqlVal === 22){
+					itemIdVal = 27;
+				}
+				else if(sqlVal === 23){
+					itemIdVal = 28;
+				}
+
+				console.log(`carID ${body.carId} do n*100 play, continue give reward... meter ID ${itemIdVal}`);
+				await prisma.carItem.create({
+					data: {
+						carId: body.carId,
+						category: 15,
+						itemId: itemIdVal,
+						amount: 1
+					}
+				});
+			}
 
 			// Update user
 			let user = await prisma.user.findFirst({
@@ -1596,6 +1701,7 @@ export default class GameModule extends Module {
 					items: true,
 				}
 			});
+
 			// This is fucking terrible
 			let longLoseBits = Long.fromString(car!.stLoseBits.toString());
 			let msg = {

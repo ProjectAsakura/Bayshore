@@ -42,6 +42,9 @@ export interface GameOptions {
 
     // Amount of full-tunes to grant to newly registered cards
     grantFullTuneTicketToNewUsers: number;
+
+    // Give meter reward every n*100 play
+    giveMeterReward: number; //1 is on, 0 is off
 }
 
 export class Config {
