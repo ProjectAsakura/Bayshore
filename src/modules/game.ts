@@ -21,7 +21,6 @@ export default class GameModule extends Module {
 					carId: body.carId
 				}
 			});
-			console.log(body);
 			let storyLose: boolean = false;
 			switch (body.gameMode) {
 				case wm.wm.protobuf.GameMode.MODE_STORY:
@@ -92,20 +91,6 @@ export default class GameModule extends Module {
 							});
 							console.log('-------');
 							console.log(c);
-							
-							if(body.earnedItems.length !== 0){
-								console.log('Game reward available, continuing ...');
-								for(let i=0; i<body.earnedItems.length; i++){
-									await prisma.carItem.create({
-										data: {
-											carId: body.carId,
-											category: body.earnedItems[i].category,
-											itemId: body.earnedItems[i].itemId,
-											amount: 1
-										}
-									});
-								}
-							}
 						}
 						break;
 					}
@@ -278,22 +263,39 @@ export default class GameModule extends Module {
 								},
 								data: saveEx
 							});
-
-							if(body.earnedItems.length !== 0){
-								console.log('Game reward available, continuing ...');
-								for(let i=0; i<body.earnedItems.length; i++){
-									await prisma.carItem.create({
-										data: {
-											carId: body.carId,
-											category: body.earnedItems[i].category,
-											itemId: body.earnedItems[i].itemId,
-											amount: 1
-										}
-									});
-								}
-							}
 						}
 					}
+			}
+
+			// Get car item
+			if(body.earnedItems.length !== 0){
+				console.log('Car Item reward available, continuing ...');
+				for(let i=0; i<body.earnedItems.length; i++){
+					await prisma.carItem.create({
+						data: {
+							carId: body.carId,
+							category: body.earnedItems[i].category,
+							itemId: body.earnedItems[i].itemId,
+							amount: 1
+						}
+					});
+				}
+			}
+
+			// Get user item
+			if(body.earnedUserItems.length !== 0){
+				console.log('User Item reward available, continuing ...');
+				for(let i=0; i<body.earnedUserItems.length; i++){
+					await prisma.userItem.create({
+						data: {
+							category: body.earnedUserItems[i].category,
+							itemId: body.earnedUserItems[i].itemId,
+							userId: body.car!.userId!,
+							earnedAt: 0,
+							type: 0
+						}
+					});
+				}
 			}
 
 			// Update car
@@ -311,6 +313,7 @@ export default class GameModule extends Module {
 					tunePower: body.car!.tunePower!,
 					tuneHandling: body.car!.tuneHandling!,
 					windowSticker: body.car!.windowSticker!,
+					earnedCustomColor: body.earnedCustomColor!
 				}
 			})
 
@@ -386,10 +389,7 @@ export default class GameModule extends Module {
 		})
 
 		app.post('/method/load_user', async (req, res) => {
-
 			let body = wm.wm.protobuf.LoadUserRequest.decode(req.body);
-
-			
 
 			let user = await prisma.user.findFirst({
 				where: {
@@ -407,7 +407,6 @@ export default class GameModule extends Module {
 
 			// No user returned
 			if (!user) {
-
 				console.log('no such user');
 				let msg = {
 					error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
@@ -1231,9 +1230,7 @@ export default class GameModule extends Module {
 		})
 
 		app.post('/method/update_car', async (req, res) => {
-			
 			let body = wm.wm.protobuf.UpdateCarRequest.decode(req.body);
-
 			let car = await prisma.car.findFirst({
 				where: {
 					carId: body.carId
@@ -1279,6 +1276,21 @@ export default class GameModule extends Module {
 					...body.setting
 				}
 			});
+
+			// Get car item
+			if(body.earnedItems.length !== 0){
+				console.log('Car Item reward available, continuing ...');
+				for(let i=0; i<body.earnedItems.length; i++){
+					await prisma.carItem.create({
+						data: {
+							carId: body.carId,
+							category: body.earnedItems[i].category,
+							itemId: body.earnedItems[i].itemId,
+							amount: 1
+						}
+					});
+				}
+			}
 
             let msg = {
                 error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
@@ -1739,7 +1751,6 @@ export default class GameModule extends Module {
         })
 
 		app.post('/method/update_user_session', (req, res) => {
-
 			// Get the request body
 			// let body = wm.wm.protobuf.UpdateUserSessionRequest.decode(req.body);
 
@@ -1776,8 +1787,7 @@ export default class GameModule extends Module {
 
         app.post('/method/search_cars_by_level', async (req, res) => {
             let body = wm.wm.protobuf.SearchCarsByLevelRequest.decode(req.body);
-            console.log(body);
-			//---------------MAYBE NOT CORRECT---------------
+            //---------------MAYBE NOT CORRECT---------------
 			let rampVal = 0;
 			let pathVal = 0;
 			if(body.area === 0){ //GID_RUNAREA_C1
