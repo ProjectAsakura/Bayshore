@@ -21,7 +21,6 @@ export default class GameModule extends Module {
 					carId: body.carId
 				}
 			});
-			console.log(body);
 			let storyLose: boolean = false;
 			switch (body.gameMode) {
 				case wm.wm.protobuf.GameMode.MODE_STORY:
@@ -92,20 +91,6 @@ export default class GameModule extends Module {
 							});
 							console.log('-------');
 							console.log(c);
-							
-							if(body.earnedItems.length !== 0){
-								console.log('Game reward available, continuing ...');
-								for(let i=0; i<body.earnedItems.length; i++){
-									await prisma.carItem.create({
-										data: {
-											carId: body.carId,
-											category: body.earnedItems[i].category,
-											itemId: body.earnedItems[i].itemId,
-											amount: 1
-										}
-									});
-								}
-							}
 						}
 						break;
 					}
@@ -271,6 +256,7 @@ export default class GameModule extends Module {
 							}
 							saveEx.rgWinCount = winCounter;
 							saveEx.rgScore = winCounter;
+							saveEx.rgTrophy = winCounter;
 
 							let c = await prisma.car.update({
 								where: {
@@ -278,22 +264,39 @@ export default class GameModule extends Module {
 								},
 								data: saveEx
 							});
-
-							if(body.earnedItems.length !== 0){
-								console.log('Game reward available, continuing ...');
-								for(let i=0; i<body.earnedItems.length; i++){
-									await prisma.carItem.create({
-										data: {
-											carId: body.carId,
-											category: body.earnedItems[i].category,
-											itemId: body.earnedItems[i].itemId,
-											amount: 1
-										}
-									});
-								}
-							}
 						}
 					}
+			}
+
+			// Get car item
+			if(body.earnedItems.length !== 0){
+				console.log('Car Item reward available, continuing ...');
+				for(let i=0; i<body.earnedItems.length; i++){
+					await prisma.carItem.create({
+						data: {
+							carId: body.carId,
+							category: body.earnedItems[i].category,
+							itemId: body.earnedItems[i].itemId,
+							amount: 1
+						}
+					});
+				}
+			}
+
+			// Get user item
+			if(body.earnedUserItems.length !== 0){
+				console.log('User Item reward available, continuing ...');
+				for(let i=0; i<body.earnedUserItems.length; i++){
+					await prisma.userItem.create({
+						data: {
+							category: body.earnedUserItems[i].category,
+							itemId: body.earnedUserItems[i].itemId,
+							userId: body.car!.userId!,
+							earnedAt: 0,
+							type: 0
+						}
+					});
+				}
 			}
 
 			// Update car
@@ -310,7 +313,7 @@ export default class GameModule extends Module {
 					title: body.car!.title!,
 					tunePower: body.car!.tunePower!,
 					tuneHandling: body.car!.tuneHandling!,
-					windowSticker: body.car!.windowSticker!,
+					windowSticker: body.car!.windowSticker!
 				}
 			})
 
@@ -323,6 +326,111 @@ export default class GameModule extends Module {
 					...body.setting
 				}
 			});
+
+			// Every n*100 play give reward
+			let giveMeterReward = Config.getConfig().gameOptions.giveMeterReward;
+			if(giveMeterReward === 1 && body.playCount % 100 === 0){
+				let carItemCount = await prisma.carItem.findMany({
+					where: {
+						carId: body.carId,
+						category: 15,
+						itemId: {
+							lte: 28,
+							gte: 1,
+						},
+					},
+				})
+				let sqlVal = 0;
+				for(let i=0; i<carItemCount.length; i++){
+					if(carItemCount[i].itemId !== 2 && carItemCount[i].itemId !== 3 && carItemCount[i].itemId !== 5 && carItemCount[i].itemId !== 6){
+						sqlVal = sqlVal + 1;
+					}
+				}
+
+				let itemIdVal = 0;
+				if(sqlVal === 0){
+					itemIdVal = 1;
+				}
+				else if(sqlVal === 1){
+					itemIdVal = 4;
+				}
+				else if(sqlVal === 2){
+					itemIdVal = 7;
+				}
+				else if(sqlVal === 3){
+					itemIdVal = 8;
+				}
+				else if(sqlVal === 4){
+					itemIdVal = 9;
+				}
+				else if(sqlVal === 5){
+					itemIdVal = 10;
+				}
+				else if(sqlVal === 6){
+					itemIdVal = 11;
+				}
+				else if(sqlVal === 7){
+					itemIdVal = 12;
+				}
+				else if(sqlVal === 8){
+					itemIdVal = 13;
+				}
+				else if(sqlVal === 9){
+					itemIdVal = 14;
+				}
+				else if(sqlVal === 10){
+					itemIdVal = 15;
+				}
+				else if(sqlVal === 11){
+					itemIdVal = 16;
+				}
+				else if(sqlVal === 12){
+					itemIdVal = 17;
+				}
+				else if(sqlVal === 13){
+					itemIdVal = 18;
+				}
+				else if(sqlVal === 14){
+					itemIdVal = 19;
+				}
+				else if(sqlVal === 15){
+					itemIdVal = 20;
+				}
+				else if(sqlVal === 16){
+					itemIdVal = 21;
+				}
+				else if(sqlVal === 17){
+					itemIdVal = 22;
+				}
+				else if(sqlVal === 18){
+					itemIdVal = 23;
+				}
+				else if(sqlVal === 19){
+					itemIdVal = 24;
+				}
+				else if(sqlVal === 20){
+					itemIdVal = 25;
+				}
+				else if(sqlVal === 21){
+					itemIdVal = 26;
+				}
+				else if(sqlVal === 22){
+					itemIdVal = 27;
+				}
+				else if(sqlVal === 23){
+					itemIdVal = 28;
+				}
+
+				console.log(`carID ${body.carId} do n*100 play, continue give reward... meter ID ${itemIdVal}`);
+				await prisma.carItem.create({
+					data: {
+						carId: body.carId,
+						category: 15,
+						itemId: itemIdVal,
+						amount: 1
+					}
+				});
+			}
 
 			// Update user
 			let user = await prisma.user.findFirst({
@@ -386,10 +494,7 @@ export default class GameModule extends Module {
 		})
 
 		app.post('/method/load_user', async (req, res) => {
-
 			let body = wm.wm.protobuf.LoadUserRequest.decode(req.body);
-
-			
 
 			let user = await prisma.user.findFirst({
 				where: {
@@ -407,7 +512,6 @@ export default class GameModule extends Module {
 
 			// No user returned
 			if (!user) {
-
 				console.log('no such user');
 				let msg = {
 					error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
@@ -1231,9 +1335,7 @@ export default class GameModule extends Module {
 		})
 
 		app.post('/method/update_car', async (req, res) => {
-			
 			let body = wm.wm.protobuf.UpdateCarRequest.decode(req.body);
-
 			let car = await prisma.car.findFirst({
 				where: {
 					carId: body.carId
@@ -1279,6 +1381,21 @@ export default class GameModule extends Module {
 					...body.setting
 				}
 			});
+
+			// Get car item
+			if(body.earnedItems.length !== 0){
+				console.log('Car Item reward available, continuing ...');
+				for(let i=0; i<body.earnedItems.length; i++){
+					await prisma.carItem.create({
+						data: {
+							carId: body.carId,
+							category: body.earnedItems[i].category,
+							itemId: body.earnedItems[i].itemId,
+							amount: 1
+						}
+					});
+				}
+			}
 
             let msg = {
                 error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
@@ -1584,6 +1701,7 @@ export default class GameModule extends Module {
 					items: true,
 				}
 			});
+
 			// This is fucking terrible
 			let longLoseBits = Long.fromString(car!.stLoseBits.toString());
 			let msg = {
@@ -1739,7 +1857,6 @@ export default class GameModule extends Module {
         })
 
 		app.post('/method/update_user_session', (req, res) => {
-
 			// Get the request body
 			// let body = wm.wm.protobuf.UpdateUserSessionRequest.decode(req.body);
 
@@ -1776,8 +1893,7 @@ export default class GameModule extends Module {
 
         app.post('/method/search_cars_by_level', async (req, res) => {
             let body = wm.wm.protobuf.SearchCarsByLevelRequest.decode(req.body);
-            console.log(body);
-			//---------------MAYBE NOT CORRECT---------------
+            //---------------MAYBE NOT CORRECT---------------
 			let rampVal = 0;
 			let pathVal = 0;
 			if(body.area === 0){ //GID_RUNAREA_C1
