@@ -335,7 +335,7 @@ export default class GameModule extends Module {
 						carId: body.carId,
 						category: 15,
 						itemId: {
-							lte: 22,
+							lte: 28,
 							gte: 1,
 						},
 					},
