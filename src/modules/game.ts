@@ -421,15 +421,17 @@ export default class GameModule extends Module {
 					itemIdVal = 28;
 				}
 
-				console.log(`carID ${body.carId} do n*100 play, continue give reward... meter ID ${itemIdVal}`);
-				await prisma.carItem.create({
-					data: {
-						carId: body.carId,
-						category: 15,
-						itemId: itemIdVal,
-						amount: 1
-					}
-				});
+				if(itemIdVal !== 0){
+					console.log(`carID ${body.carId} do n*100 play, continue give reward... meter ID ${itemIdVal}`);
+					await prisma.carItem.create({
+						data: {
+							carId: body.carId,
+							category: 15,
+							itemId: itemIdVal,
+							amount: 1
+						}
+					});
+				}
 			}
 
 			// Update user
