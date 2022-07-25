@@ -82,6 +82,7 @@ export default class GameModule extends Module {
 							} else {
 								saveEx.stCompleted100Episodes = car?.stCompleted100Episodes;
 							}
+							saveEx.stConsecutiveWinsMax = maxConsecutiveWins;
 
 							let c = await prisma.car.update({
 								where: {
