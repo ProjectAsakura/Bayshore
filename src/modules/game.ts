@@ -1426,6 +1426,11 @@ export default class GameModule extends Module {
 			} else {
 				saveEx.wheel = car?.wheel;
 			}
+			if (body.car?.wheelColor !== null && body.car?.wheelColor !== undefined) {
+				saveEx.wheelColor = body.car?.wheelColor!;
+			} else {
+				saveEx.wheelColor = car?.wheelColor;
+			}
 			if (body.car?.aero !== null && body.car?.aero !== undefined) {
 				saveEx.aero = body.car?.aero!;
 			} else {
