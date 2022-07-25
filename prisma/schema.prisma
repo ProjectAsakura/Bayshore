@@ -83,6 +83,7 @@ model Car {
   windowSticker       Boolean @default(false)
   windowStickerString String  @default("ＷＡＮＧＡＮ")
   windowStickerFont   Int     @default(0)
+  windowDecoration    Int     @default(0)
   rivalMarker         Int     @default(0)
   lastPlayedAt        Int     @default(0)
   aura                Int     @default(0)
@@ -123,11 +124,24 @@ model Car {
   stConsecutiveWinsMax   Int         @default(0)
   stCompleted100Episodes Boolean     @default(false)
 
-  items CarItem[]
-
+  items            CarItem[]
+  carGTWingDbId    Int                @unique
+  gtWing           CarGTWing          @relation(fields: [carGTWingDbId], references: [dbId])
   carStateDbId     Int                @unique
   state            CarState           @relation(fields: [carStateDbId], references: [dbId])
   TimeAttackRecord TimeAttackRecord[]
+}
+
+model CarGTWing {
+  dbId Int  @id @default(autoincrement())
+  car  Car?
+
+  pillar           Int @default(0)
+  pillarMaterial   Int @default(0)
+  mainWing         Int @default(0)
+  mainWingColor    Int @default(0)
+  wingTip          Int @default(0)
+  material         Int @default(0)
 }
 
 model CarItem {

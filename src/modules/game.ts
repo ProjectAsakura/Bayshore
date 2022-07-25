@@ -82,7 +82,7 @@ export default class GameModule extends Module {
 							} else {
 								saveEx.stCompleted100Episodes = car?.stCompleted100Episodes;
 							}
-							console.log(saveEx);
+
 							let c = await prisma.car.update({
 								where: {
 									carId: body.carId
@@ -258,13 +258,78 @@ export default class GameModule extends Module {
 							saveEx.rgScore = winCounter;
 							saveEx.rgTrophy = winCounter;
 
-							let c = await prisma.car.update({
+							await prisma.car.update({
 								where: {
 									carId: body.carId
 								},
 								data: saveEx
 							});
 						}
+					}
+				case wm.wm.protobuf.GameMode.MODE_VS_BATTLE:
+					{
+						let saveEx: any = {};
+						if(body.vsResult?.vsPlayCount !== null && body.vsResult?.vsPlayCount !== undefined){
+							saveEx.vsPlayCount = body.vsResult?.vsPlayCount!;
+						}
+						else {
+							saveEx.vsPlayCount = car?.vsPlayCount;
+						}
+						if(body.vsResult?.vsBurstCount !== null && body.vsResult?.vsBurstCount !== undefined){
+							saveEx.vsBurstCount = body.vsResult?.vsBurstCount!;
+						}
+						else {
+							saveEx.vsBurstCount = car?.vsBurstCount;
+						}
+						if(body.vsResult?.vsStarCount !== null && body.vsResult?.vsStarCount !== undefined){
+							saveEx.vsStarCount = body.vsResult?.vsStarCount!;
+						}
+						else {
+							saveEx.vsStarCount = car?.vsStarCount;
+						}
+						if(body.vsResult?.vsCoolOrWild !== null && body.vsResult?.vsCoolOrWild !== undefined){
+							saveEx.vsCoolOrWild = body.vsResult?.vsCoolOrWild!;
+						}
+						else {
+							saveEx.vsCoolOrWild = car?.vsCoolOrWild;
+						}
+						if(body.vsResult?.vsSmoothOrRough !== null && body.vsResult?.vsSmoothOrRough !== undefined){
+							saveEx.vsSmoothOrRough = body.vsResult?.vsSmoothOrRough!;
+						}
+						else {
+							saveEx.vsSmoothOrRough = car?.vsSmoothOrRough;
+						}
+						if(body.vsResult?.vsTripleStarMedals !== null && body.vsResult?.vsTripleStarMedals !== undefined){
+							saveEx.vsTripleStarMedals = body.vsResult?.vsTripleStarMedals!;
+						}
+						else {
+							saveEx.vsTripleStarMedals = car?.vsTripleStarMedals;
+						}
+						if(body.vsResult?.vsDoubleStarMedals !== null && body.vsResult?.vsDoubleStarMedals !== undefined){
+							saveEx.vsDoubleStarMedals = body.vsResult?.vsDoubleStarMedals!;
+						}
+						else {
+							saveEx.vsDoubleStarMedals = car?.vsDoubleStarMedals;
+						}
+						if(body.vsResult?.vsSingleStarMedals !== null && body.vsResult?.vsSingleStarMedals !== undefined){
+							saveEx.vsSingleStarMedals = body.vsResult?.vsSingleStarMedals!;
+						}
+						else {
+							saveEx.vsSingleStarMedals = car?.vsSingleStarMedals;
+						}
+						if(body.vsResult?.vsPlainMedals !== null && body.vsResult?.vsPlainMedals !== undefined){
+							saveEx.vsPlainMedals = body.vsResult?.vsPlainMedals!;
+						}
+						else {
+							saveEx.vsPlainMedals = car?.vsPlainMedals;
+						}
+
+						let c = await prisma.car.update({
+							where: {
+								carId: body.carId
+							},
+							data: saveEx
+						});
 					}
 			}
 
@@ -507,6 +572,7 @@ export default class GameModule extends Module {
 					cars: {
 						include: {
 							state: true,
+							gtWing: true
 						}
 					}
 				}
@@ -1343,34 +1409,105 @@ export default class GameModule extends Module {
 					carId: body.carId
 				},
 				include: {
-					settings: true
+					settings: true,
+					gtWing: true
 				}
 			});
+
+			let saveEx: any = {};
+			if (body.car?.customColor !== null && body.car?.customColor !== undefined) {
+				saveEx.customColor = body.car?.customColor!;
+			} else {
+				saveEx.customColor = car?.customColor;
+			}
+			if (body.car?.wheel !== null && body.car?.wheel !== undefined) {
+				saveEx.wheel = body.car?.wheel!;
+			} else {
+				saveEx.wheel = car?.wheel;
+			}
+			if (body.car?.aero !== null && body.car?.aero !== undefined) {
+				saveEx.aero = body.car?.aero!;
+			} else {
+				saveEx.aero = car?.aero;
+			}
+			if (body.car?.bonnet !== null && body.car?.bonnet !== undefined) {
+				saveEx.bonnet = body.car?.bonnet!;
+			} else {
+				saveEx.bonnet = car?.bonnet;
+			}
+			if (body.car?.wing !== null && body.car?.wing !== undefined) {
+				saveEx.wing = body.car?.wing!;
+			} else {
+				saveEx.wing = car?.wing;
+			}
+			if (body.car?.mirror !== null && body.car?.mirror !== undefined) {
+				saveEx.mirror = body.car?.mirror!;
+			} else {
+				saveEx.mirror = car?.mirror;
+			}
+			if (body.car?.neon !== null && body.car?.neon !== undefined) {
+				saveEx.neon = body.car?.neon!;
+			} else {
+				saveEx.neon = car?.neon;
+			}
+			if (body.car?.trunk !== null && body.car?.trunk !== undefined) {
+				saveEx.trunk = body.car?.trunk!;
+			} else {
+				saveEx.trunk = car?.trunk;
+			}
+			if (body.car?.plate !== null && body.car?.plate !== undefined) {
+				saveEx.plate = body.car?.plate!;
+			} else {
+				saveEx.plate = car?.plate;
+			}
+			if (body.car?.plateColor !== null && body.car?.plateColor !== undefined) {
+				saveEx.plateColor = body.car?.plateColor!;
+			} else {
+				saveEx.plateColor = car?.plateColor;
+			}
+			if (body.car?.windowSticker !== null && body.car?.windowSticker !== undefined) {
+				saveEx.windowSticker = body.car?.windowSticker!;
+			} else {
+				saveEx.windowSticker = car?.windowSticker;
+			}
+			if (body.car?.windowStickerString !== null && body.car?.windowStickerString !== undefined) {
+				saveEx.windowStickerString = body.car?.windowStickerString!;
+			} else {
+				saveEx.windowStickerString = 'ＷＡＮＧＡＮ';
+			}
+			if (body.car?.windowStickerFont !== null && body.car?.windowStickerFont !== undefined) {
+				saveEx.windowStickerFont = body.car?.windowStickerFont!;
+			} else {
+				saveEx.windowStickerFont = car?.windowStickerFont;
+			}
+			if (body.car?.windowDecoration !== null && body.car?.windowDecoration !== undefined) {
+				saveEx.windowDecoration = body.car?.windowDecoration!;
+			} else {
+				saveEx.windowDecoration = car?.windowDecoration;
+			}
+			if (body.car?.rivalMarker !== null && body.car?.rivalMarker !== undefined) {
+				saveEx.rivalMarker = body.car?.rivalMarker!;
+			} else {
+				saveEx.rivalMarker = car?.rivalMarker;
+			}
+			if (body.car?.aura !== null && body.car?.aura !== undefined) {
+				saveEx.aura = body.car?.aura!;
+			} else {
+				saveEx.aura = car?.aura;
+			}
+			if (body.car?.auraMotif !== null && body.car?.auraMotif !== undefined) {
+				saveEx.auraMotif = body.car?.auraMotif!;
+			} else {
+				saveEx.auraMotif = car?.auraMotif;
+			}
+
 
 			// Update the car info
 			await prisma.car.update({
 				where: {
 					carId: body.carId
 				}, 
-				data: {
-					// Car components customisable in terminal
-					customColor: body.car?.customColor || 0,
-					wheel: body.car?.wheel || 0,
-					aero: body.car?.aero || 0,
-					bonnet: body.car?.bonnet || 0,
-					wing: body.car?.wing || 0,
-					mirror: body.car?.mirror || 0,
-					neon: body.car?.neon || 0,
-					trunk: body.car?.trunk || 0,
-					plate: body.car?.plate || 0,
-					plateColor: body.car?.plateColor || 0,
-					windowSticker: body.car?.windowSticker || false, 
-					windowStickerString: body.car?.windowStickerString || 'ＷＡＮＧＡＮ',
-					windowStickerFont: body.car?.windowStickerFont || 0,
-					rivalMarker: body.car?.rivalMarker || 0,
-					aura: body.car?.aura || 0,
-					auraMotif: body.car?.auraMotif || 0
-				}
+				data: saveEx
 			})
 			
 			// Update the car settings
@@ -1379,10 +1516,49 @@ export default class GameModule extends Module {
 					dbId: car?.carSettingsDbId,
 				},
 				data: {
-
 					...body.setting
 				}
 			});
+
+			// Update the GT Wing info
+			let saveEx2: any = {};
+			if (body.car?.gtWing?.pillar !== null && body.car?.gtWing?.pillar !== undefined) {
+				saveEx2.pillar = body.car?.gtWing?.pillar!;
+			} else {
+				saveEx2.pillar = car?.gtWing?.pillar;
+			}
+			if (body.car?.gtWing?.pillarMaterial !== null && body.car?.gtWing?.pillarMaterial !== undefined) {
+				saveEx2.pillarMaterial = body.car?.gtWing?.pillarMaterial!;
+			} else {
+				saveEx2.pillarMaterial = car?.gtWing?.pillarMaterial;
+			}
+			if (body.car?.gtWing?.mainWing !== null && body.car?.gtWing?.mainWing !== undefined) {
+				saveEx2.mainWing = body.car?.gtWing?.mainWing!;
+			} else {
+				saveEx2.mainWing = car?.gtWing?.mainWing;
+			}
+			if (body.car?.gtWing?.mainWingColor !== null && body.car?.gtWing?.mainWingColor !== undefined) {
+				saveEx2.mainWingColor = body.car?.gtWing?.mainWingColor!;
+			} else {
+				saveEx2.mainWingColor = car?.gtWing?.mainWingColor;
+			}
+			if (body.car?.gtWing?.wingTip !== null && body.car?.gtWing?.wingTip !== undefined) {
+				saveEx2.wingTip = body.car?.gtWing?.wingTip!;
+			} else {
+				saveEx2.wingTip = car?.gtWing?.wingTip;
+			}
+			if (body.car?.gtWing?.material !== null && body.car?.gtWing?.material !== undefined) {
+				saveEx2.material = body.car?.gtWing?.material!;
+			} else {
+				saveEx2.material = car?.gtWing?.material;
+			}
+
+			await prisma.carGTWing.update({
+				where: {
+					dbId: body.carId
+				}, 
+				data: saveEx2
+			})
 
 			// Get car item
 			if(body.earnedItems.length !== 0){
@@ -1463,6 +1639,10 @@ export default class GameModule extends Module {
 
 			// Generate blank car state object
 			let state = await prisma.carState.create({
+				data: {}
+			})
+
+			let gtWing = await prisma.carGTWing.create({
 				data: {}
 			})
 
@@ -1601,6 +1781,7 @@ export default class GameModule extends Module {
 				tuneHandling: body.car.tuneHandling!,
 				carSettingsDbId: settings.dbId,
 				carStateDbId: state.dbId,
+				carGTWingDbId: gtWing.dbId,
 				regionId: body.car.regionId!,
 				lastPlayedAt: date,
 			};
@@ -1694,6 +1875,7 @@ export default class GameModule extends Module {
 
 		app.post('/method/load_car', async (req, res) => {
 			let body = wm.wm.protobuf.LoadCarRequest.decode(req.body);
+
 			let car = await prisma.car.findFirst({
 				where: {
 					carId: body.carId
@@ -1701,8 +1883,10 @@ export default class GameModule extends Module {
 				include: {
 					settings: true,
 					items: true,
+					gtWing: true
 				}
 			});
+			
 
 			// This is fucking terrible
 			let longLoseBits = Long.fromString(car!.stLoseBits.toString());
