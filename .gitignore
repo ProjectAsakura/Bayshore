@@ -9,3 +9,14 @@ key.pem
 config.json
 package-lock.json
 ecosystem.config.js
+
+# yarn
+.npmrc
+.cache
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
