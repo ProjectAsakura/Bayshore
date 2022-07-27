@@ -84,6 +84,42 @@ export default class GameModule extends Module {
 							}
 							saveEx.stConsecutiveWinsMax = maxConsecutiveWins;
 
+							let currentStep = 0;
+							currentStep = body.car!.tunePower! + body.car!.tuneHandling!;
+							if(currentStep >= 0 && currentStep <= 5){
+								saveEx.ghostLevel = 1
+							}
+							else if(currentStep >= 6 && currentStep <= 10){
+								saveEx.ghostLevel = 2
+							}
+							else if(currentStep >= 11 && currentStep <= 15){
+								saveEx.ghostLevel = 3
+							}
+							else if(currentStep >= 16 && currentStep <= 20){
+								saveEx.ghostLevel = 4
+							}
+							else if(currentStep >= 21 && currentStep <= 26){
+								saveEx.ghostLevel = 5
+							}
+							else if(currentStep >= 27 && currentStep <= 28){
+								saveEx.ghostLevel = 6
+							}
+							else if(currentStep >= 29 && currentStep <= 30){
+								saveEx.ghostLevel = 7
+							}
+							else if(currentStep === 31){
+								saveEx.ghostLevel = 8
+							}
+							else if(currentStep >= 32 && currentStep <= 33){
+								saveEx.ghostLevel = 9
+							}
+							else if(currentStep === 34 && car!.rgWinCount >= 1000){
+								saveEx.ghostLevel = 11
+							}
+							else if(currentStep === 34){
+								saveEx.ghostLevel = 10
+							}
+
 							await prisma.car.update({
 								where: {
 									carId: body.carId
