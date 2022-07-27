@@ -269,6 +269,7 @@ export default class GameModule extends Module {
 					}
 				case wm.wm.protobuf.GameMode.MODE_VS_BATTLE:
 					{
+						console.log(body);
 						let saveEx: any = {};
 						if(body.vsResult?.vsPlayCount !== null && body.vsResult?.vsPlayCount !== undefined){
 							saveEx.vsPlayCount = body.vsResult?.vsPlayCount!;
@@ -300,25 +301,25 @@ export default class GameModule extends Module {
 						else {
 							saveEx.vsSmoothOrRough = car?.vsSmoothOrRough;
 						}
-						if(body.vsResult?.vsTripleStarMedals !== null && body.vsResult?.vsTripleStarMedals !== undefined){
+						if(body.vsResult?.vsTripleStarMedals !== null && body.vsResult?.vsTripleStarMedals !== undefined && body.vsResult?.vsTripleStarMedals !== 0){
 							saveEx.vsTripleStarMedals = body.vsResult?.vsTripleStarMedals!;
 						}
 						else {
 							saveEx.vsTripleStarMedals = car?.vsTripleStarMedals;
 						}
-						if(body.vsResult?.vsDoubleStarMedals !== null && body.vsResult?.vsDoubleStarMedals !== undefined){
+						if(body.vsResult?.vsDoubleStarMedals !== null && body.vsResult?.vsDoubleStarMedals !== undefined && body.vsResult?.vsDoubleStarMedals !== 0){
 							saveEx.vsDoubleStarMedals = body.vsResult?.vsDoubleStarMedals!;
 						}
 						else {
 							saveEx.vsDoubleStarMedals = car?.vsDoubleStarMedals;
 						}
-						if(body.vsResult?.vsSingleStarMedals !== null && body.vsResult?.vsSingleStarMedals !== undefined){
+						if(body.vsResult?.vsSingleStarMedals !== null && body.vsResult?.vsSingleStarMedals !== undefined && body.vsResult?.vsSingleStarMedals !== 0){
 							saveEx.vsSingleStarMedals = body.vsResult?.vsSingleStarMedals!;
 						}
 						else {
 							saveEx.vsSingleStarMedals = car?.vsSingleStarMedals;
 						}
-						if(body.vsResult?.vsPlainMedals !== null && body.vsResult?.vsPlainMedals !== undefined){
+						if(body.vsResult?.vsPlainMedals !== null && body.vsResult?.vsPlainMedals !== undefined && body.vsResult?.vsPlainMedals !== 0){
 							saveEx.vsPlainMedals = body.vsResult?.vsPlainMedals!;
 						}
 						else {
@@ -406,6 +407,7 @@ export default class GameModule extends Module {
 						},
 					},
 				})
+				console.log('How many meter already obtained : ' +carItemCount);
 				let sqlVal = 0;
 				for(let i=0; i<carItemCount.length; i++){
 					if(carItemCount[i].itemId !== 2 && carItemCount[i].itemId !== 3 && carItemCount[i].itemId !== 5 && carItemCount[i].itemId !== 6){
