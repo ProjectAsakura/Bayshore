@@ -84,14 +84,12 @@ export default class GameModule extends Module {
 							}
 							saveEx.stConsecutiveWinsMax = maxConsecutiveWins;
 
-							let c = await prisma.car.update({
+							await prisma.car.update({
 								where: {
 									carId: body.carId
 								},
 								data: saveEx
 							});
-							console.log('-------');
-							console.log(c);
 						}
 						break;
 					}
@@ -266,6 +264,7 @@ export default class GameModule extends Module {
 								data: saveEx
 							});
 						}
+						break;
 					}
 				case wm.wm.protobuf.GameMode.MODE_VS_BATTLE:
 					{
@@ -325,12 +324,13 @@ export default class GameModule extends Module {
 							saveEx.vsPlainMedals = car?.vsPlainMedals;
 						}
 
-						let c = await prisma.car.update({
+						await prisma.car.update({
 							where: {
 								carId: body.carId
 							},
 							data: saveEx
 						});
+						break;
 					}
 			}
 
@@ -379,7 +379,8 @@ export default class GameModule extends Module {
 					title: body.car!.title!,
 					tunePower: body.car!.tunePower!,
 					tuneHandling: body.car!.tuneHandling!,
-					windowSticker: body.car!.windowSticker!
+					windowSticker: body.car!.windowSticker!,
+					windowDecoration: body.car!.windowDecoration!
 				}
 			})
 
@@ -406,7 +407,6 @@ export default class GameModule extends Module {
 						},
 					},
 				})
-				console.log('How many meter already obtained : ' +carItemCount.length);
 				let sqlVal = 0;
 				for(let i=0; i<carItemCount.length; i++){
 					if(carItemCount[i].itemId !== 2 && carItemCount[i].itemId !== 3 && carItemCount[i].itemId !== 5 && carItemCount[i].itemId !== 6){
@@ -2056,6 +2056,7 @@ export default class GameModule extends Module {
             let msg = {
                 error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
             }
+
             let resp = wm.wm.protobuf.UpdateUserSessionResponse.encode(msg);
             let end = resp.finish();
             let r = res
@@ -2067,8 +2068,7 @@ export default class GameModule extends Module {
         })
 
         app.post('/method/load_ghost_battle_info', async (req, res) => {
-            let body = wm.wm.protobuf.LoadGhostBattleInfoRequest.decode(req.body);
-
+            //let body = wm.wm.protobuf.LoadGhostBattleInfoRequest.decode(req.body);
 			let cars = await prisma.car.findMany({
 				include:{
 					gtWing: true
@@ -2076,15 +2076,21 @@ export default class GameModule extends Module {
 			});
 
 			let lists_stamptarget: wm.wm.protobuf.StampTargetCar[] = [];
-			for(let i=0; i<cars.length; i++){
+			let lengths = 0;
+			if(cars.length > 20){
+				lengths = 20;
+			}
+			else{
+				lengths = cars.length;
+			}
+			for(let i=0; i<lengths; i++){
 				lists_stamptarget.push(wm.wm.protobuf.StampTargetCar.create({
 					car: cars[i],
-					returnCount: 0,
+					returnCount: 1,
 					locked: false,
 					recommended: true,
-				 }));
+				}));
 			}
-			
 			//---------------MAYBE NOT CORRECT---------------
 			let msg = {
 					error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
@@ -2104,8 +2110,8 @@ export default class GameModule extends Module {
         })
 
 		app.post('/method/load_stamp_target', async (req, res) => {
-			let body = wm.wm.protobuf.LoadStampTargetRequest.decode(req.body);
-
+			//let body = wm.wm.protobuf.LoadStampTargetRequest.decode(req.body);
+			//---------------MAYBE NOT CORRECT---------------
 			let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
 			};
@@ -2191,11 +2197,11 @@ export default class GameModule extends Module {
 				pathVal = Math.floor(Math.random() * 2) + 56;
 			}
 			let msg = {
-					error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
-					ramp: rampVal,
-					path: pathVal,
-					selectionMethod: 2,
-				};
+				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+				ramp: rampVal,
+				path: pathVal,
+				selectionMethod: 2,
+			};
 			//-----------------------------------------------
 			let resp = wm.wm.protobuf.SearchCarsByLevelResponse.encode(msg);
             let end = resp.finish();
@@ -2211,9 +2217,9 @@ export default class GameModule extends Module {
             let body = wm.wm.protobuf.LoadGhostDriveDataRequest.decode(req.body);
             //---------------MAYBE NOT CORRECT---------------
 			let msg = {
-					error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
-					path: body.path
-				};
+				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+				path: body.path
+			};
 			//-----------------------------------------------
 			let resp = wm.wm.protobuf.LoadGhostDriveDataResponse.encode(msg);
             let end = resp.finish();
@@ -2226,7 +2232,7 @@ export default class GameModule extends Module {
         })
 
 		app.post('/method/lock_crown', (req, res) => {
-            let body = wms.wm.protobuf.LockCrownRequest.decode(req.body);
+            //let body = wms.wm.protobuf.LockCrownRequest.decode(req.body);
 			//---------------MAYBE NOT CORRECT---------------
             let msg = {
 				error: wms.wm.protobuf.ErrorCode.ERR_SUCCESS,

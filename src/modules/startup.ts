@@ -2,7 +2,7 @@ import { Application } from "express";
 import {Module} from "module";
 import { Config } from "../config";
 import * as wm from "../wmmt/wm.proto";
-import * as wms from "../wmmt/service.proto";
+import * as wmsrv from "../wmmt/service.proto";
 import { prisma } from "..";
 
 export default class StartupModule extends Module {
@@ -54,7 +54,7 @@ export default class StartupModule extends Module {
 
         app.get('/resource/ranking', async (req, res) => {
             console.log('ranking');
-            let lists: wms.wm.protobuf.Ranking.List[] = [];
+            let lists: wmsrv.wm.protobuf.Ranking.List[] = [];
 
             // Get TA Ranking
             for(let i=0; i<25; i++){
@@ -67,7 +67,7 @@ export default class StartupModule extends Module {
                     }
                 });
                 if(ta_time.length !== 0){
-                    let list_ta: wms.wm.protobuf.Ranking.Entry[] = [];
+                    let list_ta: wmsrv.wm.protobuf.Ranking.Entry[] = [];
                     for(let j=0; j<ta_time.length; j++){
                         let car_ta = await prisma.car.findFirst({
                             where: {
@@ -75,7 +75,7 @@ export default class StartupModule extends Module {
                             }
                         });
                         
-                        list_ta.push(wms.wm.protobuf.Ranking.Entry.create({
+                        list_ta.push(wmsrv.wm.protobuf.Ranking.Entry.create({
                             carId: car_ta!.carId,
                             rank: car_ta!.level,
                             result: ta_time[j].time,
@@ -96,7 +96,7 @@ export default class StartupModule extends Module {
                             if(i === 22 || i === 23){
                                 resulttime = 1199999
                             }
-                            list_ta.push(wms.wm.protobuf.Ranking.Entry.create({
+                            list_ta.push(wmsrv.wm.protobuf.Ranking.Entry.create({
                                 carId: 0,
                                 rank: 0,
                                 result: resulttime,
@@ -113,8 +113,8 @@ export default class StartupModule extends Module {
                         }
                     }
     
-                    lists.push(new wms.wm.protobuf.Ranking.List({
-                        rankingType: i,
+                    lists.push(new wmsrv.wm.protobuf.Ranking.List({
+                        rankingType: i, // RANKING_TA_*AREA*
                         topRecords: list_ta
                     }));
                 }
@@ -127,9 +127,9 @@ export default class StartupModule extends Module {
 					vsStarCount: 'desc'
 				}
             });
-            let list_vs: wms.wm.protobuf.Ranking.Entry[] = [];
+            let list_vs: wmsrv.wm.protobuf.Ranking.Entry[] = [];
             for(let i=0; i<car_vs.length; i++){
-                list_vs.push(wms.wm.protobuf.Ranking.Entry.create({
+                list_vs.push(wmsrv.wm.protobuf.Ranking.Entry.create({
                     carId: car_vs[i].carId,
                     rank: car_vs[i].level,
                     result: car_vs[i].vsStarCount,
@@ -146,7 +146,7 @@ export default class StartupModule extends Module {
             }
             if(car_vs.length < 20){
                 for(let j=car_vs.length; j<20; j++){
-                    list_vs.push(wms.wm.protobuf.Ranking.Entry.create({
+                    list_vs.push(wmsrv.wm.protobuf.Ranking.Entry.create({
                         carId: 0,
                         rank: 0,
                         result: 0,
@@ -162,21 +162,21 @@ export default class StartupModule extends Module {
                     }));
                 }
             }
-            lists.push(new wms.wm.protobuf.Ranking.List({
-                rankingType: 100,
+            lists.push(new wmsrv.wm.protobuf.Ranking.List({
+                rankingType: 100, // RANKING_VS_STAR
                 topRecords: list_vs
             }));
 
             
-            // Get Ghost Win Ranking
+            // Get Ghost Defeated Ranking
             let car_ghost = await prisma.car.findMany({
                 orderBy: {
 					rgWinCount: 'desc'
 				}
             });
-            let list_ghost: wms.wm.protobuf.Ranking.Entry[] = [];
+            let list_ghost: wmsrv.wm.protobuf.Ranking.Entry[] = [];
             for(let i=0; i<car_ghost.length; i++){
-                list_ghost.push(wms.wm.protobuf.Ranking.Entry.create({
+                list_ghost.push(wmsrv.wm.protobuf.Ranking.Entry.create({
                     carId: car_ghost[i].carId,
                     rank: car_ghost[i].level,
                     result: car_ghost[i].rgWinCount,
@@ -193,7 +193,7 @@ export default class StartupModule extends Module {
             }
             if(car_ghost.length < 20){
                 for(let j=car_ghost.length; j<20; j++){
-                    list_ghost.push(wms.wm.protobuf.Ranking.Entry.create({
+                    list_ghost.push(wmsrv.wm.protobuf.Ranking.Entry.create({
                         carId: 0,
                         rank: 0,
                         result: 0,
@@ -209,12 +209,12 @@ export default class StartupModule extends Module {
                     }));
                 }
             }
-            lists.push(new wms.wm.protobuf.Ranking.List({
-                rankingType: 101,
+            lists.push(new wmsrv.wm.protobuf.Ranking.List({
+                rankingType: 101, // RANKING_GHOST_DEFEATED_COUNT
                 topRecords: list_ghost
             }));
             
-			let resp = wms.wm.protobuf.Ranking.encode({lists});
+			let resp = wmsrv.wm.protobuf.Ranking.encode({lists});
             let end = resp.finish();
             let r = res
                 .header('Server', 'v388 wangan')
