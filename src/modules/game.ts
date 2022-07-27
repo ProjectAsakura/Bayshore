@@ -1,7 +1,7 @@
 import e, { Application } from "express";
 import { Module } from "../module";
 import * as wm from "../wmmt/wm.proto";
-import * as svc from "../wmmt/service.proto";
+import * as wms from "../wmmt/service.proto";
 import { prisma } from "..";
 import { Car, User } from "@prisma/client";
 import { Config } from "../config";
@@ -269,7 +269,6 @@ export default class GameModule extends Module {
 					}
 				case wm.wm.protobuf.GameMode.MODE_VS_BATTLE:
 					{
-						console.log(body);
 						let saveEx: any = {};
 						if(body.vsResult?.vsPlayCount !== null && body.vsResult?.vsPlayCount !== undefined){
 							saveEx.vsPlayCount = body.vsResult?.vsPlayCount!;
@@ -407,7 +406,7 @@ export default class GameModule extends Module {
 						},
 					},
 				})
-				console.log('How many meter already obtained : ' +carItemCount);
+				console.log('How many meter already obtained : ' +carItemCount.length);
 				let sqlVal = 0;
 				for(let i=0; i<carItemCount.length; i++){
 					if(carItemCount[i].itemId !== 2 && carItemCount[i].itemId !== 3 && carItemCount[i].itemId !== 5 && carItemCount[i].itemId !== 6){
@@ -2069,10 +2068,29 @@ export default class GameModule extends Module {
 
         app.post('/method/load_ghost_battle_info', async (req, res) => {
             let body = wm.wm.protobuf.LoadGhostBattleInfoRequest.decode(req.body);
+
+			let cars = await prisma.car.findMany({
+				include:{
+					gtWing: true
+				}
+			});
+
+			let lists_stamptarget: wm.wm.protobuf.StampTargetCar[] = [];
+			for(let i=0; i<cars.length; i++){
+				lists_stamptarget.push(wm.wm.protobuf.StampTargetCar.create({
+					car: cars[i],
+					returnCount: 0,
+					locked: false,
+					recommended: true,
+				 }));
+			}
+			
 			//---------------MAYBE NOT CORRECT---------------
 			let msg = {
 					error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
 					stampSheetCount: 100,
+					stampTargetCars: lists_stamptarget,
+					history: cars,
 				};
 			//-----------------------------------------------
 			let resp = wm.wm.protobuf.LoadGhostBattleInfoResponse.encode(msg);
@@ -2084,6 +2102,23 @@ export default class GameModule extends Module {
                 .status(200);
             r.send(Buffer.from(end));
         })
+
+		app.post('/method/load_stamp_target', async (req, res) => {
+			let body = wm.wm.protobuf.LoadStampTargetRequest.decode(req.body);
+
+			let msg = {
+				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+			};
+			//-----------------------------------------------
+			let resp = wm.wm.protobuf.LoadStampTargetResponse.encode(msg);
+			let end = resp.finish();
+			let r = res
+				.header('Server', 'v388 wangan')
+				.header('Content-Type', 'application/x-protobuf; revision=8053')
+				.header('Content-Length', end.length.toString())
+				.status(200);
+			r.send(Buffer.from(end));
+		})
 
         app.post('/method/search_cars_by_level', async (req, res) => {
             let body = wm.wm.protobuf.SearchCarsByLevelRequest.decode(req.body);
@@ -2188,6 +2223,23 @@ export default class GameModule extends Module {
                 .header('Content-Length', end.length.toString())
                 .status(200);
             r.send(Buffer.from(end));
+        })
+
+		app.post('/method/lock_crown', (req, res) => {
+            let body = wms.wm.protobuf.LockCrownRequest.decode(req.body);
+			//---------------MAYBE NOT CORRECT---------------
+            let msg = {
+				error: wms.wm.protobuf.ErrorCode.ERR_SUCCESS,
+			};
+			//-----------------------------------------------
+			let resp = wms.wm.protobuf.LockCrownResponse.encode(msg);
+			let end = resp.finish();
+			let r = res
+				.header('Server', 'v388 wangan')
+				.header('Content-Type', 'application/x-protobuf; revision=8053')
+				.header('Content-Length', end.length.toString())
+				.status(200);
+			r.send(Buffer.from(end));
         })
     }
 }
