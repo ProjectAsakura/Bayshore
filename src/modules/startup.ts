@@ -249,7 +249,7 @@ export default class StartupModule extends Module {
 
             //-------------FOR TESTING PURPOSE---------------
             let list_crown: wmsrv.wm.protobuf.Crown[] = [];
-            let car_crown = await prisma.car.findFirst({
+            /*let car_crown = await prisma.car.findFirst({
                 where: {
                     OR: [
                         { name: { startsWith: 'ＫＩＴＳＵ'}, visualModel: 32 },
@@ -262,22 +262,73 @@ export default class StartupModule extends Module {
                 orderBy: {
 					carId: 'asc'
 				}
-            });
+            });*/
+            let car_crown: wm.wm.protobuf.Car[] = [];
+            for(let i=29; i<31; i++){
+                car_crown.push(wm.wm.protobuf.Car.create({
+                    carId: 99969+i,
+                    userId: 99969+i,
+                    regionId: 1,
+                    name: 'Ｌｕｎａ',
+                    manufacturer: 5,
+                    model: 27,
+                    visualModel: i,
+                    defaultColor: 0,
+                    customColor: 0,
+                    wheel: 0,
+                    wheelColor: 0,
+                    aero: 0,
+                    bonnet: 0,
+                    wing: 0,
+                    mirror: 0,
+                    neon: 0,
+                    trunk: 0,
+                    plate: 0,
+                    plateColor: 0,
+                    plateNumber: 0,
+                    tunePower: 17,
+                    tuneHandling: 17,
+                    title: 'Bayshore',
+                    level: 65,
+                    windowSticker: true,
+                    windowStickerString: 'ＢＡＹＳＨＯＲＥ',
+                    windowStickerFont: 0,
+                    windowDecoration: 0,
+                    rivalMarker: 0,
+                    lastPlayedAt: 0,
+                    aura: 0,
+                    auraMotif: 0,
+                    ghostLevel: 10,
+                    country: 'JPN',
+                    searchCode: 'JPN123'
+                }));
+            }
 
             if(car_crown){
                 for(let i=0; i<14; i++){
-                    list_crown.push(wmsrv.wm.protobuf.Crown.create({
-                        carId: car_crown!.carId,
-                        area: i,
-                        unlockAt: 0,
-                        car: car_crown
-                    }));
+                    if(i % 2 === 0){
+                        list_crown.push(wmsrv.wm.protobuf.Crown.create({
+                            carId: car_crown[0]!.carId,
+                            area: i,
+                            unlockAt: 0,
+                            car: car_crown[0]
+                        }));
+                    }
+                    else{
+                        list_crown.push(wmsrv.wm.protobuf.Crown.create({
+                            carId: car_crown[1]!.carId,
+                            area: i,
+                            unlockAt: 0,
+                            car: car_crown[1]
+                        }));
+                    }
+                    
                 }
                 list_crown.push(wmsrv.wm.protobuf.Crown.create({
-                    carId: car_crown!.carId,
+                    carId: car_crown[0]!.carId,
                     area: 18,
                     unlockAt: 0,
-                    car: car_crown
+                    car: car_crown[0]
                 }));
             }
             else{
