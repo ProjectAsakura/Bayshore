@@ -64,7 +64,8 @@ export default class StartupModule extends Module {
                     },
                     orderBy: {
                         time: 'asc'
-                    }
+                    },
+                    take: 20,
                 });
                 if(ta_time.length !== 0){
                     let list_ta: wmsrv.wm.protobuf.Ranking.Entry[] = [];
@@ -125,7 +126,8 @@ export default class StartupModule extends Module {
             let car_vs = await prisma.car.findMany({
                 orderBy: {
 					vsStarCount: 'desc'
-				}
+				},
+                take: 20,
             });
             let list_vs: wmsrv.wm.protobuf.Ranking.Entry[] = [];
             for(let i=0; i<car_vs.length; i++){
@@ -172,7 +174,8 @@ export default class StartupModule extends Module {
             let car_ghost = await prisma.car.findMany({
                 orderBy: {
 					rgWinCount: 'desc'
-				}
+				},
+                take: 20,
             });
             let list_ghost: wmsrv.wm.protobuf.Ranking.Entry[] = [];
             for(let i=0; i<car_ghost.length; i++){
@@ -232,6 +235,72 @@ export default class StartupModule extends Module {
                 pong: body.ping || 1
             };
             let resp = wm.wm.protobuf.PingResponse.encode(ping);
+            let end = resp.finish();
+            let r = res
+                .header('Server', 'v388 wangan')
+                .header('Content-Type', 'application/x-protobuf; revision=8053')
+                .header('Content-Length', end.length.toString())
+                .status(200);
+            r.send(Buffer.from(end));
+        })
+
+        app.get('/resource/crown_list', async (req, res) => {
+            console.log('crown_list');
+
+            //-------------FOR TESTING PURPOSE---------------
+            let list_crown: wmsrv.wm.protobuf.Crown[] = [];
+            let car_crown = await prisma.car.findFirst({
+                where: {
+                    OR: [
+                        { name: { startsWith: 'ＫＩＴＳＵ'}, visualModel: 32 },
+                        { name: { startsWith: 'きつ', }, visualModel: 32 },
+                    ],
+                },
+                include: {
+                    gtWing: true
+                },
+                orderBy: {
+					carId: 'asc'
+				}
+            });
+
+            if(car_crown){
+                for(let i=0; i<14; i++){
+                    list_crown.push(wmsrv.wm.protobuf.Crown.create({
+                        carId: car_crown!.carId,
+                        area: i,
+                        unlockAt: 0,
+                        car: car_crown
+                    }));
+                }
+                list_crown.push(wmsrv.wm.protobuf.Crown.create({
+                    carId: car_crown!.carId,
+                    area: 18,
+                    unlockAt: 0,
+                    car: car_crown
+                }));
+            }
+            else{
+                for(let i=0; i<14; i++){ 
+                    list_crown.push(wmsrv.wm.protobuf.Crown.create({
+                        carId: i,
+                        area: i, // GID_RUNAREA_C1 - GID_RUNAREA_TURNPIKE
+                        unlockAt: 0,
+                    }));
+                }
+                list_crown.push(wmsrv.wm.protobuf.Crown.create({
+                    carId: 18, 
+                    area: 18, // GID_RUNAREA_HIROSHIMA
+                    unlockAt: 0,
+                }));
+            }
+
+            let msg = {
+                crowns: list_crown
+            };
+            //-----------------------------------------------
+
+            let resp = wmsrv.wm.protobuf.CrownList.encode(msg);
             let end = resp.finish();
             let r = res
                 .header('Server', 'v388 wangan')
