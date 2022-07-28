@@ -1,7 +1,7 @@
 import e, { Application } from "express";
 import { Module } from "../module";
 import * as wm from "../wmmt/wm.proto";
-import * as wms from "../wmmt/service.proto";
+import * as wmsrv from "../wmmt/service.proto";
 import { prisma } from "..";
 import { Car, User } from "@prisma/client";
 import { Config } from "../config";
@@ -2265,13 +2265,13 @@ export default class GameModule extends Module {
         })
 
 		app.post('/method/lock_crown', (req, res) => {
-            //let body = wms.wm.protobuf.LockCrownRequest.decode(req.body);
+            //let body = wmsrv.wm.protobuf.LockCrownRequest.decode(req.body);
 			//---------------MAYBE NOT CORRECT---------------
             let msg = {
-				error: wms.wm.protobuf.ErrorCode.ERR_SUCCESS,
+				error: wmsrv.wm.protobuf.ErrorCode.ERR_SUCCESS,
 			};
 			//-----------------------------------------------
-			let resp = wms.wm.protobuf.LockCrownResponse.encode(msg);
+			let resp = wmsrv.wm.protobuf.LockCrownResponse.encode(msg);
 			let end = resp.finish();
 			let r = res
 				.header('Server', 'v388 wangan')
@@ -2280,5 +2280,28 @@ export default class GameModule extends Module {
 				.status(200);
 			r.send(Buffer.from(end));
         })
+
+		app.get('/resource/ghost_trail', async (req, res) => {	
+			let pCarId = req.query.car_id
+			let pArea = req.query.area
+			console.log(pCarId +" & "+pArea);
+			let t01 = new Uint8Array([1, 2, 3, 4]);
+			let msg = {
+				carId: 99998,
+				area: 0,
+				ramp: 0,
+				path: 0,
+				playedAt: 0,
+				trail: t01
+			};
+			let resp = wm.wm.protobuf.GhostTrail.encode(msg);
+            let end = resp.finish();
+            let r = res
+                .header('Server', 'v388 wangan')
+                .header('Content-Type', 'application/x-protobuf; revision=8053')
+                .header('Content-Length', end.length.toString())
+                .status(200);
+            r.send(Buffer.from(end));
+		})
     }
 }
