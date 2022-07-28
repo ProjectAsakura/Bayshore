@@ -21,6 +21,7 @@ export default class GameModule extends Module {
 					carId: body.carId
 				}
 			});
+			console.log(body);
 			let storyLose: boolean = false;
 			switch (body.gameMode) {
 				case wm.wm.protobuf.GameMode.MODE_STORY:
@@ -2165,68 +2166,68 @@ export default class GameModule extends Module {
 			let rampVal = 0;
 			let pathVal = 0;
 			if(body.area === 0){ //GID_RUNAREA_C1
-				rampVal = 0;
+				rampVal = Math.floor(Math.random() * 4);
 				pathVal = Math.floor(Math.random() * 10);
 			}
 			else if(body.area === 1){ //GID_RUNAREA_RING
-				rampVal = 0;
+				rampVal = Math.floor(Math.random() * 2) + 4;
 				pathVal = Math.floor(Math.random() * 6) + 10;
 			}
 			else if(body.area === 2){ //GID_RUNAREA_SUBTOKYO_3_4
-				rampVal = 0;
+				rampVal = Math.floor(Math.random() * 2) + 6;
 				pathVal = Math.floor(Math.random() * 2) + 16;
 			}
 			else if(body.area === 3){ //GID_RUNAREA_SUBTOKYO_5
-				rampVal = 0;
+				rampVal = Math.floor(Math.random() * 2) + 8;
 				pathVal = Math.floor(Math.random() * 2) + 18;
 			}
 			else if(body.area === 4){ //GID_RUNAREA_WANGAN
-				rampVal = 0;
+				rampVal = Math.floor(Math.random() * 4) + 10;
 				pathVal = Math.floor(Math.random() * 7) + 20;
 			}
 			else if(body.area === 5){ //GID_RUNAREA_K1
-				rampVal = 0;
+				rampVal = Math.floor(Math.random() * 4) + 14;
 				pathVal = Math.floor(Math.random() * 7) + 27;
 			}
 			else if(body.area === 6){ //GID_RUNAREA_YAESU
-				rampVal = 0;
+				rampVal = Math.floor(Math.random() * 3) + 18;
 				pathVal = Math.floor(Math.random() * 4) + 34;
 			}
 			else if(body.area === 7){ //GID_RUNAREA_YOKOHAMA
-				rampVal = 0;
+				rampVal = Math.floor(Math.random() * 4) + 21;
 				pathVal = Math.floor(Math.random() * 11) + 38;
 			}
 			else if(body.area === 8){ //GID_RUNAREA_NAGOYA
-				rampVal = 0;
+				rampVal = 25;
 				pathVal = 49;
 			}
 			else if(body.area === 9){ //GID_RUNAREA_OSAKA
-				rampVal = 0;
+				rampVal = 26;
 				pathVal = Math.floor(Math.random() * 4) + 50;
 			}
 			else if(body.area === 10){ //GID_RUNAREA_KOBE
-				rampVal = 0;
+				rampVal = Math.floor(Math.random() * 2) + 27;
 				pathVal = Math.floor(Math.random() * 2) + 54;
 			}
 			else if(body.area === 11){ //GID_RUNAREA_FUKUOKA
-				rampVal = 0;
+				rampVal = Math.floor(Math.random() * 4) + 29;
 				pathVal = Math.floor(Math.random() * 4) + 58;
 			}
 			else if(body.area === 12){ //GID_RUNAREA_HAKONE
-				rampVal = 0;
+				rampVal = Math.floor(Math.random() * 2) + 33;
 				pathVal = Math.floor(Math.random() * 2) + 62;
 			}
 			else if(body.area === 13){ //GID_RUNAREA_TURNPIKE
-				rampVal = 0;
+				rampVal = Math.floor(Math.random() * 2) + 35;
 				pathVal = Math.floor(Math.random() * 2) + 64;
 			}
 			//14 - 16 is dummy area
 			else if(body.area === 17){ //GID_RUNAREA_C1_CLOSED
-				rampVal = 0;
+				rampVal = Math.floor(Math.random() * 4);
 				pathVal = Math.floor(Math.random() * 10); //probably not correct
 			}
 			else if(body.area === 18){ //GID_RUNAREA_HIROSHIMA
-				rampVal = 0;
+				rampVal = Math.floor(Math.random() * 2) + 37;
 				pathVal = Math.floor(Math.random() * 2) + 56;
 			}
 			let msg = {
@@ -2281,19 +2282,104 @@ export default class GameModule extends Module {
 			r.send(Buffer.from(end));
         })
 
-		app.get('/resource/ghost_trail', async (req, res) => {	
-			let pCarId = req.query.car_id
-			let pArea = req.query.area
-			console.log(pCarId +" & "+pArea);
-			let t01 = new Uint8Array([1, 2, 3, 4]);
-			let msg = {
-				carId: 99998,
-				area: 0,
-				ramp: 0,
-				path: 0,
-				playedAt: 0,
-				trail: t01
+		app.post('/method/save_charge', (req, res) => {
+            //let body = wm.wm.protobuf.SaveChargeResponse.decode(req.body);
+			//---------------MAYBE NOT CORRECT---------------
+            let msg = {
+				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
 			};
+			//-----------------------------------------------
+			let resp = wm.wm.protobuf.SaveChargeResponse.encode(msg);
+			let end = resp.finish();
+			let r = res
+				.header('Server', 'v388 wangan')
+				.header('Content-Type', 'application/x-protobuf; revision=8053')
+				.header('Content-Length', end.length.toString())
+				.status(200);
+			r.send(Buffer.from(end));
+        })
+
+		app.get('/resource/ghost_trail', async (req, res) => {	
+			let pCarId = Number(req.query.car_id);
+			let pArea = Number(req.query.area);
+			//---------------MAYBE NOT CORRECT---------------
+			let rampVal = 0;
+			let pathVal = 0;
+			if(pArea === 0){ //GID_RUNAREA_C1
+				rampVal = Math.floor(Math.random() * 4);
+				pathVal = Math.floor(Math.random() * 10);
+			}
+			else if(pArea === 1){ //GID_RUNAREA_RING
+				rampVal = Math.floor(Math.random() * 2) + 4;
+				pathVal = Math.floor(Math.random() * 6) + 10;
+			}
+			else if(pArea === 2){ //GID_RUNAREA_SUBTOKYO_3_4
+				rampVal = Math.floor(Math.random() * 2) + 6;
+				pathVal = Math.floor(Math.random() * 2) + 16;
+			}
+			else if(pArea === 3){ //GID_RUNAREA_SUBTOKYO_5
+				rampVal = Math.floor(Math.random() * 2) + 8;
+				pathVal = Math.floor(Math.random() * 2) + 18;
+			}
+			else if(pArea === 4){ //GID_RUNAREA_WANGAN
+				rampVal = Math.floor(Math.random() * 4) + 10;
+				pathVal = Math.floor(Math.random() * 7) + 20;
+			}
+			else if(pArea === 5){ //GID_RUNAREA_K1
+				rampVal = Math.floor(Math.random() * 4) + 14;
+				pathVal = Math.floor(Math.random() * 7) + 27;
+			}
+			else if(pArea === 6){ //GID_RUNAREA_YAESU
+				rampVal = Math.floor(Math.random() * 3) + 18;
+				pathVal = Math.floor(Math.random() * 4) + 34;
+			}
+			else if(pArea === 7){ //GID_RUNAREA_YOKOHAMA
+				rampVal = Math.floor(Math.random() * 4) + 21;
+				pathVal = Math.floor(Math.random() * 11) + 38;
+			}
+			else if(pArea === 8){ //GID_RUNAREA_NAGOYA
+				rampVal = 25;
+				pathVal = 49;
+			}
+			else if(pArea === 9){ //GID_RUNAREA_OSAKA
+				rampVal = 26;
+				pathVal = Math.floor(Math.random() * 4) + 50;
+			}
+			else if(pArea === 10){ //GID_RUNAREA_KOBE
+				rampVal = Math.floor(Math.random() * 2) + 27;
+				pathVal = Math.floor(Math.random() * 2) + 54;
+			}
+			else if(pArea === 11){ //GID_RUNAREA_FUKUOKA
+				rampVal = Math.floor(Math.random() * 4) + 29;
+				pathVal = Math.floor(Math.random() * 4) + 58;
+			}
+			else if(pArea === 12){ //GID_RUNAREA_HAKONE
+				rampVal = Math.floor(Math.random() * 2) + 33;
+				pathVal = Math.floor(Math.random() * 2) + 62;
+			}
+			else if(pArea === 13){ //GID_RUNAREA_TURNPIKE
+				rampVal = Math.floor(Math.random() * 2) + 35;
+				pathVal = Math.floor(Math.random() * 2) + 64;
+			}
+			//14 - 16 is dummy area
+			else if(pArea === 17){ //GID_RUNAREA_C1_CLOSED
+				rampVal = Math.floor(Math.random() * 4);
+				pathVal = Math.floor(Math.random() * 10); //probably not correct
+			}
+			else if(pArea === 18){ //GID_RUNAREA_HIROSHIMA
+				rampVal = Math.floor(Math.random() * 2) + 37;
+				pathVal = Math.floor(Math.random() * 2) + 56;
+			}
+			let trails = new Uint8Array([1, 2, 3, 4]);
+			let msg = {
+				carId: pCarId,
+				area: pArea,
+				ramp: rampVal,
+				path: pathVal,
+				playedAt: 0,
+				trail: trails
+			};
+			//-----------------------------------------------
 			let resp = wm.wm.protobuf.GhostTrail.encode(msg);
             let end = resp.finish();
             let r = res
