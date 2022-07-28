@@ -113,9 +113,6 @@ export default class GameModule extends Module {
 							else if(currentStep >= 32 && currentStep <= 33){
 								saveEx.ghostLevel = 9
 							}
-							else if(currentStep === 34 && car!.rgWinCount >= 1000){
-								saveEx.ghostLevel = 11
-							}
 							else if(currentStep === 34){
 								saveEx.ghostLevel = 10
 							}
