@@ -282,6 +282,7 @@ export default class StartupModule extends Module {
                                 gtWing: true
                             }
                         });
+                        car!.regionId = 1; // Hokkaido
                         car!.aura = 0;
                         car!.tunePower = car_crown[counter].tunePower;
                         car!.tuneHandling = car_crown[counter].tuneHandling;

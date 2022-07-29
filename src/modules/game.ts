@@ -298,99 +298,105 @@ export default class GameModule extends Module {
 								data: saveEx
 							});
 
-							if (body.rgResult?.acquireCrown !== false && body.rgResult?.acquireCrown !== null && body.rgResult?.acquireCrown !== undefined) {
-								let saveExCrown: any = {};
-								saveExCrown.carId = body.carId;
-								if(body.rgResult?.path !== null && body.rgResult?.path !== undefined){
-									if(body.rgResult?.path >= 0 && body.rgResult?.path <= 9){ // GID_PATH_C1
-										saveExCrown.area = Number(0);
-										saveExCrown.ramp = Number(Math.floor(Math.random() * 4));
+							// GHOST BATTLE SELECTION MODE
+							switch (body.rgResult!.selectionMethod) {
+								case wm.wm.protobuf.GhostSelectionMethod.GHOST_SELECT_CROWN_MATCH:
+								{
+									if (body.rgResult?.acquireCrown !== false && body.rgResult?.acquireCrown !== null && body.rgResult?.acquireCrown !== undefined) {
+										let saveExCrown: any = {};
+										saveExCrown.carId = body.carId;
+										if(body.rgResult?.path !== null && body.rgResult?.path !== undefined){
+											if(body.rgResult?.path >= 0 && body.rgResult?.path <= 9){ // GID_PATH_C1
+												saveExCrown.area = Number(0);
+												saveExCrown.ramp = Number(Math.floor(Math.random() * 4));
+											}
+											else if(body.rgResult?.path >= 10 && body.rgResult?.path <= 15){ // GID_PATH_N9
+												saveExCrown.area = Number(1);
+												saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 4);
+											}
+											else if(body.rgResult?.path >= 16 && body.rgResult?.path <= 17){ // GID_PATH_WTEAST
+												saveExCrown.area = Number(2);
+												saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 6);
+											}
+											else if(body.rgResult?.path >= 18 && body.rgResult?.path <= 19){ // GID_PATH_WT_UP_DOWN
+												saveExCrown.area = Number(3);
+												saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 8);
+											}
+											else if(body.rgResult?.path >= 20 && body.rgResult?.path <= 26){ // GID_PATH_WG
+												saveExCrown.area = Number(4);
+												saveExCrown.ramp = Number(Math.floor(Math.random() * 4) + 10);
+											}
+											else if(body.rgResult?.path >= 27 && body.rgResult?.path <= 33){ // GID_PATH_KG
+												saveExCrown.area = Number(5);
+												saveExCrown.ramp = Number(Math.floor(Math.random() * 4) + 14);
+											}
+											else if(body.rgResult?.path >= 34 && body.rgResult?.path <= 37){ // GID_PATH_YS
+												saveExCrown.area = Number(6);
+												saveExCrown.ramp = Number(Math.floor(Math.random() * 3) + 18);
+											}
+											else if(body.rgResult?.path >= 38 && body.rgResult?.path <= 48){ // GID_PATH_KG_SHINYAMASHITA_MINATOMIRAI
+												saveExCrown.area = Number(7);
+												saveExCrown.ramp = Number(Math.floor(Math.random() * 4) + 21);
+											}
+											else if(body.rgResult?.path === 49){ // GID_PATH_NGR
+												saveExCrown.area = Number(8);
+												saveExCrown.ramp = Number(25);
+											}
+											else if(body.rgResult?.path >= 50 && body.rgResult?.path <= 53){ // GID_PATH_OS
+												saveExCrown.area = Number(9);
+												saveExCrown.ramp = Number(26);
+											}
+											else if(body.rgResult?.path >= 54 && body.rgResult?.path <= 55){ // GID_PATH_KB
+												saveExCrown.area = Number(10);
+												saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 27);
+											}
+											else if(body.rgResult?.path >= 58 && body.rgResult?.path <= 61){ // GID_PATH_FK
+												saveExCrown.area = Number(11);
+												saveExCrown.ramp = Number(Math.floor(Math.random() * 4) + 29);
+											}
+											else if(body.rgResult?.path >= 62 && body.rgResult?.path <= 63){ // GID_PATH_HK
+												saveExCrown.area = Number(12);
+												saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 33);
+											}
+											else if(body.rgResult?.path >= 64 && body.rgResult?.path <= 65){ // GID_PATH_TP
+												saveExCrown.area = Number(13);
+												saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 35);
+											}
+											else if(body.rgResult?.path >= 56 && body.rgResult?.path <= 57){ // GID_PATH_HS
+												saveExCrown.area = Number(18);
+												saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 27);
+											}
+		
+											saveExCrown.path = body.rgResult?.path!;
+										}
+										if(body?.playedAt !== null || body?.playedAt !== undefined){
+											saveExCrown.playedAt = body?.playedAt!;
+										}
+										saveExCrown.trail = Number(1); //wtf is this lmao
+										saveExCrown.tunePower = body.car!.tunePower!;
+										saveExCrown.tuneHandling = body.car!.tuneHandling!;
+		
+										let carCrowns = await prisma.carCrown.count({
+											where: {
+												carId: body.carId,
+												area: saveExCrown.area
+											}
+										});
+										if(carCrowns !== 0){
+											let areaVal = Number(saveExCrown.area);
+											await prisma.carCrown.update({
+												where: {
+													area: areaVal
+												},
+												data: saveExCrown
+											});
+										}
+										else{
+											await prisma.carCrown.create({
+												data: saveExCrown
+											});
+										}
 									}
-									else if(body.rgResult?.path >= 10 && body.rgResult?.path <= 15){ // GID_PATH_N9
-										saveExCrown.area = Number(1);
-										saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 4);
-									}
-									else if(body.rgResult?.path >= 16 && body.rgResult?.path <= 17){ // GID_PATH_WTEAST
-										saveExCrown.area = Number(2);
-										saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 6);
-									}
-									else if(body.rgResult?.path >= 18 && body.rgResult?.path <= 19){ // GID_PATH_WT_UP_DOWN
-										saveExCrown.area = Number(3);
-										saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 8);
-									}
-									else if(body.rgResult?.path >= 20 && body.rgResult?.path <= 26){ // GID_PATH_WG
-										saveExCrown.area = Number(4);
-										saveExCrown.ramp = Number(Math.floor(Math.random() * 4) + 10);
-									}
-									else if(body.rgResult?.path >= 27 && body.rgResult?.path <= 33){ // GID_PATH_KG
-										saveExCrown.area = Number(5);
-										saveExCrown.ramp = Number(Math.floor(Math.random() * 4) + 14);
-									}
-									else if(body.rgResult?.path >= 34 && body.rgResult?.path <= 37){ // GID_PATH_YS
-										saveExCrown.area = Number(6);
-										saveExCrown.ramp = Number(Math.floor(Math.random() * 3) + 18);
-									}
-									else if(body.rgResult?.path >= 38 && body.rgResult?.path <= 48){ // GID_PATH_KG_SHINYAMASHITA_MINATOMIRAI
-										saveExCrown.area = Number(7);
-										saveExCrown.ramp = Number(Math.floor(Math.random() * 4) + 21);
-									}
-									else if(body.rgResult?.path === 49){ // GID_PATH_NGR
-										saveExCrown.area = Number(8);
-										saveExCrown.ramp = Number(25);
-									}
-									else if(body.rgResult?.path >= 50 && body.rgResult?.path <= 53){ // GID_PATH_OS
-										saveExCrown.area = Number(9);
-										saveExCrown.ramp = Number(26);
-									}
-									else if(body.rgResult?.path >= 54 && body.rgResult?.path <= 55){ // GID_PATH_KB
-										saveExCrown.area = Number(10);
-										saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 27);
-									}
-									else if(body.rgResult?.path >= 58 && body.rgResult?.path <= 61){ // GID_PATH_FK
-										saveExCrown.area = Number(11);
-										saveExCrown.ramp = Number(Math.floor(Math.random() * 4) + 29);
-									}
-									else if(body.rgResult?.path >= 62 && body.rgResult?.path <= 63){ // GID_PATH_HK
-										saveExCrown.area = Number(12);
-										saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 33);
-									}
-									else if(body.rgResult?.path >= 64 && body.rgResult?.path <= 65){ // GID_PATH_TP
-										saveExCrown.area = Number(13);
-										saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 35);
-									}
-									else if(body.rgResult?.path >= 56 && body.rgResult?.path <= 57){ // GID_PATH_HS
-										saveExCrown.area = Number(18);
-										saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 27);
-									}
-
-									saveExCrown.path = body.rgResult?.path!;
-								}
-								if(body?.playedAt !== null || body?.playedAt !== undefined){
-									saveExCrown.playedAt = body?.playedAt!;
-								}
-								saveExCrown.trail = Number(1); //wtf is this lmao
-								saveExCrown.tunePower = body.car!.tunePower!;
-								saveExCrown.tuneHandling = body.car!.tuneHandling!;
-
-								let carCrowns = await prisma.carCrown.count({
-									where: {
-										carId: body.carId,
-										area: saveExCrown.area
-									}
-								});
-								if(carCrowns !== 0){
-									let areaVal = Number(saveExCrown.area);
-									await prisma.carCrown.update({
-										where: {
-											area: areaVal
-										},
-										data: saveExCrown
-									});
-								}
-								else{
-									await prisma.carCrown.create({
-										data: saveExCrown
-									});
 								}
 							}
 						}
