@@ -222,11 +222,12 @@ model GhostTrail {
   area              Int
   ramp              Int
   path              Int
-  trail             BigInt
-  time              Int
-  driveData         Bytes     @db.ByteA
-  trendBinaryByArea Bytes     @db.ByteA
+  trail             Bytes     
+  time              Int?
+  driveData         Bytes?     @db.ByteA
+  trendBinaryByArea Bytes?     @db.ByteA
   tunePower         Int
   tuneHandling      Int
   playedAt          Int
+  crownBattle       Boolean
 }

@@ -1,15 +1,8 @@
-/*
-  Warnings:
-
-  - The `trail` column on the `CarCrown` table would be dropped and recreated. This will lead to data loss if there is data in the column.
-
-*/
 -- AlterTable
 ALTER TABLE "Car" ALTER COLUMN "stLoseBits" SET DEFAULT 0;
 
 -- AlterTable
-ALTER TABLE "CarCrown" DROP COLUMN "trail",
-ADD COLUMN     "trail" BIGINT[];
+ALTER TABLE "CarCrown" ALTER COLUMN "trail" DROP DEFAULT;
 
 -- CreateTable
 CREATE TABLE "GhostTrail" (
@@ -18,7 +11,13 @@ CREATE TABLE "GhostTrail" (
     "area" INTEGER NOT NULL,
     "ramp" INTEGER NOT NULL,
     "path" INTEGER NOT NULL,
-    "trail" BIGINT[],
+    "trail" BYTEA NOT NULL,
+    "time" INTEGER,
+    "driveData" BYTEA,
+    "trendBinaryByArea" BYTEA,
+    "tunePower" INTEGER NOT NULL,
+    "tuneHandling" INTEGER NOT NULL,
+    "playedAt" INTEGER NOT NULL,
 
     CONSTRAINT "GhostTrail_pkey" PRIMARY KEY ("dbId")
 );

@@ -712,11 +712,14 @@ export default class GameModule extends Module {
 
 		app.post('/method/register_ghost_trail', async (req, res) => {
 			let body = wm.wm.protobuf.RegisterGhostTrailRequest.decode(req.body);
-			console.log(body);
-
 			//-----------------SAVING STILL NOT WORKING-----------------
+			let crownBattles: boolean = false;
+			if(body.trendBinaryByArea?.data === null && body.trendBinaryByArea?.data === undefined){
+				crownBattles = true;
+			}
 			let saveEx: any = {};
-			saveEx.carId = body.ghost!.car.carId;
+			saveEx.carId = Number(body.ghost!.car.carId!);
+			saveEx.crownBattle = crownBattles;
 			if(body.ghost?.area !== null && body.ghost?.area !== undefined){
 				saveEx.area = body.ghost?.area!;
 			}
@@ -729,17 +732,19 @@ export default class GameModule extends Module {
 			if(body.trail !== null && body.trail !== undefined){
 				saveEx.trail = body.trail!;
 			}
-			if(body.time !== null && body.time !== undefined){
-				saveEx.time = body.time!;
+			if(crownBattles === false){
+				if(body.time !== null && body.time !== undefined){
+					saveEx.time = body.time!;
+				}
+				if(body.driveData?.data !== null && body.driveData?.data !== undefined){
+					saveEx.driveData = body.driveData?.data!;
+				}
+				if(body.trendBinaryByArea?.data !== null && body.trendBinaryByArea?.data !== undefined){
+					saveEx.trendBinaryByArea = body.trendBinaryByArea?.data!;
+				}
 			}
-			if(body.driveData !== null && body.driveData !== undefined){
-				saveEx.driveData = body.driveData!;
-			}
-			if(body.trendBinaryByArea !== null && body.trendBinaryByArea !== undefined){
-				saveEx.trendBinaryByArea = body.trendBinaryByArea!;
-			}
-			if(body.trendBinaryByArea !== null && body.trendBinaryByArea !== undefined){
-				saveEx.trendBinaryByArea = body.trendBinaryByArea!;
+			if(body.ghost?.car.lastPlayedAt !== null && body.ghost?.car.lastPlayedAt !== undefined){
+				saveEx.playedAt = body.ghost?.car.lastPlayedAt!;
 			}
 			if(body.ghost?.car.tunePower !== null && body.ghost?.car.tunePower !== undefined){
 				saveEx.tunePower = body.ghost?.car.tunePower!;
@@ -748,7 +753,7 @@ export default class GameModule extends Module {
 				saveEx.tuneHandling = body.ghost?.car.tuneHandling!;
 			}
 
-			await prisma.carCrown.create({
+			await prisma.ghostTrail.create({
 				data: saveEx
 			});
 			//----------------------------------------------------------
@@ -2477,6 +2482,14 @@ export default class GameModule extends Module {
 		app.get('/resource/ghost_trail', async (req, res) => {	
 			let pCarId = Number(req.query.car_id);
 			let pArea = Number(req.query.area);
+
+			let ghost_trails = await prisma.ghostTrail.findFirst({
+				where: {
+					carId: pCarId,
+					area: pArea,
+					crownBattle: true
+				}
+			});
 			//---------------MAYBE NOT CORRECT---------------
 			let rampVal = 0;
 			let pathVal = 0;
@@ -2545,14 +2558,15 @@ export default class GameModule extends Module {
 				rampVal = Math.floor(Math.random() * 2) + 37;
 				pathVal = Math.floor(Math.random() * 2) + 56;
 			}
-			let trails = new Uint8Array([1, 2, 3, 4]); //wtf is this lmao
+			//let trails = new Uint8Array([1, 2, 3, 4]); //wtf is this lmao
+
 			let msg = {
 				carId: pCarId,
 				area: pArea,
 				ramp: rampVal,
 				path: pathVal,
 				playedAt: 0,
-				trail: trails
+				trail: new Uint8Array(ghost_trails!.trail)
 			};
 			//-----------------------------------------------
 			let resp = wm.wm.protobuf.GhostTrail.encode(msg);
@@ -2563,6 +2577,10 @@ export default class GameModule extends Module {
                 .header('Content-Length', end.length.toString())
                 .status(200);
             r.send(Buffer.from(end));
+		})
+
+		app.get('/method/load_paths_and_tunings', async (req, res) => {	
+
 		})
     }
 }
