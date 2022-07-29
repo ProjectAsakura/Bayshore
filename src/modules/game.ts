@@ -358,7 +358,7 @@ export default class GameModule extends Module {
 										saveExCrown.area = Number(13);
 										saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 35);
 									}
-									else if(body.rgResult?.path >= 56 && body.rgResult?.path <= 57){ // GID_PATH_KB
+									else if(body.rgResult?.path >= 56 && body.rgResult?.path <= 57){ // GID_PATH_HS
 										saveExCrown.area = Number(18);
 										saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 27);
 									}
