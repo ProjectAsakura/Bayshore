@@ -247,7 +247,6 @@ export default class StartupModule extends Module {
 
         app.get('/resource/crown_list', async (req, res) => {
             console.log('crown_list');
-
             //-------------FOR TESTING PURPOSE---------------
             let list_crown: wmsrv.wm.protobuf.Crown[] = [];
             /*let car_crown = await prisma.car.findFirst({
@@ -306,10 +305,10 @@ export default class StartupModule extends Module {
                     }
                 }
                 for(let i=0; i<car_crown.length; i++){
-                    if(car_crown[counter].area === 18){
+                    if(car_crown[i].area === 18){
                         let car = await prisma.car.findFirst({
                             where: {
-                                carId: car_crown[counter].carId
+                                carId: car_crown[i].carId
                             },
                             include: {
                                 gtWing: true
