@@ -748,7 +748,7 @@ export default class GameModule extends Module {
 				saveEx.tuneHandling = body.ghost?.car.tuneHandling!;
 			}
 
-			await prisma.carCrown.create({
+			await prisma.ghostTrail.create({
 				data: saveEx
 			});
 			//----------------------------------------------------------
