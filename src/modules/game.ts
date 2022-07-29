@@ -23,6 +23,7 @@ export default class GameModule extends Module {
 				}
 			});
 			let storyLose: boolean = false;
+			let ghostModePlay: boolean = false;
 			switch (body.gameMode) {
 				case wm.wm.protobuf.GameMode.MODE_STORY:
 					{
@@ -199,6 +200,7 @@ export default class GameModule extends Module {
 				case wm.wm.protobuf.GameMode.MODE_GHOST_BATTLE:
 					{
 						if (!(body.retired)) {
+							ghostModePlay = true;
 							let saveEx: any = {};
 							if (body.rgResult?.rgRegionMapScore !== null && body.rgResult?.rgRegionMapScore !== undefined) {
 									saveEx.rgRegionMapScore = body.rgResult?.rgRegionMapScore!;
@@ -685,10 +687,76 @@ export default class GameModule extends Module {
 				});
 			}
 
-			let msg = {
-				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+			let msg;
+			if(ghostModePlay === true){
+				msg = {
+					error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+					ghostSessionId: Math.floor(Math.random() * 1000) + 1
+				}
 			}
+			else{
+				msg = {
+					error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS
+				}
+			}
+			
 			let resp = wm.wm.protobuf.SaveGameResultResponse.encode(msg);
+			let end = resp.finish();
+			let r = res
+				.header('Server', 'v388 wangan')
+				.header('Content-Type', 'application/x-protobuf; revision=8053')
+				.header('Content-Length', end.length.toString())
+				.status(200);
+			r.send(Buffer.from(end));
+		})
+
+		app.post('/method/register_ghost_trail', async (req, res) => {
+			let body = wm.wm.protobuf.RegisterGhostTrailRequest.decode(req.body);
+			console.log(body);
+
+			//-----------------SAVING STILL NOT WORKING-----------------
+			let saveEx: any = {};
+			saveEx.carId = body.ghost!.car.carId;
+			if(body.ghost?.area !== null && body.ghost?.area !== undefined){
+				saveEx.area = body.ghost?.area!;
+			}
+			if(body.ghost?.ramp !== null && body.ghost?.ramp !== undefined){
+				saveEx.ramp = body.ghost?.ramp!;
+			}
+			if(body.ghost?.path !== null && body.ghost?.path !== undefined){
+				saveEx.path = body.ghost?.path!;
+			}
+			if(body.trail !== null && body.trail !== undefined){
+				saveEx.trail = body.trail!;
+			}
+			if(body.time !== null && body.time !== undefined){
+				saveEx.time = body.time!;
+			}
+			if(body.driveData !== null && body.driveData !== undefined){
+				saveEx.driveData = body.driveData!;
+			}
+			if(body.trendBinaryByArea !== null && body.trendBinaryByArea !== undefined){
+				saveEx.trendBinaryByArea = body.trendBinaryByArea!;
+			}
+			if(body.trendBinaryByArea !== null && body.trendBinaryByArea !== undefined){
+				saveEx.trendBinaryByArea = body.trendBinaryByArea!;
+			}
+			if(body.ghost?.car.tunePower !== null && body.ghost?.car.tunePower !== undefined){
+				saveEx.tunePower = body.ghost?.car.tunePower!;
+			}
+			if(body.ghost?.car.tuneHandling !== null && body.ghost?.car.tuneHandling !== undefined){
+				saveEx.tuneHandling = body.ghost?.car.tuneHandling!;
+			}
+
+			await prisma.carCrown.create({
+				data: saveEx
+			});
+			//----------------------------------------------------------
+			
+			let msg = {
+				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS
+			}
+			let resp = wm.wm.protobuf.RegisterGhostTrailResponse.encode(msg);
 			let end = resp.finish();
 			let r = res
 				.header('Server', 'v388 wangan')

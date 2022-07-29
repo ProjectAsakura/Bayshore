@@ -329,6 +329,7 @@ export default class StartupModule extends Module {
                             unlockAt: 0,
                         }));
                     }
+                    break
                 }
             }
             else{

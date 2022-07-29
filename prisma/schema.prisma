@@ -29,7 +29,7 @@ model ScratchSheet {
   id      Int             @id @default(autoincrement())
   User    User            @relation(fields: [userId], references: [id])
   userId  Int
-  sheetNo Int // Player's sheet number (i.e. first sheet)
+  sheetNo Int             // Player's sheet number (i.e. first sheet)
   squares ScratchSquare[]
 }
 
@@ -124,25 +124,26 @@ model Car {
   stConsecutiveWinsMax   Int         @default(0)
   stCompleted100Episodes Boolean     @default(false)
 
-  items            CarItem[]
-  carGTWingDbId    Int                @unique
-  gtWing           CarGTWing          @relation(fields: [carGTWingDbId], references: [dbId])
-  carStateDbId     Int                @unique
-  state            CarState           @relation(fields: [carStateDbId], references: [dbId])
-  TimeAttackRecord TimeAttackRecord[]
-  CarCrown         CarCrown[]
+  items                  CarItem[]
+  carGTWingDbId          Int                @unique
+  gtWing                 CarGTWing          @relation(fields: [carGTWingDbId], references: [dbId])
+  carStateDbId           Int                @unique
+  state                  CarState           @relation(fields: [carStateDbId], references: [dbId])
+  TimeAttackRecord       TimeAttackRecord[]
+  CarCrown               CarCrown[]
+  GhostTrail             GhostTrail[]
 }
 
 model CarGTWing {
-  dbId Int  @id @default(autoincrement())
-  car  Car?
+  dbId           Int  @id @default(autoincrement())
+  car            Car?
 
-  pillar         Int @default(0)
-  pillarMaterial Int @default(0)
-  mainWing       Int @default(0)
-  mainWingColor  Int @default(0)
-  wingTip        Int @default(0)
-  material       Int @default(0)
+  pillar         Int  @default(0)
+  pillarMaterial Int  @default(0)
+  mainWing       Int  @default(0)
+  mainWingColor  Int  @default(0)
+  wingTip        Int  @default(0)
+  material       Int  @default(0)
 }
 
 model CarItem {
@@ -155,8 +156,8 @@ model CarItem {
 }
 
 model CarSettings {
-  dbId Int  @id @default(autoincrement())
-  car  Car?
+  dbId               Int     @id @default(autoincrement())
+  car                Car?
 
   view               Boolean @default(true)
   transmission       Boolean @default(false)
@@ -171,8 +172,8 @@ model CarSettings {
 }
 
 model CarState {
-  dbId Int  @id @default(autoincrement())
-  car  Car?
+  dbId             Int     @id @default(autoincrement())
+  car              Car?
 
   hasOpponentGhost Boolean @default(false)
   eventJoined      Boolean @default(false)
@@ -181,12 +182,12 @@ model CarState {
 }
 
 model TimeAttackRecord {
-  dbId Int @id @default(autoincrement())
+  dbId         Int     @id @default(autoincrement())
 
-  car   Car @relation(fields: [carId], references: [carId])
-  carId Int
+  car          Car     @relation(fields: [carId], references: [carId])
+  carId        Int
 
-  model        Int // Car model, literally just the `model` field from Car
+  model        Int     // Car model, literally just the `model` field from Car
   time         Int
   course       Int
   isMorning    Boolean
@@ -202,14 +203,30 @@ model TimeAttackRecord {
 }
 
 model CarCrown {
-  dbId         Int    @id @default(autoincrement())
-  car          Car    @relation(fields: [carId], references: [carId])
+  dbId         Int       @id @default(autoincrement())
+  car          Car       @relation(fields: [carId], references: [carId])
   carId        Int
-  area         Int    @unique
+  area         Int       @unique
   ramp         Int
   path         Int
-  trail        BigInt @default(0)
-  playedAt     Int     @default(0)
+  trail        BigInt  
+  playedAt     Int       @default(0)
   tunePower    Int
   tuneHandling Int
+}
+
+model GhostTrail {
+  dbId              Int       @id @default(autoincrement())
+  car               Car       @relation(fields: [carId], references: [carId])
+  carId             Int
+  area              Int
+  ramp              Int
+  path              Int
+  trail             BigInt
+  time              Int
+  driveData         Bytes     @db.ByteA
+  trendBinaryByArea Bytes     @db.ByteA
+  tunePower         Int
+  tuneHandling      Int
+  playedAt          Int
 }
