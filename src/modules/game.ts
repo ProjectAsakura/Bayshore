@@ -10,6 +10,7 @@ import { userInfo } from "os";
 import { config } from "dotenv";
 import * as scratch from "../util/scratch";
 import { envelopeItemTypeToDataCategory } from "@sentry/utils";
+import path from "path";
 
 export default class GameModule extends Module {
     register(app: Application): void {
@@ -21,7 +22,6 @@ export default class GameModule extends Module {
 					carId: body.carId
 				}
 			});
-			console.log(body);
 			let storyLose: boolean = false;
 			switch (body.gameMode) {
 				case wm.wm.protobuf.GameMode.MODE_STORY:
@@ -297,6 +297,102 @@ export default class GameModule extends Module {
 								},
 								data: saveEx
 							});
+
+							if (body.rgResult?.acquireCrown !== false || body.rgResult?.acquireCrown !== null && body.rgResult?.acquireCrown !== undefined) {
+								let saveExCrown: any = {};
+								saveExCrown.carId = body.carId;
+								if(body.rgResult?.path !== null && body.rgResult?.path !== undefined){
+									if(body.rgResult?.path >= 0 && body.rgResult?.path <= 9){ // GID_PATH_C1
+										saveExCrown.area = Number(0);
+										saveExCrown.ramp = Number(Math.floor(Math.random() * 4));
+									}
+									else if(body.rgResult?.path >= 10 && body.rgResult?.path <= 15){ // GID_PATH_N9
+										saveExCrown.area = Number(1);
+										saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 4);
+									}
+									else if(body.rgResult?.path >= 16 && body.rgResult?.path <= 17){ // GID_PATH_WTEAST
+										saveExCrown.area = Number(2);
+										saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 6);
+									}
+									else if(body.rgResult?.path >= 18 && body.rgResult?.path <= 19){ // GID_PATH_WT_UP_DOWN
+										saveExCrown.area = Number(3);
+										saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 8);
+									}
+									else if(body.rgResult?.path >= 20 && body.rgResult?.path <= 26){ // GID_PATH_WG
+										saveExCrown.area = Number(4);
+										saveExCrown.ramp = Number(Math.floor(Math.random() * 4) + 10);
+									}
+									else if(body.rgResult?.path >= 27 && body.rgResult?.path <= 33){ // GID_PATH_KG
+										saveExCrown.area = Number(5);
+										saveExCrown.ramp = Number(Math.floor(Math.random() * 4) + 14);
+									}
+									else if(body.rgResult?.path >= 34 && body.rgResult?.path <= 37){ // GID_PATH_YS
+										saveExCrown.area = Number(6);
+										saveExCrown.ramp = Number(Math.floor(Math.random() * 3) + 18);
+									}
+									else if(body.rgResult?.path >= 38 && body.rgResult?.path <= 48){ // GID_PATH_KG_SHINYAMASHITA_MINATOMIRAI
+										saveExCrown.area = Number(7);
+										saveExCrown.ramp = Number(Math.floor(Math.random() * 4) + 21);
+									}
+									else if(body.rgResult?.path === 49){ // GID_PATH_NGR
+										saveExCrown.area = Number(8);
+										saveExCrown.ramp = Number(25);
+									}
+									else if(body.rgResult?.path >= 50 && body.rgResult?.path <= 53){ // GID_PATH_OS
+										saveExCrown.area = Number(9);
+										saveExCrown.ramp = Number(26);
+									}
+									else if(body.rgResult?.path >= 54 && body.rgResult?.path <= 55){ // GID_PATH_KB
+										saveExCrown.area = Number(10);
+										saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 27);
+									}
+									else if(body.rgResult?.path >= 58 && body.rgResult?.path <= 61){ // GID_PATH_FK
+										saveExCrown.area = Number(11);
+										saveExCrown.ramp = Number(Math.floor(Math.random() * 4) + 29);
+									}
+									else if(body.rgResult?.path >= 62 && body.rgResult?.path <= 63){ // GID_PATH_HK
+										saveExCrown.area = Number(12);
+										saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 33);
+									}
+									else if(body.rgResult?.path >= 64 && body.rgResult?.path <= 65){ // GID_PATH_TP
+										saveExCrown.area = Number(13);
+										saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 35);
+									}
+									else if(body.rgResult?.path >= 56 && body.rgResult?.path <= 57){ // GID_PATH_KB
+										saveExCrown.area = Number(18);
+										saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 27);
+									}
+
+									saveExCrown.path = body.rgResult?.path!;
+								}
+								if(body?.playedAt !== null || body?.playedAt !== undefined){
+									saveExCrown.playedAt = body?.playedAt!;
+								}
+								saveExCrown.trail = Number(1); //wtf is this lmao
+								saveExCrown.tunePower = body.car!.tunePower!;
+								saveExCrown.tuneHandling = body.car!.tuneHandling!;
+
+								let carCrowns = await prisma.carCrown.count({
+									where: {
+										carId: body.carId,
+										area: saveExCrown.area
+									}
+								});
+								if(carCrowns !== 0){
+									let areaVal = Number(saveExCrown.area);
+									await prisma.carCrown.update({
+										where: {
+											area: areaVal
+										},
+										data: saveExCrown
+									});
+								}
+								else{
+									await prisma.carCrown.create({
+										data: saveExCrown
+									});
+								}
+							}
 						}
 						break;
 					}
@@ -431,94 +527,94 @@ export default class GameModule extends Module {
 			// Every n*100 play give reward
 			let giveMeterReward = Config.getConfig().gameOptions.giveMeterReward;
 			if(giveMeterReward === 1 && body.playCount % 100 === 0){
-				let carItemCount = await prisma.carItem.findMany({
+				let carItemCount = await prisma.carItem.count({
 					where: {
 						carId: body.carId,
 						category: 15,
 						itemId: {
-							lte: 28,
+							lte: 34,
 							gte: 1,
 						},
+						NOT: {
+							itemId: { in: [2, 3, 5, 6, 29, 30, 31, 32, 33 ,34] },
+						},
 					},
+					/*where: {
+						itemId: { notIn: [2, 3, 5, 6, 29, 30, 31, 32, 33 ,34] },
+					},*/
 				})
-				let sqlVal = 0;
-				for(let i=0; i<carItemCount.length; i++){
-					if(carItemCount[i].itemId !== 2 && carItemCount[i].itemId !== 3 && carItemCount[i].itemId !== 5 && carItemCount[i].itemId !== 6){
-						sqlVal = sqlVal + 1;
-					}
-				}
-
+				console.log('Number of owned reward meter : ' + carItemCount)
 				let itemIdVal = 0;
-				if(sqlVal === 0){
+				if(carItemCount === 0){
 					itemIdVal = 1;
 				}
-				else if(sqlVal === 1){
+				else if(carItemCount === 1){
 					itemIdVal = 4;
 				}
-				else if(sqlVal === 2){
+				else if(carItemCount === 2){
 					itemIdVal = 7;
 				}
-				else if(sqlVal === 3){
+				else if(carItemCount === 3){
 					itemIdVal = 8;
 				}
-				else if(sqlVal === 4){
+				else if(carItemCount === 4){
 					itemIdVal = 9;
 				}
-				else if(sqlVal === 5){
+				else if(carItemCount === 5){
 					itemIdVal = 10;
 				}
-				else if(sqlVal === 6){
+				else if(carItemCount === 6){
 					itemIdVal = 11;
 				}
-				else if(sqlVal === 7){
+				else if(carItemCount === 7){
 					itemIdVal = 12;
 				}
-				else if(sqlVal === 8){
+				else if(carItemCount === 8){
 					itemIdVal = 13;
 				}
-				else if(sqlVal === 9){
+				else if(carItemCount === 9){
 					itemIdVal = 14;
 				}
-				else if(sqlVal === 10){
+				else if(carItemCount === 10){
 					itemIdVal = 15;
 				}
-				else if(sqlVal === 11){
+				else if(carItemCount === 11){
 					itemIdVal = 16;
 				}
-				else if(sqlVal === 12){
+				else if(carItemCount === 12){
 					itemIdVal = 17;
 				}
-				else if(sqlVal === 13){
+				else if(carItemCount === 13){
 					itemIdVal = 18;
 				}
-				else if(sqlVal === 14){
+				else if(carItemCount === 14){
 					itemIdVal = 19;
 				}
-				else if(sqlVal === 15){
+				else if(carItemCount === 15){
 					itemIdVal = 20;
 				}
-				else if(sqlVal === 16){
+				else if(carItemCount === 16){
 					itemIdVal = 21;
 				}
-				else if(sqlVal === 17){
+				else if(carItemCount === 17){
 					itemIdVal = 22;
 				}
-				else if(sqlVal === 18){
+				else if(carItemCount === 18){
 					itemIdVal = 23;
 				}
-				else if(sqlVal === 19){
+				else if(carItemCount === 19){
 					itemIdVal = 24;
 				}
-				else if(sqlVal === 20){
+				else if(carItemCount === 20){
 					itemIdVal = 25;
 				}
-				else if(sqlVal === 21){
+				else if(carItemCount === 21){
 					itemIdVal = 26;
 				}
-				else if(sqlVal === 22){
+				else if(carItemCount === 22){
 					itemIdVal = 27;
 				}
-				else if(sqlVal === 23){
+				else if(carItemCount === 23){
 					itemIdVal = 28;
 				}
 
@@ -1541,6 +1637,11 @@ export default class GameModule extends Module {
 			} else {
 				saveEx.auraMotif = car?.auraMotif;
 			}
+			if (body?.rgStamp !== null && body?.rgStamp !== undefined) {
+				saveEx.rgStamp = body?.rgStamp!;
+			} else {
+				saveEx.rgStamp = car?.rgStamp;
+			}
 
 
 			// Update the car info
@@ -2221,7 +2322,7 @@ export default class GameModule extends Module {
 				rampVal = Math.floor(Math.random() * 2) + 35;
 				pathVal = Math.floor(Math.random() * 2) + 64;
 			}
-			//14 - 16 is dummy area
+			//14 - 16 are dummy area
 			else if(body.area === 17){ //GID_RUNAREA_C1_CLOSED
 				rampVal = Math.floor(Math.random() * 4);
 				pathVal = Math.floor(Math.random() * 10); //probably not correct
@@ -2361,7 +2462,7 @@ export default class GameModule extends Module {
 				rampVal = Math.floor(Math.random() * 2) + 35;
 				pathVal = Math.floor(Math.random() * 2) + 64;
 			}
-			//14 - 16 is dummy area
+			//14 - 16 are dummy area
 			else if(pArea === 17){ //GID_RUNAREA_C1_CLOSED
 				rampVal = Math.floor(Math.random() * 4);
 				pathVal = Math.floor(Math.random() * 10); //probably not correct
@@ -2370,7 +2471,7 @@ export default class GameModule extends Module {
 				rampVal = Math.floor(Math.random() * 2) + 37;
 				pathVal = Math.floor(Math.random() * 2) + 56;
 			}
-			let trails = new Uint8Array([1, 2, 3, 4]);
+			let trails = new Uint8Array([1, 2, 3, 4]); //wtf is this lmao
 			let msg = {
 				carId: pCarId,
 				area: pArea,

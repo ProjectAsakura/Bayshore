@@ -4,6 +4,7 @@ import { Config } from "../config";
 import * as wm from "../wmmt/wm.proto";
 import * as wmsrv from "../wmmt/service.proto";
 import { prisma } from "..";
+import { count } from "console";
 
 export default class StartupModule extends Module {
     register(app: Application): void {
@@ -103,8 +104,8 @@ export default class StartupModule extends Module {
                                 result: resulttime,
                                 name: 'ＧＵＥＳＴ',
                                 regionId: 0,
-                                model: Math.floor(Math.random() * 106) + 1,
-                                visualModel: Math.floor(Math.random() * 106) + 1,
+                                model: Math.floor(Math.random() * 50),
+                                visualModel: Math.floor(Math.random() * 106),
                                 defaultColor: 0,
                                 tunePower: 0,
                                 tuneHandling: 0,
@@ -154,8 +155,8 @@ export default class StartupModule extends Module {
                         result: 0,
                         name: 'ＧＵＥＳＴ',
                         regionId: 0,
-                        model: Math.floor(Math.random() * 106) + 1,
-                        visualModel: Math.floor(Math.random() * 106) + 1,
+                        model: Math.floor(Math.random() * 50),
+                        visualModel: Math.floor(Math.random() * 106),
                         defaultColor: 0,
                         tunePower: 0,
                         tuneHandling: 0,
@@ -202,8 +203,8 @@ export default class StartupModule extends Module {
                         result: 0,
                         name: 'ＧＵＥＳＴ',
                         regionId: 0,
-                        model: Math.floor(Math.random() * 106) + 1,
-                        visualModel: Math.floor(Math.random() * 106) + 1,
+                        model: Math.floor(Math.random() * 50),
+                        visualModel: Math.floor(Math.random() * 106),
                         defaultColor: 0,
                         tunePower: 0,
                         tuneHandling: 0,
@@ -263,73 +264,72 @@ export default class StartupModule extends Module {
 					carId: 'asc'
 				}
             });*/
-            let car_crown: wm.wm.protobuf.Car[] = [];
-            for(let i=29; i<31; i++){
-                car_crown.push(wm.wm.protobuf.Car.create({
-                    carId: 99969+i,
-                    userId: 99969+i,
-                    regionId: 1,
-                    name: 'Ｌｕｎａ',
-                    manufacturer: 5,
-                    model: 27,
-                    visualModel: i,
-                    defaultColor: 0,
-                    customColor: 0,
-                    wheel: 0,
-                    wheelColor: 0,
-                    aero: 0,
-                    bonnet: 0,
-                    wing: 0,
-                    mirror: 0,
-                    neon: 0,
-                    trunk: 0,
-                    plate: 0,
-                    plateColor: 0,
-                    plateNumber: 0,
-                    tunePower: 34,
-                    tuneHandling: 34,
-                    title: 'Bayshore',
-                    level: 65,
-                    windowSticker: true,
-                    windowStickerString: 'ＢＡＹＳＨＯＲＥ',
-                    windowStickerFont: 0,
-                    windowDecoration: 0,
-                    rivalMarker: 0,
-                    lastPlayedAt: 0,
-                    aura: 0,
-                    auraMotif: 0,
-                    ghostLevel: 10,
-                    country: 'JPN',
-                    searchCode: 'JPN123'
-                }));
-            }
-
-            if(car_crown){
+            let car_crown = await prisma.carCrown.findMany({
+                orderBy: {
+					area: 'asc'
+				}
+            });
+            
+            if(car_crown.length !== 0){
+                let counter = 0;
                 for(let i=0; i<14; i++){
-                    if(i % 2 === 0){
+                    if(car_crown[counter].area === i){
+                        let car = await prisma.car.findFirst({
+                            where: {
+                                carId: car_crown[counter].carId
+                            },
+                            include: {
+                                gtWing: true
+                            }
+                        });
+                        car!.aura = 0;
+                        car!.tunePower = car_crown[counter].tunePower;
+                        car!.tuneHandling = car_crown[counter].tuneHandling;
                         list_crown.push(wmsrv.wm.protobuf.Crown.create({
-                            carId: car_crown[0]!.carId,
-                            area: i,
+                            carId: car_crown[counter].carId,
+                            area: car_crown[counter].area, // GID_RUNAREA_C1 - GID_RUNAREA_TURNPIKE
+                            unlockAt: car_crown[counter].playedAt,
+                            car: car
+                        }));
+
+                        if(counter < car_crown.length-1){
+                            counter++;
+                        }
+                    }
+                    else{
+                        list_crown.push(wmsrv.wm.protobuf.Crown.create({
+                            carId: i,
+                            area: i, // GID_RUNAREA_C1 - GID_RUNAREA_TURNPIKE
                             unlockAt: 0,
-                            car: car_crown[0]
+                        }));
+                    }
+                }
+                for(let i=0; i<car_crown.length; i++){
+                    if(car_crown[counter].area === 18){
+                        let car = await prisma.car.findFirst({
+                            where: {
+                                carId: car_crown[counter].carId
+                            },
+                            include: {
+                                gtWing: true
+                            }
+                        });
+                        car!.aura = 0;
+                        list_crown.push(wmsrv.wm.protobuf.Crown.create({
+                            carId: 18, 
+                            area: 18, // GID_RUNAREA_HIROSHIMA
+                            unlockAt: 0,
+                            car: car
                         }));
                     }
                     else{
                         list_crown.push(wmsrv.wm.protobuf.Crown.create({
-                            carId: car_crown[1]!.carId,
-                            area: i,
+                            carId: 18, 
+                            area: 18, // GID_RUNAREA_HIROSHIMA
                             unlockAt: 0,
-                            car: car_crown[1]
                         }));
                     }
-                    
                 }
-                list_crown.push(wmsrv.wm.protobuf.Crown.create({
-                    carId: car_crown[0]!.carId,
-                    area: 18,
-                    unlockAt: 0,
-                    car: car_crown[0]
-                }));
             }
             else{
                 for(let i=0; i<14; i++){ 
@@ -344,7 +344,7 @@ export default class StartupModule extends Module {
                     area: 18, // GID_RUNAREA_HIROSHIMA
                     unlockAt: 0,
                 }));
-            }
+            } 
 
             let msg = {
                 crowns: list_crown

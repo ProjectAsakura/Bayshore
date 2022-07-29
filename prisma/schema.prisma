@@ -130,18 +130,19 @@ model Car {
   carStateDbId     Int                @unique
   state            CarState           @relation(fields: [carStateDbId], references: [dbId])
   TimeAttackRecord TimeAttackRecord[]
+  CarCrown         CarCrown[]
 }
 
 model CarGTWing {
   dbId Int  @id @default(autoincrement())
   car  Car?
 
-  pillar           Int @default(0)
-  pillarMaterial   Int @default(0)
-  mainWing         Int @default(0)
-  mainWingColor    Int @default(0)
-  wingTip          Int @default(0)
-  material         Int @default(0)
+  pillar         Int @default(0)
+  pillarMaterial Int @default(0)
+  mainWing       Int @default(0)
+  mainWingColor  Int @default(0)
+  wingTip        Int @default(0)
+  material       Int @default(0)
 }
 
 model CarItem {
@@ -198,4 +199,17 @@ model TimeAttackRecord {
   section7Time Int?    @map("section7Time")
   tunePower    Int     @default(0) // Car Power
   tuneHandling Int     @default(0) // Car Handling
+}
+
+model CarCrown {
+  dbId         Int    @id @default(autoincrement())
+  car          Car    @relation(fields: [carId], references: [carId])
+  carId        Int
+  area         Int    @unique
+  ramp         Int
+  path         Int
+  trail        BigInt @default(0)
+  playedAt     Int     @default(0)
+  tunePower    Int
+  tuneHandling Int
 }
