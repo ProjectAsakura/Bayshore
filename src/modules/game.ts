@@ -298,7 +298,7 @@ export default class GameModule extends Module {
 								data: saveEx
 							});
 
-							if (body.rgResult?.acquireCrown !== false || body.rgResult?.acquireCrown !== null && body.rgResult?.acquireCrown !== undefined) {
+							if (body.rgResult?.acquireCrown !== false && body.rgResult?.acquireCrown !== null && body.rgResult?.acquireCrown !== undefined) {
 								let saveExCrown: any = {};
 								saveExCrown.carId = body.carId;
 								if(body.rgResult?.path !== null && body.rgResult?.path !== undefined){
