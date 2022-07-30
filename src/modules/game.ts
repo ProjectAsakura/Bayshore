@@ -750,6 +750,9 @@ export default class GameModule extends Module {
 					carId: saveEx.carId,
 					area: saveEx.area,
 					crownBattle: true
+				},
+				orderBy: {
+					playedAt: 'desc'
 				}
 			});
 
