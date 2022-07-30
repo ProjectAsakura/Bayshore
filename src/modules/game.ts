@@ -1,7 +1,7 @@
 import e, { Application } from "express";
 import { Module } from "../module";
 import * as wm from "../wmmt/wm.proto";
-import * as svc from "../wmmt/service.proto";
+import * as wmsrv from "../wmmt/service.proto";
 import { prisma } from "..";
 import { Car, User } from "@prisma/client";
 import { Config } from "../config";
@@ -10,6 +10,7 @@ import { userInfo } from "os";
 import { config } from "dotenv";
 import * as scratch from "../util/scratch";
 import { envelopeItemTypeToDataCategory } from "@sentry/utils";
+import path from "path";
 
 export default class GameModule extends Module {
     register(app: Application): void {
@@ -22,6 +23,7 @@ export default class GameModule extends Module {
 				}
 			});
 			let storyLose: boolean = false;
+			let ghostModePlay: boolean = false;
 			switch (body.gameMode) {
 				case wm.wm.protobuf.GameMode.MODE_STORY:
 					{
@@ -82,15 +84,47 @@ export default class GameModule extends Module {
 							} else {
 								saveEx.stCompleted100Episodes = car?.stCompleted100Episodes;
 							}
-							console.log(saveEx);
-							let c = await prisma.car.update({
+							saveEx.stConsecutiveWinsMax = maxConsecutiveWins;
+
+							let currentStep = 0;
+							currentStep = body.car!.tunePower! + body.car!.tuneHandling!;
+							if(currentStep >= 0 && currentStep <= 5){
+								saveEx.ghostLevel = 1
+							}
+							else if(currentStep >= 6 && currentStep <= 10){
+								saveEx.ghostLevel = 2
+							}
+							else if(currentStep >= 11 && currentStep <= 15){
+								saveEx.ghostLevel = 3
+							}
+							else if(currentStep >= 16 && currentStep <= 20){
+								saveEx.ghostLevel = 4
+							}
+							else if(currentStep >= 21 && currentStep <= 26){
+								saveEx.ghostLevel = 5
+							}
+							else if(currentStep >= 27 && currentStep <= 28){
+								saveEx.ghostLevel = 6
+							}
+							else if(currentStep >= 29 && currentStep <= 30){
+								saveEx.ghostLevel = 7
+							}
+							else if(currentStep === 31){
+								saveEx.ghostLevel = 8
+							}
+							else if(currentStep >= 32 && currentStep <= 33){
+								saveEx.ghostLevel = 9
+							}
+							else if(currentStep === 34){
+								saveEx.ghostLevel = 10
+							}
+
+							await prisma.car.update({
 								where: {
 									carId: body.carId
 								},
 								data: saveEx
 							});
-							console.log('-------');
-							console.log(c);
 						}
 						break;
 					}
@@ -258,13 +292,181 @@ export default class GameModule extends Module {
 							saveEx.rgScore = winCounter;
 							saveEx.rgTrophy = winCounter;
 
-							let c = await prisma.car.update({
+							await prisma.car.update({
 								where: {
 									carId: body.carId
 								},
 								data: saveEx
 							});
+
+							// GHOST BATTLE SELECTION MODE
+							switch (body.rgResult!.selectionMethod) {
+								case wm.wm.protobuf.GhostSelectionMethod.GHOST_SELECT_CROWN_MATCH:
+								{
+									if (body.rgResult?.acquireCrown !== false && body.rgResult?.acquireCrown !== null && body.rgResult?.acquireCrown !== undefined) {
+										ghostModePlay = true;
+										let saveExCrown: any = {};
+										saveExCrown.carId = body.carId;
+										if(body.rgResult?.path !== null && body.rgResult?.path !== undefined){
+											if(body.rgResult?.path >= 0 && body.rgResult?.path <= 9){ // GID_PATH_C1
+												saveExCrown.area = Number(0);
+												saveExCrown.ramp = Number(Math.floor(Math.random() * 4));
+											}
+											else if(body.rgResult?.path >= 10 && body.rgResult?.path <= 15){ // GID_PATH_N9
+												saveExCrown.area = Number(1);
+												saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 4);
+											}
+											else if(body.rgResult?.path >= 16 && body.rgResult?.path <= 17){ // GID_PATH_WTEAST
+												saveExCrown.area = Number(2);
+												saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 6);
+											}
+											else if(body.rgResult?.path >= 18 && body.rgResult?.path <= 19){ // GID_PATH_WT_UP_DOWN
+												saveExCrown.area = Number(3);
+												saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 8);
+											}
+											else if(body.rgResult?.path >= 20 && body.rgResult?.path <= 26){ // GID_PATH_WG
+												saveExCrown.area = Number(4);
+												saveExCrown.ramp = Number(Math.floor(Math.random() * 4) + 10);
+											}
+											else if(body.rgResult?.path >= 27 && body.rgResult?.path <= 33){ // GID_PATH_KG
+												saveExCrown.area = Number(5);
+												saveExCrown.ramp = Number(Math.floor(Math.random() * 4) + 14);
+											}
+											else if(body.rgResult?.path >= 34 && body.rgResult?.path <= 37){ // GID_PATH_YS
+												saveExCrown.area = Number(6);
+												saveExCrown.ramp = Number(Math.floor(Math.random() * 3) + 18);
+											}
+											else if(body.rgResult?.path >= 38 && body.rgResult?.path <= 48){ // GID_PATH_KG_SHINYAMASHITA_MINATOMIRAI
+												saveExCrown.area = Number(7);
+												saveExCrown.ramp = Number(Math.floor(Math.random() * 4) + 21);
+											}
+											else if(body.rgResult?.path === 49){ // GID_PATH_NGR
+												saveExCrown.area = Number(8);
+												saveExCrown.ramp = Number(25);
+											}
+											else if(body.rgResult?.path >= 50 && body.rgResult?.path <= 53){ // GID_PATH_OS
+												saveExCrown.area = Number(9);
+												saveExCrown.ramp = Number(26);
+											}
+											else if(body.rgResult?.path >= 54 && body.rgResult?.path <= 55){ // GID_PATH_KB
+												saveExCrown.area = Number(10);
+												saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 27);
+											}
+											else if(body.rgResult?.path >= 58 && body.rgResult?.path <= 61){ // GID_PATH_FK
+												saveExCrown.area = Number(11);
+												saveExCrown.ramp = Number(Math.floor(Math.random() * 4) + 29);
+											}
+											else if(body.rgResult?.path >= 62 && body.rgResult?.path <= 63){ // GID_PATH_HK
+												saveExCrown.area = Number(12);
+												saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 33);
+											}
+											else if(body.rgResult?.path >= 64 && body.rgResult?.path <= 65){ // GID_PATH_TP
+												saveExCrown.area = Number(13);
+												saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 35);
+											}
+											else if(body.rgResult?.path >= 56 && body.rgResult?.path <= 57){ // GID_PATH_HS
+												saveExCrown.area = Number(18);
+												saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 27);
+											}
+		
+											saveExCrown.path = body.rgResult?.path!;
+										}
+										if(body?.playedAt !== null || body?.playedAt !== undefined){
+											saveExCrown.playedAt = body?.playedAt!;
+										}
+										saveExCrown.tunePower = body.car!.tunePower!;
+										saveExCrown.tuneHandling = body.car!.tuneHandling!;
+		
+										let carCrowns = await prisma.carCrown.count({
+											where: {
+												area: saveExCrown.area
+											}
+										});
+										if(carCrowns !== 0){
+											let areaVal = Number(saveExCrown.area);
+											await prisma.carCrown.update({
+												where: {
+													area: areaVal
+												},
+												data: saveExCrown
+											});
+										}
+										else{
+											await prisma.carCrown.create({
+												data: saveExCrown
+											});
+										}
+									}
+								}
+							}
 						}
+						break;
+					}
+				case wm.wm.protobuf.GameMode.MODE_VS_BATTLE:
+					{
+						let saveEx: any = {};
+						if(body.vsResult?.vsPlayCount !== null && body.vsResult?.vsPlayCount !== undefined){
+							saveEx.vsPlayCount = body.vsResult?.vsPlayCount!;
+						}
+						else {
+							saveEx.vsPlayCount = car?.vsPlayCount;
+						}
+						if(body.vsResult?.vsBurstCount !== null && body.vsResult?.vsBurstCount !== undefined){
+							saveEx.vsBurstCount = body.vsResult?.vsBurstCount!;
+						}
+						else {
+							saveEx.vsBurstCount = car?.vsBurstCount;
+						}
+						if(body.vsResult?.vsStarCount !== null && body.vsResult?.vsStarCount !== undefined){
+							saveEx.vsStarCount = body.vsResult?.vsStarCount!;
+						}
+						else {
+							saveEx.vsStarCount = car?.vsStarCount;
+						}
+						if(body.vsResult?.vsCoolOrWild !== null && body.vsResult?.vsCoolOrWild !== undefined){
+							saveEx.vsCoolOrWild = body.vsResult?.vsCoolOrWild!;
+						}
+						else {
+							saveEx.vsCoolOrWild = car?.vsCoolOrWild;
+						}
+						if(body.vsResult?.vsSmoothOrRough !== null && body.vsResult?.vsSmoothOrRough !== undefined){
+							saveEx.vsSmoothOrRough = body.vsResult?.vsSmoothOrRough!;
+						}
+						else {
+							saveEx.vsSmoothOrRough = car?.vsSmoothOrRough;
+						}
+						if(body.vsResult?.vsTripleStarMedals !== null && body.vsResult?.vsTripleStarMedals !== undefined && body.vsResult?.vsTripleStarMedals !== 0){
+							saveEx.vsTripleStarMedals = body.vsResult?.vsTripleStarMedals!;
+						}
+						else {
+							saveEx.vsTripleStarMedals = car?.vsTripleStarMedals;
+						}
+						if(body.vsResult?.vsDoubleStarMedals !== null && body.vsResult?.vsDoubleStarMedals !== undefined && body.vsResult?.vsDoubleStarMedals !== 0){
+							saveEx.vsDoubleStarMedals = body.vsResult?.vsDoubleStarMedals!;
+						}
+						else {
+							saveEx.vsDoubleStarMedals = car?.vsDoubleStarMedals;
+						}
+						if(body.vsResult?.vsSingleStarMedals !== null && body.vsResult?.vsSingleStarMedals !== undefined && body.vsResult?.vsSingleStarMedals !== 0){
+							saveEx.vsSingleStarMedals = body.vsResult?.vsSingleStarMedals!;
+						}
+						else {
+							saveEx.vsSingleStarMedals = car?.vsSingleStarMedals;
+						}
+						if(body.vsResult?.vsPlainMedals !== null && body.vsResult?.vsPlainMedals !== undefined && body.vsResult?.vsPlainMedals !== 0){
+							saveEx.vsPlainMedals = body.vsResult?.vsPlainMedals!;
+						}
+						else {
+							saveEx.vsPlainMedals = car?.vsPlainMedals;
+						}
+
+						await prisma.car.update({
+							where: {
+								carId: body.carId
+							},
+							data: saveEx
+						});
+						break;
 					}
 			}
 
@@ -313,7 +515,8 @@ export default class GameModule extends Module {
 					title: body.car!.title!,
 					tunePower: body.car!.tunePower!,
 					tuneHandling: body.car!.tuneHandling!,
-					windowSticker: body.car!.windowSticker!
+					windowSticker: body.car!.windowSticker!,
+					windowDecoration: body.car!.windowDecoration!
 				}
 			})
 
@@ -330,94 +533,94 @@ export default class GameModule extends Module {
 			// Every n*100 play give reward
 			let giveMeterReward = Config.getConfig().gameOptions.giveMeterReward;
 			if(giveMeterReward === 1 && body.playCount % 100 === 0){
-				let carItemCount = await prisma.carItem.findMany({
+				let carItemCount = await prisma.carItem.count({
 					where: {
 						carId: body.carId,
 						category: 15,
 						itemId: {
-							lte: 28,
+							lte: 34,
 							gte: 1,
 						},
+						NOT: {
+							itemId: { in: [2, 3, 5, 6, 29, 30, 31, 32, 33 ,34] },
+						},
 					},
+					/*where: {
+						itemId: { notIn: [2, 3, 5, 6, 29, 30, 31, 32, 33 ,34] },
+					},*/
 				})
-				let sqlVal = 0;
-				for(let i=0; i<carItemCount.length; i++){
-					if(carItemCount[i].itemId !== 2 && carItemCount[i].itemId !== 3 && carItemCount[i].itemId !== 5 && carItemCount[i].itemId !== 6){
-						sqlVal = sqlVal + 1;
-					}
-				}
-
+				console.log('Number of owned reward meter : ' + carItemCount)
 				let itemIdVal = 0;
-				if(sqlVal === 0){
+				if(carItemCount === 0){
 					itemIdVal = 1;
 				}
-				else if(sqlVal === 1){
+				else if(carItemCount === 1){
 					itemIdVal = 4;
 				}
-				else if(sqlVal === 2){
+				else if(carItemCount === 2){
 					itemIdVal = 7;
 				}
-				else if(sqlVal === 3){
+				else if(carItemCount === 3){
 					itemIdVal = 8;
 				}
-				else if(sqlVal === 4){
+				else if(carItemCount === 4){
 					itemIdVal = 9;
 				}
-				else if(sqlVal === 5){
+				else if(carItemCount === 5){
 					itemIdVal = 10;
 				}
-				else if(sqlVal === 6){
+				else if(carItemCount === 6){
 					itemIdVal = 11;
 				}
-				else if(sqlVal === 7){
+				else if(carItemCount === 7){
 					itemIdVal = 12;
 				}
-				else if(sqlVal === 8){
+				else if(carItemCount === 8){
 					itemIdVal = 13;
 				}
-				else if(sqlVal === 9){
+				else if(carItemCount === 9){
 					itemIdVal = 14;
 				}
-				else if(sqlVal === 10){
+				else if(carItemCount === 10){
 					itemIdVal = 15;
 				}
-				else if(sqlVal === 11){
+				else if(carItemCount === 11){
 					itemIdVal = 16;
 				}
-				else if(sqlVal === 12){
+				else if(carItemCount === 12){
 					itemIdVal = 17;
 				}
-				else if(sqlVal === 13){
+				else if(carItemCount === 13){
 					itemIdVal = 18;
 				}
-				else if(sqlVal === 14){
+				else if(carItemCount === 14){
 					itemIdVal = 19;
 				}
-				else if(sqlVal === 15){
+				else if(carItemCount === 15){
 					itemIdVal = 20;
 				}
-				else if(sqlVal === 16){
+				else if(carItemCount === 16){
 					itemIdVal = 21;
 				}
-				else if(sqlVal === 17){
+				else if(carItemCount === 17){
 					itemIdVal = 22;
 				}
-				else if(sqlVal === 18){
+				else if(carItemCount === 18){
 					itemIdVal = 23;
 				}
-				else if(sqlVal === 19){
+				else if(carItemCount === 19){
 					itemIdVal = 24;
 				}
-				else if(sqlVal === 20){
+				else if(carItemCount === 20){
 					itemIdVal = 25;
 				}
-				else if(sqlVal === 21){
+				else if(carItemCount === 21){
 					itemIdVal = 26;
 				}
-				else if(sqlVal === 22){
+				else if(carItemCount === 22){
 					itemIdVal = 27;
 				}
-				else if(sqlVal === 23){
+				else if(carItemCount === 23){
 					itemIdVal = 28;
 				}
 
@@ -482,10 +685,107 @@ export default class GameModule extends Module {
 				});
 			}
 
-			let msg = {
-				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+			let msg;
+			if(ghostModePlay === true){
+				msg = {
+					error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+					ghostSessionId: Math.floor(Math.random() * 1000) + 1
+				}
 			}
+			else{
+				msg = {
+					error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS
+				}
+			}
+			
 			let resp = wm.wm.protobuf.SaveGameResultResponse.encode(msg);
+			let end = resp.finish();
+			let r = res
+				.header('Server', 'v388 wangan')
+				.header('Content-Type', 'application/x-protobuf; revision=8053')
+				.header('Content-Length', end.length.toString())
+				.status(200);
+			r.send(Buffer.from(end));
+		})
+
+		app.post('/method/register_ghost_trail', async (req, res) => {
+			let body = wm.wm.protobuf.RegisterGhostTrailRequest.decode(req.body);
+			//-----------------ONLY CROWN BATTLE FOR NOW-----------------
+			let crownBattles: boolean = false;
+			if(body.time === null || body.time === undefined || body.time === 0){
+				crownBattles = true;
+			}
+			let saveEx: any = {};
+			saveEx.carId = Number(body.ghost!.car.carId!);
+			saveEx.crownBattle = crownBattles;
+			if(body.ghost?.area !== null && body.ghost?.area !== undefined){
+				saveEx.area = body.ghost?.area!;
+			}
+			if(body.ghost?.ramp !== null && body.ghost?.ramp !== undefined){
+				saveEx.ramp = body.ghost?.ramp!;
+			}
+			if(body.ghost?.path !== null && body.ghost?.path !== undefined){
+				saveEx.path = body.ghost?.path!;
+			}
+			if(body.trail !== null && body.trail !== undefined){
+				saveEx.trail = body.trail!;
+			}
+			if(crownBattles === false){
+				if(body.time !== null && body.time !== undefined){
+					saveEx.time = body.time!;
+				}
+				if(body.driveData?.data !== null && body.driveData?.data !== undefined){
+					saveEx.driveData = body.driveData?.data!;
+				}
+				if(body.trendBinaryByArea?.data !== null && body.trendBinaryByArea?.data !== undefined){
+					saveEx.trendBinaryByArea = body.trendBinaryByArea?.data!;
+				}
+			}
+			if(body.ghost?.car.lastPlayedAt !== null && body.ghost?.car.lastPlayedAt !== undefined){
+				saveEx.playedAt = body.ghost?.car.lastPlayedAt!;
+			}
+
+			let gCount = await prisma.ghostTrail.findFirst({
+				where:{
+					carId: saveEx.carId,
+					area: saveEx.area,
+					crownBattle: true
+				},
+				orderBy: {
+					playedAt: 'desc'
+				}
+			});
+
+			if(gCount){
+				let gdbId = gCount.dbId;
+				await prisma.ghostTrail.update({
+					where: {
+						dbId: gdbId
+					},
+					data: saveEx
+				});
+			}
+			else{
+				await prisma.ghostTrail.create({
+					data: saveEx
+				});
+			}
+
+			await prisma.carCrown.update({
+				where: {
+					area: saveEx.area
+				},
+				data: {
+					ramp: saveEx.ramp,
+					path: saveEx.path
+				}
+			});
+			//----------------------------------------------------------
+			
+			let msg = {
+				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS
+			}
+			let resp = wm.wm.protobuf.RegisterGhostTrailResponse.encode(msg);
 			let end = resp.finish();
 			let r = res
 				.header('Server', 'v388 wangan')
@@ -507,6 +807,7 @@ export default class GameModule extends Module {
 					cars: {
 						include: {
 							state: true,
+							gtWing: true
 						}
 					}
 				}
@@ -1343,34 +1644,115 @@ export default class GameModule extends Module {
 					carId: body.carId
 				},
 				include: {
-					settings: true
+					settings: true,
+					gtWing: true
 				}
 			});
+
+			let saveEx: any = {};
+			if (body.car?.customColor !== null && body.car?.customColor !== undefined) {
+				saveEx.customColor = body.car?.customColor!;
+			} else {
+				saveEx.customColor = car?.customColor;
+			}
+			if (body.car?.wheel !== null && body.car?.wheel !== undefined) {
+				saveEx.wheel = body.car?.wheel!;
+			} else {
+				saveEx.wheel = car?.wheel;
+			}
+			if (body.car?.wheelColor !== null && body.car?.wheelColor !== undefined) {
+				saveEx.wheelColor = body.car?.wheelColor!;
+			} else {
+				saveEx.wheelColor = car?.wheelColor;
+			}
+			if (body.car?.aero !== null && body.car?.aero !== undefined) {
+				saveEx.aero = body.car?.aero!;
+			} else {
+				saveEx.aero = car?.aero;
+			}
+			if (body.car?.bonnet !== null && body.car?.bonnet !== undefined) {
+				saveEx.bonnet = body.car?.bonnet!;
+			} else {
+				saveEx.bonnet = car?.bonnet;
+			}
+			if (body.car?.wing !== null && body.car?.wing !== undefined) {
+				saveEx.wing = body.car?.wing!;
+			} else {
+				saveEx.wing = car?.wing;
+			}
+			if (body.car?.mirror !== null && body.car?.mirror !== undefined) {
+				saveEx.mirror = body.car?.mirror!;
+			} else {
+				saveEx.mirror = car?.mirror;
+			}
+			if (body.car?.neon !== null && body.car?.neon !== undefined) {
+				saveEx.neon = body.car?.neon!;
+			} else {
+				saveEx.neon = car?.neon;
+			}
+			if (body.car?.trunk !== null && body.car?.trunk !== undefined) {
+				saveEx.trunk = body.car?.trunk!;
+			} else {
+				saveEx.trunk = car?.trunk;
+			}
+			if (body.car?.plate !== null && body.car?.plate !== undefined) {
+				saveEx.plate = body.car?.plate!;
+			} else {
+				saveEx.plate = car?.plate;
+			}
+			if (body.car?.plateColor !== null && body.car?.plateColor !== undefined) {
+				saveEx.plateColor = body.car?.plateColor!;
+			} else {
+				saveEx.plateColor = car?.plateColor;
+			}
+			if (body.car?.windowSticker !== null && body.car?.windowSticker !== undefined) {
+				saveEx.windowSticker = body.car?.windowSticker!;
+			} else {
+				saveEx.windowSticker = car?.windowSticker;
+			}
+			if (body.car?.windowStickerString !== null && body.car?.windowStickerString !== undefined) {
+				saveEx.windowStickerString = body.car?.windowStickerString!;
+			} else {
+				saveEx.windowStickerString = 'ＷＡＮＧＡＮ';
+			}
+			if (body.car?.windowStickerFont !== null && body.car?.windowStickerFont !== undefined) {
+				saveEx.windowStickerFont = body.car?.windowStickerFont!;
+			} else {
+				saveEx.windowStickerFont = car?.windowStickerFont;
+			}
+			if (body.car?.windowDecoration !== null && body.car?.windowDecoration !== undefined) {
+				saveEx.windowDecoration = body.car?.windowDecoration!;
+			} else {
+				saveEx.windowDecoration = car?.windowDecoration;
+			}
+			if (body.car?.rivalMarker !== null && body.car?.rivalMarker !== undefined) {
+				saveEx.rivalMarker = body.car?.rivalMarker!;
+			} else {
+				saveEx.rivalMarker = car?.rivalMarker;
+			}
+			if (body.car?.aura !== null && body.car?.aura !== undefined) {
+				saveEx.aura = body.car?.aura!;
+			} else {
+				saveEx.aura = car?.aura;
+			}
+			if (body.car?.auraMotif !== null && body.car?.auraMotif !== undefined) {
+				saveEx.auraMotif = body.car?.auraMotif!;
+			} else {
+				saveEx.auraMotif = car?.auraMotif;
+			}
+			if (body?.rgStamp !== null && body?.rgStamp !== undefined) {
+				saveEx.rgStamp = body?.rgStamp!;
+			} else {
+				saveEx.rgStamp = car?.rgStamp;
+			}
+
 
 			// Update the car info
 			await prisma.car.update({
 				where: {
 					carId: body.carId
 				}, 
-				data: {
-					// Car components customisable in terminal
-					customColor: body.car?.customColor || 0,
-					wheel: body.car?.wheel || 0,
-					aero: body.car?.aero || 0,
-					bonnet: body.car?.bonnet || 0,
-					wing: body.car?.wing || 0,
-					mirror: body.car?.mirror || 0,
-					neon: body.car?.neon || 0,
-					trunk: body.car?.trunk || 0,
-					plate: body.car?.plate || 0,
-					plateColor: body.car?.plateColor || 0,
-					windowSticker: body.car?.windowSticker || false, 
-					windowStickerString: body.car?.windowStickerString || 'ＷＡＮＧＡＮ',
-					windowStickerFont: body.car?.windowStickerFont || 0,
-					rivalMarker: body.car?.rivalMarker || 0,
-					aura: body.car?.aura || 0,
-					auraMotif: body.car?.auraMotif || 0
-				}
+				data: saveEx
 			})
 			
 			// Update the car settings
@@ -1379,10 +1761,49 @@ export default class GameModule extends Module {
 					dbId: car?.carSettingsDbId,
 				},
 				data: {
-
 					...body.setting
 				}
 			});
+
+			// Update the GT Wing info
+			let saveEx2: any = {};
+			if (body.car?.gtWing?.pillar !== null && body.car?.gtWing?.pillar !== undefined) {
+				saveEx2.pillar = body.car?.gtWing?.pillar!;
+			} else {
+				saveEx2.pillar = car?.gtWing?.pillar;
+			}
+			if (body.car?.gtWing?.pillarMaterial !== null && body.car?.gtWing?.pillarMaterial !== undefined) {
+				saveEx2.pillarMaterial = body.car?.gtWing?.pillarMaterial!;
+			} else {
+				saveEx2.pillarMaterial = car?.gtWing?.pillarMaterial;
+			}
+			if (body.car?.gtWing?.mainWing !== null && body.car?.gtWing?.mainWing !== undefined) {
+				saveEx2.mainWing = body.car?.gtWing?.mainWing!;
+			} else {
+				saveEx2.mainWing = car?.gtWing?.mainWing;
+			}
+			if (body.car?.gtWing?.mainWingColor !== null && body.car?.gtWing?.mainWingColor !== undefined) {
+				saveEx2.mainWingColor = body.car?.gtWing?.mainWingColor!;
+			} else {
+				saveEx2.mainWingColor = car?.gtWing?.mainWingColor;
+			}
+			if (body.car?.gtWing?.wingTip !== null && body.car?.gtWing?.wingTip !== undefined) {
+				saveEx2.wingTip = body.car?.gtWing?.wingTip!;
+			} else {
+				saveEx2.wingTip = car?.gtWing?.wingTip;
+			}
+			if (body.car?.gtWing?.material !== null && body.car?.gtWing?.material !== undefined) {
+				saveEx2.material = body.car?.gtWing?.material!;
+			} else {
+				saveEx2.material = car?.gtWing?.material;
+			}
+
+			await prisma.carGTWing.update({
+				where: {
+					dbId: body.carId
+				}, 
+				data: saveEx2
+			})
 
 			// Get car item
 			if(body.earnedItems.length !== 0){
@@ -1463,6 +1884,10 @@ export default class GameModule extends Module {
 
 			// Generate blank car state object
 			let state = await prisma.carState.create({
+				data: {}
+			})
+
+			let gtWing = await prisma.carGTWing.create({
 				data: {}
 			})
 
@@ -1601,6 +2026,7 @@ export default class GameModule extends Module {
 				tuneHandling: body.car.tuneHandling!,
 				carSettingsDbId: settings.dbId,
 				carStateDbId: state.dbId,
+				carGTWingDbId: gtWing.dbId,
 				regionId: body.car.regionId!,
 				lastPlayedAt: date,
 			};
@@ -1694,6 +2120,7 @@ export default class GameModule extends Module {
 
 		app.post('/method/load_car', async (req, res) => {
 			let body = wm.wm.protobuf.LoadCarRequest.decode(req.body);
+
 			let car = await prisma.car.findFirst({
 				where: {
 					carId: body.carId
@@ -1701,8 +2128,10 @@ export default class GameModule extends Module {
 				include: {
 					settings: true,
 					items: true,
+					gtWing: true
 				}
 			});
+			
 
 			// This is fucking terrible
 			let longLoseBits = Long.fromString(car!.stLoseBits.toString());
@@ -1865,6 +2294,7 @@ export default class GameModule extends Module {
             let msg = {
                 error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
             }
+
             let resp = wm.wm.protobuf.UpdateUserSessionResponse.encode(msg);
             let end = resp.finish();
             let r = res
@@ -1876,11 +2306,35 @@ export default class GameModule extends Module {
         })
 
         app.post('/method/load_ghost_battle_info', async (req, res) => {
-            let body = wm.wm.protobuf.LoadGhostBattleInfoRequest.decode(req.body);
+            //let body = wm.wm.protobuf.LoadGhostBattleInfoRequest.decode(req.body);
+			let cars = await prisma.car.findMany({
+				include:{
+					gtWing: true
+				}
+			});
+
+			let lists_stamptarget: wm.wm.protobuf.StampTargetCar[] = [];
+			let lengths = 0;
+			if(cars.length > 20){
+				lengths = 20;
+			}
+			else{
+				lengths = cars.length;
+			}
+			for(let i=0; i<lengths; i++){
+				lists_stamptarget.push(wm.wm.protobuf.StampTargetCar.create({
+					car: cars[i],
+					returnCount: 1,
+					locked: false,
+					recommended: true,
+				}));
+			}
 			//---------------MAYBE NOT CORRECT---------------
 			let msg = {
 					error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
 					stampSheetCount: 100,
+					stampTargetCars: lists_stamptarget,
+					history: cars,
 				};
 			//-----------------------------------------------
 			let resp = wm.wm.protobuf.LoadGhostBattleInfoResponse.encode(msg);
@@ -1893,82 +2347,99 @@ export default class GameModule extends Module {
             r.send(Buffer.from(end));
         })
 
+		app.post('/method/load_stamp_target', async (req, res) => {
+			//let body = wm.wm.protobuf.LoadStampTargetRequest.decode(req.body);
+			//---------------MAYBE NOT CORRECT---------------
+			let msg = {
+				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+			};
+			//-----------------------------------------------
+			let resp = wm.wm.protobuf.LoadStampTargetResponse.encode(msg);
+			let end = resp.finish();
+			let r = res
+				.header('Server', 'v388 wangan')
+				.header('Content-Type', 'application/x-protobuf; revision=8053')
+				.header('Content-Length', end.length.toString())
+				.status(200);
+			r.send(Buffer.from(end));
+		})
+
         app.post('/method/search_cars_by_level', async (req, res) => {
             let body = wm.wm.protobuf.SearchCarsByLevelRequest.decode(req.body);
             //---------------MAYBE NOT CORRECT---------------
 			let rampVal = 0;
 			let pathVal = 0;
 			if(body.area === 0){ //GID_RUNAREA_C1
-				rampVal = 0;
+				rampVal = Math.floor(Math.random() * 4);
 				pathVal = Math.floor(Math.random() * 10);
 			}
 			else if(body.area === 1){ //GID_RUNAREA_RING
-				rampVal = 0;
+				rampVal = Math.floor(Math.random() * 2) + 4;
 				pathVal = Math.floor(Math.random() * 6) + 10;
 			}
 			else if(body.area === 2){ //GID_RUNAREA_SUBTOKYO_3_4
-				rampVal = 0;
+				rampVal = Math.floor(Math.random() * 2) + 6;
 				pathVal = Math.floor(Math.random() * 2) + 16;
 			}
 			else if(body.area === 3){ //GID_RUNAREA_SUBTOKYO_5
-				rampVal = 0;
+				rampVal = Math.floor(Math.random() * 2) + 8;
 				pathVal = Math.floor(Math.random() * 2) + 18;
 			}
 			else if(body.area === 4){ //GID_RUNAREA_WANGAN
-				rampVal = 0;
+				rampVal = Math.floor(Math.random() * 4) + 10;
 				pathVal = Math.floor(Math.random() * 7) + 20;
 			}
 			else if(body.area === 5){ //GID_RUNAREA_K1
-				rampVal = 0;
+				rampVal = Math.floor(Math.random() * 4) + 14;
 				pathVal = Math.floor(Math.random() * 7) + 27;
 			}
 			else if(body.area === 6){ //GID_RUNAREA_YAESU
-				rampVal = 0;
+				rampVal = Math.floor(Math.random() * 3) + 18;
 				pathVal = Math.floor(Math.random() * 4) + 34;
 			}
 			else if(body.area === 7){ //GID_RUNAREA_YOKOHAMA
-				rampVal = 0;
+				rampVal = Math.floor(Math.random() * 4) + 21;
 				pathVal = Math.floor(Math.random() * 11) + 38;
 			}
 			else if(body.area === 8){ //GID_RUNAREA_NAGOYA
-				rampVal = 0;
+				rampVal = 25;
 				pathVal = 49;
 			}
 			else if(body.area === 9){ //GID_RUNAREA_OSAKA
-				rampVal = 0;
+				rampVal = 26;
 				pathVal = Math.floor(Math.random() * 4) + 50;
 			}
 			else if(body.area === 10){ //GID_RUNAREA_KOBE
-				rampVal = 0;
+				rampVal = Math.floor(Math.random() * 2) + 27;
 				pathVal = Math.floor(Math.random() * 2) + 54;
 			}
 			else if(body.area === 11){ //GID_RUNAREA_FUKUOKA
-				rampVal = 0;
+				rampVal = Math.floor(Math.random() * 4) + 29;
 				pathVal = Math.floor(Math.random() * 4) + 58;
 			}
 			else if(body.area === 12){ //GID_RUNAREA_HAKONE
-				rampVal = 0;
+				rampVal = Math.floor(Math.random() * 2) + 33;
 				pathVal = Math.floor(Math.random() * 2) + 62;
 			}
 			else if(body.area === 13){ //GID_RUNAREA_TURNPIKE
-				rampVal = 0;
+				rampVal = Math.floor(Math.random() * 2) + 35;
 				pathVal = Math.floor(Math.random() * 2) + 64;
 			}
-			//14 - 16 is dummy area
+			//14 - 16 are dummy area
 			else if(body.area === 17){ //GID_RUNAREA_C1_CLOSED
-				rampVal = 0;
+				rampVal = Math.floor(Math.random() * 4);
 				pathVal = Math.floor(Math.random() * 10); //probably not correct
 			}
 			else if(body.area === 18){ //GID_RUNAREA_HIROSHIMA
-				rampVal = 0;
+				rampVal = Math.floor(Math.random() * 2) + 37;
 				pathVal = Math.floor(Math.random() * 2) + 56;
 			}
 			let msg = {
-					error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
-					ramp: rampVal,
-					path: pathVal,
-					selectionMethod: 2,
-				};
+				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+				ramp: rampVal,
+				path: pathVal,
+				selectionMethod: 2,
+			};
 			//-----------------------------------------------
 			let resp = wm.wm.protobuf.SearchCarsByLevelResponse.encode(msg);
             let end = resp.finish();
@@ -1984,9 +2455,9 @@ export default class GameModule extends Module {
             let body = wm.wm.protobuf.LoadGhostDriveDataRequest.decode(req.body);
             //---------------MAYBE NOT CORRECT---------------
 			let msg = {
-					error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
-					path: body.path
-				};
+				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+				path: body.path
+			};
 			//-----------------------------------------------
 			let resp = wm.wm.protobuf.LoadGhostDriveDataResponse.encode(msg);
             let end = resp.finish();
@@ -1997,5 +2468,80 @@ export default class GameModule extends Module {
                 .status(200);
             r.send(Buffer.from(end));
         })
+
+		app.post('/method/lock_crown', (req, res) => {
+            //let body = wmsrv.wm.protobuf.LockCrownRequest.decode(req.body);
+			//---------------MAYBE NOT CORRECT---------------
+            let msg = {
+				error: wmsrv.wm.protobuf.ErrorCode.ERR_SUCCESS,
+			};
+			//-----------------------------------------------
+			let resp = wmsrv.wm.protobuf.LockCrownResponse.encode(msg);
+			let end = resp.finish();
+			let r = res
+				.header('Server', 'v388 wangan')
+				.header('Content-Type', 'application/x-protobuf; revision=8053')
+				.header('Content-Length', end.length.toString())
+				.status(200);
+			r.send(Buffer.from(end));
+        })
+
+		app.post('/method/save_charge', (req, res) => {
+            //let body = wm.wm.protobuf.SaveChargeResponse.decode(req.body);
+			//---------------MAYBE NOT CORRECT---------------
+            let msg = {
+				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+			};
+			//-----------------------------------------------
+			let resp = wm.wm.protobuf.SaveChargeResponse.encode(msg);
+			let end = resp.finish();
+			let r = res
+				.header('Server', 'v388 wangan')
+				.header('Content-Type', 'application/x-protobuf; revision=8053')
+				.header('Content-Length', end.length.toString())
+				.status(200);
+			r.send(Buffer.from(end));
+        })
+
+		app.get('/resource/ghost_trail', async (req, res) => {	
+			let pCarId = Number(req.query.car_id);
+			let pArea = Number(req.query.area);
+
+			let ghost_trails = await prisma.ghostTrail.findFirst({
+				where: {
+					carId: pCarId,
+					area: pArea,
+					crownBattle: true
+				},
+				orderBy: {
+					playedAt: 'desc'
+				},
+			});
+			//---------------MAYBE NOT CORRECT---------------
+			let rampVal = ghost_trails!.ramp;
+			let pathVal = ghost_trails!.path;
+
+			let msg = {
+				carId: pCarId,
+				area: pArea,
+				ramp: rampVal,
+				path: pathVal,
+				playedAt: ghost_trails!.playedAt,
+				trail: new Uint8Array(ghost_trails!.trail)
+			};
+			//-----------------------------------------------
+			let resp = wm.wm.protobuf.GhostTrail.encode(msg);
+            let end = resp.finish();
+            let r = res
+                .header('Server', 'v388 wangan')
+                .header('Content-Type', 'application/x-protobuf; revision=8053')
+                .header('Content-Length', end.length.toString())
+                .status(200);
+            r.send(Buffer.from(end));
+		})
+
+		app.get('/method/load_paths_and_tunings', async (req, res) => {	
+
+		})
     }
 }
