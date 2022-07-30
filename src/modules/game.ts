@@ -405,67 +405,74 @@ export default class GameModule extends Module {
 				case wm.wm.protobuf.GameMode.MODE_VS_BATTLE:
 					{
 						let saveEx: any = {};
-						if(body.vsResult?.vsPlayCount !== null && body.vsResult?.vsPlayCount !== undefined){
-							saveEx.vsPlayCount = body.vsResult?.vsPlayCount!;
-						}
-						else {
-							saveEx.vsPlayCount = car?.vsPlayCount;
-						}
-						if(body.vsResult?.vsBurstCount !== null && body.vsResult?.vsBurstCount !== undefined){
-							saveEx.vsBurstCount = body.vsResult?.vsBurstCount!;
-						}
-						else {
-							saveEx.vsBurstCount = car?.vsBurstCount;
-						}
-						if(body.vsResult?.vsStarCount !== null && body.vsResult?.vsStarCount !== undefined){
-							saveEx.vsStarCount = body.vsResult?.vsStarCount!;
-						}
-						else {
-							saveEx.vsStarCount = car?.vsStarCount;
-						}
-						if(body.vsResult?.vsCoolOrWild !== null && body.vsResult?.vsCoolOrWild !== undefined){
-							saveEx.vsCoolOrWild = body.vsResult?.vsCoolOrWild!;
-						}
-						else {
-							saveEx.vsCoolOrWild = car?.vsCoolOrWild;
-						}
-						if(body.vsResult?.vsSmoothOrRough !== null && body.vsResult?.vsSmoothOrRough !== undefined){
-							saveEx.vsSmoothOrRough = body.vsResult?.vsSmoothOrRough!;
-						}
-						else {
-							saveEx.vsSmoothOrRough = car?.vsSmoothOrRough;
-						}
-						if(body.vsResult?.vsTripleStarMedals !== null && body.vsResult?.vsTripleStarMedals !== undefined && body.vsResult?.vsTripleStarMedals !== 0){
-							saveEx.vsTripleStarMedals = body.vsResult?.vsTripleStarMedals!;
-						}
-						else {
-							saveEx.vsTripleStarMedals = car?.vsTripleStarMedals;
-						}
-						if(body.vsResult?.vsDoubleStarMedals !== null && body.vsResult?.vsDoubleStarMedals !== undefined && body.vsResult?.vsDoubleStarMedals !== 0){
-							saveEx.vsDoubleStarMedals = body.vsResult?.vsDoubleStarMedals!;
-						}
-						else {
-							saveEx.vsDoubleStarMedals = car?.vsDoubleStarMedals;
-						}
-						if(body.vsResult?.vsSingleStarMedals !== null && body.vsResult?.vsSingleStarMedals !== undefined && body.vsResult?.vsSingleStarMedals !== 0){
-							saveEx.vsSingleStarMedals = body.vsResult?.vsSingleStarMedals!;
-						}
-						else {
-							saveEx.vsSingleStarMedals = car?.vsSingleStarMedals;
-						}
-						if(body.vsResult?.vsPlainMedals !== null && body.vsResult?.vsPlainMedals !== undefined && body.vsResult?.vsPlainMedals !== 0){
-							saveEx.vsPlainMedals = body.vsResult?.vsPlainMedals!;
-						}
-						else {
-							saveEx.vsPlainMedals = car?.vsPlainMedals;
-						}
+						let starSubtraction = body.vsResult!.vsStarCount! - car!.vsStarCount!;
+						let TriMedSubtraction = body.vsResult!.vsTripleStarMedals! - car!.vsTripleStarMedals!;
+						let DouMedSubtraction = body.vsResult!.vsDoubleStarMedals! - car!.vsDoubleStarMedals!;
+						let SinMedSubtraction = body.vsResult!.vsSingleStarMedals! - car!.vsSingleStarMedals!;
+						let PlaMedSubtraction = body.vsResult!.vsPlainMedals! - car!.vsPlainMedals!;
+						if(starSubtraction < 4 && TriMedSubtraction < 2 && DouMedSubtraction < 2 && SinMedSubtraction < 2 && PlaMedSubtraction < 2){
+							if(body.vsResult?.vsPlayCount !== null && body.vsResult?.vsPlayCount !== undefined){
+								saveEx.vsPlayCount = body.vsResult?.vsPlayCount!;
+							}
+							else {
+								saveEx.vsPlayCount = car?.vsPlayCount;
+							}
+							if(body.vsResult?.vsBurstCount !== null && body.vsResult?.vsBurstCount !== undefined){
+								saveEx.vsBurstCount = body.vsResult?.vsBurstCount!;
+							}
+							else {
+								saveEx.vsBurstCount = car?.vsBurstCount;
+							}
+							if(body.vsResult?.vsStarCount !== null && body.vsResult?.vsStarCount !== undefined){
+								saveEx.vsStarCount = body.vsResult?.vsStarCount!;
+							}
+							else {
+								saveEx.vsStarCount = car?.vsStarCount;
+							}
+							if(body.vsResult?.vsCoolOrWild !== null && body.vsResult?.vsCoolOrWild !== undefined){
+								saveEx.vsCoolOrWild = body.vsResult?.vsCoolOrWild!;
+							}
+							else {
+								saveEx.vsCoolOrWild = car?.vsCoolOrWild;
+							}
+							if(body.vsResult?.vsSmoothOrRough !== null && body.vsResult?.vsSmoothOrRough !== undefined){
+								saveEx.vsSmoothOrRough = body.vsResult?.vsSmoothOrRough!;
+							}
+							else {
+								saveEx.vsSmoothOrRough = car?.vsSmoothOrRough;
+							}
+							if(body.vsResult?.vsTripleStarMedals !== null && body.vsResult?.vsTripleStarMedals !== undefined && body.vsResult?.vsTripleStarMedals !== 0){
+								saveEx.vsTripleStarMedals = body.vsResult?.vsTripleStarMedals!;
+							}
+							else {
+								saveEx.vsTripleStarMedals = car?.vsTripleStarMedals;
+							}
+							if(body.vsResult?.vsDoubleStarMedals !== null && body.vsResult?.vsDoubleStarMedals !== undefined && body.vsResult?.vsDoubleStarMedals !== 0){
+								saveEx.vsDoubleStarMedals = body.vsResult?.vsDoubleStarMedals!;
+							}
+							else {
+								saveEx.vsDoubleStarMedals = car?.vsDoubleStarMedals;
+							}
+							if(body.vsResult?.vsSingleStarMedals !== null && body.vsResult?.vsSingleStarMedals !== undefined && body.vsResult?.vsSingleStarMedals !== 0){
+								saveEx.vsSingleStarMedals = body.vsResult?.vsSingleStarMedals!;
+							}
+							else {
+								saveEx.vsSingleStarMedals = car?.vsSingleStarMedals;
+							}
+							if(body.vsResult?.vsPlainMedals !== null && body.vsResult?.vsPlainMedals !== undefined && body.vsResult?.vsPlainMedals !== 0){
+								saveEx.vsPlainMedals = body.vsResult?.vsPlainMedals!;
+							}
+							else {
+								saveEx.vsPlainMedals = car?.vsPlainMedals;
+							}
 
-						await prisma.car.update({
-							where: {
-								carId: body.carId
-							},
-							data: saveEx
-						});
+							await prisma.car.update({
+								where: {
+									carId: body.carId
+								},
+								data: saveEx
+							});
+						}
 						break;
 					}
 			}
@@ -501,6 +508,14 @@ export default class GameModule extends Module {
 				}
 			}
 
+			let odoSubtraction = body.odometer! - car!.odometer!;
+			let odometers = 0;
+			if(odoSubtraction <= 50){
+				odometers = body.odometer!
+			}
+			else{
+				odometers = car!.odometer!
+			}
 			// Update car
 			await prisma.car.update({
 				where: {
@@ -509,7 +524,7 @@ export default class GameModule extends Module {
 				data: {
 					aura: body.car!.aura!,
 					auraMotif: body.car!.auraMotif!,
-					odometer: body.odometer,
+					odometer: odometers,
 					playCount: body.playCount,
 					level: body.car!.level!,
 					title: body.car!.title!,
