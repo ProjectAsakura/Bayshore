@@ -271,7 +271,10 @@ export default class StartupModule extends Module {
             
             if(car_crown.length !== 0){
                 let counter = 0;
-                for(let i=0; i<14; i++){
+                for(let i=0; i<19; i++){
+                    if(i >= 14){
+                        i = 18;
+                    }
                     if(car_crown[counter].area === i){
                         let car = await prisma.car.findFirst({
                             where: {
@@ -288,7 +291,7 @@ export default class StartupModule extends Module {
                         car!.lastPlayedAt = car_crown[counter].playedAt;
                         list_crown.push(wmsrv.wm.protobuf.Crown.create({
                             carId: car_crown[counter].carId,
-                            area: car_crown[counter].area, // GID_RUNAREA_C1 - GID_RUNAREA_TURNPIKE
+                            area: car_crown[counter].area, // GID_RUNAREA_C1 - GID_RUNAREA_TURNPIKE & GID_RUNAREA_HIROSHIMA
                             unlockAt: car_crown[counter].playedAt,
                             car: car
                         }));
@@ -300,41 +303,10 @@ export default class StartupModule extends Module {
                     else{
                         list_crown.push(wmsrv.wm.protobuf.Crown.create({
                             carId: i,
-                            area: i, // GID_RUNAREA_C1 - GID_RUNAREA_TURNPIKE
+                            area: i, // GID_RUNAREA_C1 - GID_RUNAREA_TURNPIKE & GID_RUNAREA_HIROSHIMA
                             unlockAt: 0,
                         }));
                     }
-                }
-                for(let i=0; i<car_crown.length; i++){
-                    if(car_crown[i].area === 18){
-                        let car = await prisma.car.findFirst({
-                            where: {
-                                carId: car_crown[i].carId
-                            },
-                            include: {
-                                gtWing: true
-                            }
-                        });
-                        car!.regionId = 1; // Hokkaido
-                        //car!.aura = 0;
-                        car!.tunePower = car_crown[counter].tunePower;
-                        car!.tuneHandling = car_crown[counter].tuneHandling;
-                        car!.lastPlayedAt = car_crown[counter].playedAt;
-                        list_crown.push(wmsrv.wm.protobuf.Crown.create({
-                            carId: 18, 
-                            area: 18, // GID_RUNAREA_HIROSHIMA
-                            unlockAt: 0,
-                            car: car
-                        }));
-                    }
-                    else{
-                        list_crown.push(wmsrv.wm.protobuf.Crown.create({
-                            carId: 18, 
-                            area: 18, // GID_RUNAREA_HIROSHIMA
-                            unlockAt: 0,
-                        }));
-                    }
-                    break
                 }
             }
             else{
