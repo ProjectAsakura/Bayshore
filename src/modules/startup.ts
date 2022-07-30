@@ -282,7 +282,7 @@ export default class StartupModule extends Module {
                             }
                         });
                         car!.regionId = 1; // Hokkaido
-                        car!.aura = 0;
+                        //car!.aura = 0;
                         car!.tunePower = car_crown[counter].tunePower;
                         car!.tuneHandling = car_crown[counter].tuneHandling;
                         list_crown.push(wmsrv.wm.protobuf.Crown.create({
@@ -314,7 +314,10 @@ export default class StartupModule extends Module {
                                 gtWing: true
                             }
                         });
-                        car!.aura = 0;
+                        car!.regionId = 1; // Hokkaido
+                        //car!.aura = 0;
+                        car!.tunePower = car_crown[counter].tunePower;
+                        car!.tuneHandling = car_crown[counter].tuneHandling;
                         list_crown.push(wmsrv.wm.protobuf.Crown.create({
                             carId: 18, 
                             area: 18, // GID_RUNAREA_HIROSHIMA
