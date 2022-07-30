@@ -712,7 +712,7 @@ export default class GameModule extends Module {
 			let body = wm.wm.protobuf.RegisterGhostTrailRequest.decode(req.body);
 			//-----------------ONLY CROWN BATTLE FOR NOW-----------------
 			let crownBattles: boolean = false;
-			if(body.trendBinaryByArea?.data === null && body.trendBinaryByArea?.data === undefined){
+			if(body.time === null || body.time === undefined || body.time === 0){
 				crownBattles = true;
 			}
 			let saveEx: any = {};
@@ -2493,9 +2493,10 @@ export default class GameModule extends Module {
 				}
 			});
 			//---------------MAYBE NOT CORRECT---------------
-			/*let rampVal = 0;
-			let pathVal = 0;
-			if(pArea === 0){ //GID_RUNAREA_C1
+			let rampVal = ghost_trails!.ramp;
+			let pathVal = ghost_trails!.path;
+			console.log(rampVal +" "+ pathVal);
+			/*if(pArea === 0){ //GID_RUNAREA_C1
 				rampVal = Math.floor(Math.random() * 4);
 				pathVal = Math.floor(Math.random() * 10);
 			}
@@ -2565,8 +2566,8 @@ export default class GameModule extends Module {
 			let msg = {
 				carId: pCarId,
 				area: pArea,
-				ramp: ghost_trails!.ramp,
-				path: ghost_trails!.path,
+				ramp: rampVal,
+				path: pathVal,
 				playedAt: ghost_trails!.playedAt,
 				trail: new Uint8Array(ghost_trails!.trail)
 			};
