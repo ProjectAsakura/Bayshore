@@ -200,7 +200,6 @@ export default class GameModule extends Module {
 				case wm.wm.protobuf.GameMode.MODE_GHOST_BATTLE:
 					{
 						if (!(body.retired)) {
-							ghostModePlay = true;
 							let saveEx: any = {};
 							if (body.rgResult?.rgRegionMapScore !== null && body.rgResult?.rgRegionMapScore !== undefined) {
 									saveEx.rgRegionMapScore = body.rgResult?.rgRegionMapScore!;
@@ -305,6 +304,7 @@ export default class GameModule extends Module {
 								case wm.wm.protobuf.GhostSelectionMethod.GHOST_SELECT_CROWN_MATCH:
 								{
 									if (body.rgResult?.acquireCrown !== false && body.rgResult?.acquireCrown !== null && body.rgResult?.acquireCrown !== undefined) {
+										ghostModePlay = true;
 										let saveExCrown: any = {};
 										saveExCrown.carId = body.carId;
 										if(body.rgResult?.path !== null && body.rgResult?.path !== undefined){
@@ -374,13 +374,11 @@ export default class GameModule extends Module {
 										if(body?.playedAt !== null || body?.playedAt !== undefined){
 											saveExCrown.playedAt = body?.playedAt!;
 										}
-										saveExCrown.trail = Number(1); //wtf is this lmao
 										saveExCrown.tunePower = body.car!.tunePower!;
 										saveExCrown.tuneHandling = body.car!.tuneHandling!;
 		
 										let carCrowns = await prisma.carCrown.count({
 											where: {
-												carId: body.carId,
 												area: saveExCrown.area
 											}
 										});
@@ -712,7 +710,7 @@ export default class GameModule extends Module {
 
 		app.post('/method/register_ghost_trail', async (req, res) => {
 			let body = wm.wm.protobuf.RegisterGhostTrailRequest.decode(req.body);
-			//-----------------SAVING STILL NOT WORKING-----------------
+			//-----------------ONLY CROWN BATTLE FOR NOW-----------------
 			let crownBattles: boolean = false;
 			if(body.trendBinaryByArea?.data === null && body.trendBinaryByArea?.data === undefined){
 				crownBattles = true;
@@ -746,15 +744,19 @@ export default class GameModule extends Module {
 			if(body.ghost?.car.lastPlayedAt !== null && body.ghost?.car.lastPlayedAt !== undefined){
 				saveEx.playedAt = body.ghost?.car.lastPlayedAt!;
 			}
-			if(body.ghost?.car.tunePower !== null && body.ghost?.car.tunePower !== undefined){
-				saveEx.tunePower = body.ghost?.car.tunePower!;
-			}
-			if(body.ghost?.car.tuneHandling !== null && body.ghost?.car.tuneHandling !== undefined){
-				saveEx.tuneHandling = body.ghost?.car.tuneHandling!;
-			}
 
 			await prisma.ghostTrail.create({
 				data: saveEx
+			});
+
+			await prisma.carCrown.update({
+				where: {
+					area: saveEx.area
+				},
+				data: {
+					ramp: saveEx.ramp,
+					path: saveEx.path
+				}
 			});
 			//----------------------------------------------------------
 			
@@ -2491,9 +2493,9 @@ export default class GameModule extends Module {
 				}
 			});
 			//---------------MAYBE NOT CORRECT---------------
-			let rampVal = 0;
-			let pathVal = 0;
-			if(pArea === 0){ //GID_RUNAREA_C1
+			let rampVal = ghost_trails!.ramp;
+			let pathVal = ghost_trails!.path;
+			/*if(pArea === 0){ //GID_RUNAREA_C1
 				rampVal = Math.floor(Math.random() * 4);
 				pathVal = Math.floor(Math.random() * 10);
 			}
@@ -2557,7 +2559,7 @@ export default class GameModule extends Module {
 			else if(pArea === 18){ //GID_RUNAREA_HIROSHIMA
 				rampVal = Math.floor(Math.random() * 2) + 37;
 				pathVal = Math.floor(Math.random() * 2) + 56;
-			}
+			}*/
 			//let trails = new Uint8Array([1, 2, 3, 4]); //wtf is this lmao
 
 			let msg = {

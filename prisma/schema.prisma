@@ -209,7 +209,6 @@ model CarCrown {
   area         Int       @unique
   ramp         Int
   path         Int
-  trail        BigInt  
   playedAt     Int       @default(0)
   tunePower    Int
   tuneHandling Int
@@ -226,8 +225,6 @@ model GhostTrail {
   time              Int?
   driveData         Bytes?     @db.ByteA
   trendBinaryByArea Bytes?     @db.ByteA
-  tunePower         Int
-  tuneHandling      Int
   playedAt          Int
   crownBattle       Boolean
 }
