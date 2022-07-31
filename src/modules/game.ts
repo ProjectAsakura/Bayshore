@@ -2604,7 +2604,7 @@ export default class GameModule extends Module {
 					area: pArea,
 					ramp: rampVal,
 					path: pathVal,
-					playedAt: ghost_trails!.playedAt,
+					playedAt: 0,
 					trail: trails
 				};
 			}
