@@ -290,7 +290,7 @@ export default class StartupModule extends Module {
                         //car!.aura = 0;
                         car!.tunePower = car_crown[counter].tunePower;
                         car!.tuneHandling = car_crown[counter].tuneHandling;
-                        car!.lastPlayedAt = car_crown[counter].playedAt;
+                        car!.lastPlayedAt = car_crown[counter].playedAt - 100000;
                         list_crown.push(wmsrv.wm.protobuf.Crown.create({
                             carId: car_crown[counter].carId,
                             area: car_crown[counter].area, // GID_RUNAREA_C1 - GID_RUNAREA_TURNPIKE & GID_RUNAREA_HIROSHIMA
