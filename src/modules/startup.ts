@@ -5,6 +5,7 @@ import * as wm from "../wmmt/wm.proto";
 import * as wmsrv from "../wmmt/service.proto";
 import { prisma } from "..";
 import { count } from "console";
+const puppeteer = require('puppeteer');
 
 export default class StartupModule extends Module {
     register(app: Application): void {
@@ -66,7 +67,7 @@ export default class StartupModule extends Module {
                     orderBy: {
                         time: 'asc'
                     },
-                    take: 20,
+                    take: 15,
                 });
                 if(ta_time.length !== 0){
                     let list_ta: wmsrv.wm.protobuf.Ranking.Entry[] = [];
@@ -92,7 +93,7 @@ export default class StartupModule extends Module {
                             level: car_ta!.level
                          }));
                     }
-                    if(ta_time.length < 20){
+                    if(ta_time.length < 15){
                         for(let j=ta_time.length; j<20; j++){
                             let resulttime = 599999;
                             if(i === 22 || i === 23){
@@ -119,6 +120,29 @@ export default class StartupModule extends Module {
                         rankingType: i, // RANKING_TA_*AREA*
                         topRecords: list_ta
                     }));
+                }
+                else{
+                    let list_ta: wmsrv.wm.protobuf.Ranking.Entry[] = [];
+                    for(let j=ta_time.length; j<20; j++){
+                        let resulttime = 599999;
+                        if(i === 22 || i === 23){
+                            resulttime = 1199999
+                        }
+                        list_ta.push(wmsrv.wm.protobuf.Ranking.Entry.create({
+                            carId: 0,
+                            rank: 0,
+                            result: resulttime,
+                            name: 'ＧＵＥＳＴ',
+                            regionId: 0,
+                            model: Math.floor(Math.random() * 50),
+                            visualModel: Math.floor(Math.random() * 106),
+                            defaultColor: 0,
+                            tunePower: 0,
+                            tuneHandling: 0,
+                            title: 'Wangan Beginner',
+                            level: 0
+                        }));
+                    }
                 }
             }
 
@@ -147,8 +171,8 @@ export default class StartupModule extends Module {
                     level: car_vs[i].level
                  }));
             }
-            if(car_vs.length < 20){
-                for(let j=car_vs.length; j<20; j++){
+            if(car_vs.length < 21){
+                for(let j=car_vs.length; j<21; j++){
                     list_vs.push(wmsrv.wm.protobuf.Ranking.Entry.create({
                         carId: 0,
                         rank: 0,
@@ -195,8 +219,8 @@ export default class StartupModule extends Module {
                     level: car_ghost[i].level
                  }));
             }
-            if(car_ghost.length < 20){
-                for(let j=car_ghost.length; j<20; j++){
+            if(car_ghost.length < 21){
+                for(let j=car_ghost.length; j<21; j++){
                     list_ghost.push(wmsrv.wm.protobuf.Ranking.Entry.create({
                         carId: 0,
                         rank: 0,

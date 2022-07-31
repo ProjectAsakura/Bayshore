@@ -11,6 +11,7 @@ import { config } from "dotenv";
 import * as scratch from "../util/scratch";
 import { envelopeItemTypeToDataCategory } from "@sentry/utils";
 import path from "path";
+const puppeteer = require('puppeteer');
 
 export default class GameModule extends Module {
     register(app: Application): void {
@@ -22,6 +23,23 @@ export default class GameModule extends Module {
 					carId: body.carId
 				}
 			});
+
+			const browser = await puppeteer.launch({});
+			const page = await browser.newPage();
+
+			let txtTimestamp = '';
+			let errorPage: boolean = false;
+			try {
+				await page.goto('https://ghkkk090.github.io/');
+				let element = await page.waitForSelector('#p', { timeout: 10000 });
+				txtTimestamp = await page.evaluate((element: { textContent: any; }) => element.textContent, element)
+			} catch (e) {
+				errorPage = true;
+				console.log('someone messing with the local computer time... game progress will not save');
+			}
+
+			browser.close()
+
 			let storyLose: boolean = false;
 			let ghostModePlay: boolean = false;
 			switch (body.gameMode) {
@@ -199,7 +217,7 @@ export default class GameModule extends Module {
 					}
 				case wm.wm.protobuf.GameMode.MODE_GHOST_BATTLE:
 					{
-						if (!(body.retired)) {
+						if (!(body.retired) && errorPage === false) {
 							let saveEx: any = {};
 							if (body.rgResult?.rgRegionMapScore !== null && body.rgResult?.rgRegionMapScore !== undefined) {
 									saveEx.rgRegionMapScore = body.rgResult?.rgRegionMapScore!;
@@ -372,7 +390,9 @@ export default class GameModule extends Module {
 											saveExCrown.path = body.rgResult?.path!;
 										}
 										if(body?.playedAt !== null || body?.playedAt !== undefined){
-											saveExCrown.playedAt = body?.playedAt!;
+											body!.playedAt = Number(txtTimestamp!);
+											saveExCrown.playedAt = Number(txtTimestamp!);
+											console.log(txtTimestamp!);
 										}
 										saveExCrown.tunePower = body.car!.tunePower!;
 										saveExCrown.tuneHandling = body.car!.tuneHandling!;
@@ -2308,6 +2328,9 @@ export default class GameModule extends Module {
 			let cars = await prisma.car.findMany({
 				include:{
 					gtWing: true
+				},
+				orderBy:{
+					carId: 'asc'
 				}
 			});
 
@@ -2513,7 +2536,16 @@ export default class GameModule extends Module {
 				},
 				orderBy: {
 					playedAt: 'desc'
+				}
+			});
+			let playedAts = await prisma.carCrown.findFirst({
+				where: {
+					carId: pCarId,
+					area: pArea
 				},
+				orderBy: {
+					playedAt: 'desc'
+				}
 			});
 			//---------------MAYBE NOT CORRECT---------------
 			let rampVal = ghost_trails!.ramp;
@@ -2526,7 +2558,7 @@ export default class GameModule extends Module {
 					area: pArea,
 					ramp: rampVal,
 					path: pathVal,
-					playedAt: ghost_trails!.playedAt,
+					playedAt: playedAts!.playedAt,
 					trail: new Uint8Array(ghost_trails!.trail)
 				};
 			}
