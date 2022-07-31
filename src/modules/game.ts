@@ -758,18 +758,16 @@ export default class GameModule extends Module {
 
 			if(gCount){
 				let gdbId = gCount.dbId;
-				await prisma.ghostTrail.update({
+				await prisma.ghostTrail.delete({
 					where: {
 						dbId: gdbId
-					},
-					data: saveEx
+					}
 				});
 			}
-			else{
-				await prisma.ghostTrail.create({
-					data: saveEx
-				});
-			}
+			
+			await prisma.ghostTrail.create({
+				data: saveEx
+			});
 
 			await prisma.carCrown.update({
 				where: {
