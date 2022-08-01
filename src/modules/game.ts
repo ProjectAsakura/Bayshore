@@ -2506,7 +2506,7 @@ export default class GameModule extends Module {
 						playedAt: 'desc'
 					}
 				});
-
+				car[i].regionId = 1;
 				if(!(ghost_trails)){
 					lists_ghostcar.push(wm.wm.protobuf.GhostCar.create({
 						car: car[i]
