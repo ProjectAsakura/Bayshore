@@ -1382,7 +1382,10 @@ export default class GameModule extends Module {
 					name: {
 						startsWith: String(query.name)
 					}
-				}, 
+				},
+				include:{
+					gtWing: true
+				}
 			});
 
 			let msg = {
@@ -2381,22 +2384,16 @@ export default class GameModule extends Module {
 				take: 10
 			});
 
-			/*let lists_stamptarget: wm.wm.protobuf.StampTargetCar[] = [];
-			let lengths = 0;
-			if(cars.length > 20){
-				lengths = 20;
-			}
-			else{
-				lengths = cars.length;
-			}
-			for(let i=0; i<lengths; i++){
-				lists_stamptarget.push(wm.wm.protobuf.StampTargetCar.create({
+			//let lists_stamptarget: wm.wm.protobuf.StampTargetCar[] = [];
+			for(let i=0; i<cars.length; i++){
+				cars[i].regionId = 1;
+				/*lists_stamptarget.push(wm.wm.protobuf.StampTargetCar.create({
 					car: cars[i],
 					returnCount: 1,
 					locked: false,
 					recommended: true,
-				}));
-			}*/
+				}));*/
+			}
 			//---------------MAYBE NOT CORRECT---------------
 			let msg = {
 					error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
@@ -2441,8 +2438,7 @@ export default class GameModule extends Module {
 				},
 				include:{
 					gtWing: true
-				},
-				take: 10,
+				}
 			});
             //---------------MAYBE NOT CORRECT---------------
 			let rampVal = 0;
@@ -2514,31 +2510,44 @@ export default class GameModule extends Module {
 			}
 
 			let lists_ghostcar: wm.wm.protobuf.GhostCar[] = [];
-			for(let i=0; i<car.length; i++){
-				let ghost_trails = await prisma.ghostTrail.findFirst({
-					where: {
-						carId: car[i].carId,
-						area: body.area
-					},
-					orderBy: {
-						playedAt: 'desc'
+			let arr = [];
+			let maxNumber = 0;
+			if(car.length > 10){
+				maxNumber = 10
+			}
+			else{
+				maxNumber = car.length;
+			}
+			while(arr.length < maxNumber){
+				let randomNumber: number = Math.floor(Math.random() * car.length);
+				if(arr.indexOf(randomNumber) === -1){
+					arr.push(randomNumber);
+					car[randomNumber].regionId = 1; // Hokkaido
+					let ghost_trails = await prisma.ghostTrail.findFirst({
+						where: {
+							carId: car[randomNumber].carId,
+							area: body.area
+						},
+						orderBy: {
+							playedAt: 'desc'
+						}
+					});
+					if(car[randomNumber]!.regionId === 0){
+						car[randomNumber].regionId = 1;
 					}
-				});
-				if(car[i]!.regionId === 0){
-					car[i].regionId = 1;
-				}
-				if(!(ghost_trails)){
-					lists_ghostcar.push(wm.wm.protobuf.GhostCar.create({
-						car: car[i]
-					}));
-				}
-				else{
-					lists_ghostcar.push(wm.wm.protobuf.GhostCar.create({
-						car: car[i],
-						nonhuman: false,
-						type: 1,
-						trailId: ghost_trails!.dbId!
-					}));
+					if(!(ghost_trails)){
+						lists_ghostcar.push(wm.wm.protobuf.GhostCar.create({
+							car: car[randomNumber]
+						}));
+					}
+					else{
+						lists_ghostcar.push(wm.wm.protobuf.GhostCar.create({
+							car: car[randomNumber],
+							nonhuman: false,
+							type: 1,
+							trailId: ghost_trails!.dbId!
+						}));
+					}
 				}
 			}
 
@@ -2574,23 +2583,39 @@ export default class GameModule extends Module {
 						playedAt: 'desc'
 					}
 				});
-				console.log(body.carTunings[i].carId!);
 
-				let lists_binarydriveData = wm.wm.protobuf.BinaryData.create({
-					data: ghost_trails!.driveData!,
-					mergeSerial: ghost_trails!.driveDMergeSerial!
-				});
-
-				let lists_binaryByArea = wm.wm.protobuf.BinaryData.create({
-					data: ghost_trails!.trendBinaryByArea!,
-					mergeSerial: ghost_trails!.byAreaMergeSerial!
-				});
+				let lists_binarydriveData
+				if(ghost_trails?.driveData !== null && ghost_trails?.driveData !== undefined){
+					lists_binarydriveData = wm.wm.protobuf.BinaryData.create({
+						data: ghost_trails!.driveData!,
+						mergeSerial: ghost_trails!.driveDMergeSerial!
+					});
+				}
+				else{
+					lists_binarydriveData = wm.wm.protobuf.BinaryData.create({
+						data: new Uint8Array([1, 2, 3, 4]),
+						mergeSerial: 1
+					});
+				}
+				let lists_binaryByArea
+				if(ghost_trails?.trendBinaryByArea !== null && ghost_trails?.trendBinaryByArea !== undefined){
+					lists_binaryByArea = wm.wm.protobuf.BinaryData.create({
+						data: ghost_trails!.trendBinaryByArea!,
+						mergeSerial: ghost_trails!.byAreaMergeSerial!
+					});
+				}
+				else{
+					lists_binaryByArea = wm.wm.protobuf.BinaryData.create({
+						data: new Uint8Array([1, 2, 3, 4]),
+						mergeSerial: 1
+					});
+				}
 
 				lists_ghostcar.push(wm.wm.protobuf.LoadGhostDriveDataResponse.GhostDriveData.create({
 					carId: Number(body.carTunings[i].carId!),
 					type: 1,
 					driveData: lists_binarydriveData,
-					trendBinaryByArea: lists_binaryByArea
+					trendBinaryByArea: lists_binaryByArea,
 				}));
 			}
 
