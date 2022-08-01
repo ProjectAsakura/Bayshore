@@ -754,16 +754,32 @@ export default class GameModule extends Module {
 			if(body.trail !== null && body.trail !== undefined){
 				saveEx.trail = body.trail!;
 			}
-			if(crownBattles === false){
-				if(body.time !== null && body.time !== undefined){
-					saveEx.time = body.time!;
-				}
-				if(body.driveData?.data !== null && body.driveData?.data !== undefined){
-					saveEx.driveData = body.driveData?.data!;
-				}
-				if(body.trendBinaryByArea?.data !== null && body.trendBinaryByArea?.data !== undefined){
-					saveEx.trendBinaryByArea = body.trendBinaryByArea?.data!;
-				}
+			if(body.time !== null && body.time !== undefined){
+				saveEx.time = body.time!;
+			}
+			if(body.driveData?.data !== null && body.driveData?.data !== undefined){
+				saveEx.driveData = body.driveData?.data!;
+			}
+			if(body.driveData?.mergeSerial !== null && body.driveData?.mergeSerial !== undefined){
+				saveEx.driveDMergeSerial = body.driveData?.mergeSerial!;
+			}
+			if(body.trendBinaryByArea?.data !== null && body.trendBinaryByArea?.data !== undefined){
+				saveEx.trendBinaryByArea = body.trendBinaryByArea?.data!;
+			}
+			if(body.trendBinaryByArea?.mergeSerial !== null && body.trendBinaryByArea?.mergeSerial !== undefined){
+				saveEx.byAreaMergeSerial = body.trendBinaryByArea?.mergeSerial!;
+			}
+			if(body.trendBinaryByCar?.data !== null && body.trendBinaryByCar?.data !== undefined){
+				saveEx.trendBinaryByCar = body.trendBinaryByCar?.data!;
+			}
+			if(body.trendBinaryByCar?.mergeSerial !== null && body.trendBinaryByCar?.mergeSerial !== undefined){
+				saveEx.byCarMergeSerial = body.trendBinaryByCar?.mergeSerial!;
+			}
+			if(body.trendBinaryByUser?.data !== null && body.trendBinaryByUser?.data !== undefined){
+				saveEx.trendBinaryByUser = body.trendBinaryByUser?.data!;
+			}
+			if(body.trendBinaryByUser?.mergeSerial !== null && body.trendBinaryByUser?.mergeSerial !== undefined){
+				saveEx.byUserMergeSerial = body.trendBinaryByUser?.mergeSerial!;
 			}
 			if(body.ghost?.car.lastPlayedAt !== null && body.ghost?.car.lastPlayedAt !== undefined){
 				saveEx.playedAt = body.ghost?.car.lastPlayedAt!;
