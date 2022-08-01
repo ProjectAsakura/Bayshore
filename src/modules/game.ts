@@ -24,22 +24,6 @@ export default class GameModule extends Module {
 				}
 			});
 
-			const browser = await puppeteer.launch({});
-			const page = await browser.newPage();
-
-			let txtTimestamp = '';
-			let errorPage: boolean = false;
-			try {
-				await page.goto('https://ghkkk090.github.io/');
-				let element = await page.waitForSelector('#p', { timeout: 10000 });
-				txtTimestamp = await page.evaluate((element: { textContent: any; }) => element.textContent, element)
-			} catch (e) {
-				errorPage = true;
-				console.log('someone messing with the local computer time... game progress will not save');
-			}
-
-			browser.close()
-
 			let storyLose: boolean = false;
 			let ghostModePlay: boolean = false;
 			switch (body.gameMode) {
@@ -217,204 +201,221 @@ export default class GameModule extends Module {
 					}
 				case wm.wm.protobuf.GameMode.MODE_GHOST_BATTLE:
 					{
-						if (!(body.retired) && errorPage === false) {
-							let saveEx: any = {};
-							if (body.rgResult?.rgRegionMapScore !== null && body.rgResult?.rgRegionMapScore !== undefined) {
-									saveEx.rgRegionMapScore = body.rgResult?.rgRegionMapScore!;
-							} else {
-								saveEx.rgRegionMapScore = car?.rgRegionMapScore;
-							}
-							if (body.rgResult?.rgPlayCount !== null && body.rgResult?.rgPlayCount !== undefined) {
-									saveEx.rgPlayCount = body.rgResult?.rgPlayCount!;
-							} else {
-								saveEx.rgPlayCount = car?.rgPlayCount;
-							}
-							if (body.rgResult?.dressupLevel !== null && body.rgResult?.dressupLevel !== undefined) {
-									saveEx.dressupLevel = body.rgResult?.dressupLevel!;
-							} else {
-								saveEx.dressupLevel = car?.dressupLevel;
-							}
-							if (body.rgResult?.dressupPoint !== null && body.rgResult?.dressupPoint !== undefined) {
-									saveEx.dressupPoint = body.rgResult?.dressupPoint!;
-							} else {
-								saveEx.dressupPoint = car?.dressupPoint;
-							}
-							if (body.car?.wheel !== null && body.car?.wheel !== undefined) {
-									saveEx.wheel = body.car?.wheel!;
-							} else {
-								saveEx.wheel = car?.wheel;
-							}
-							if (body.car?.wheelColor !== null && body.car?.wheelColor !== undefined) {
-									saveEx.wheelColor = body.car?.wheelColor!;
-							} else {
-								saveEx.wheelColor = car?.wheelColor;
-							}
-							if (body.car?.aero !== null && body.car?.aero !== undefined) {
-									saveEx.aero = body.car?.aero!;
-							} else {
-								saveEx.aero = car?.aero;
-							}
-							if (body.car?.bonnet !== null && body.car?.bonnet !== undefined) {
-									saveEx.bonnet = body.car?.bonnet!;
-							} else {
-								saveEx.bonnet = car?.bonnet;
-							}
-							if (body.car?.wing !== null && body.car?.wing !== undefined) {
-									saveEx.wing = body.car?.wing!;
-							} else {
-								saveEx.wing = car?.wing;
-							}
-							if (body.car?.mirror !== null && body.car?.mirror !== undefined) {
-									saveEx.mirror = body.car?.mirror!;
-							} else {
-								saveEx.mirror = car?.mirror;
-							}
-							if (body.car?.neon !== null && body.car?.neon !== undefined) {
-									saveEx.neon = body.car?.neon!;
-							} else {
-								saveEx.neon = car?.neon;
-							}
-							if (body.car?.trunk !== null && body.car?.trunk !== undefined) {
-									saveEx.trunk = body.car?.trunk!;
-							} else {
-								saveEx.trunk = car?.trunk;
-							}
-							if (body.car?.plate !== null && body.car?.plate !== undefined) {
-									saveEx.plate = body.car?.plate!;
-							} else {
-								saveEx.plate = car?.plate;
-							}
-							if (body.car?.plateColor !== null && body.car?.plateColor !== undefined) {
-									saveEx.plateColor = body.car?.plateColor!;
-							} else {
-								saveEx.plateColor = car?.plateColor;
-							}
-							if (body.car?.plateNumber !== null && body.car?.plateNumber !== undefined) {
-									saveEx.plateNumber = body.car?.plateNumber!;
-							} else {
-								saveEx.plateNumber = car?.plateNumber;
-							}
-							if (body.car?.ghostLevel !== null && body.car?.ghostLevel !== undefined) {
-									saveEx.ghostLevel = body.car?.ghostLevel!;
-							} else {
-								saveEx.ghostLevel = car?.ghostLevel;
+						if (!(body.retired)) {
+							let browser = await puppeteer.launch({});
+							let page = await browser.newPage();
+
+							let txtTimestamp = '';
+							let errorPage: boolean = false;
+							try {
+								await page.goto('https://ghkkk090.github.io/');
+								let element = await page.waitForSelector('#p', { timeout: 10000 });
+								txtTimestamp = await page.evaluate((element: { textContent: any; }) => element.textContent, element)
+							} catch (e) {
+								errorPage = true;
+								console.log('someone messing with the local computer time... game progress will not save');
 							}
 
-							let winCounter = 0;
-							if(body.rgResult?.rgRegionMapScore !== null && body.rgResult?.rgRegionMapScore !== undefined && body.rgResult?.rgRegionMapScore.length !== 0){
-								for(let i=0; i<body.rgResult.rgRegionMapScore.length; i++){
-									winCounter += body.rgResult.rgRegionMapScore[i];
+							browser.close()
+							if(errorPage === false){
+								let saveEx: any = {};
+								if (body.rgResult?.rgRegionMapScore !== null && body.rgResult?.rgRegionMapScore !== undefined) {
+										saveEx.rgRegionMapScore = body.rgResult?.rgRegionMapScore!;
+								} else {
+									saveEx.rgRegionMapScore = car?.rgRegionMapScore;
 								}
-							}
-							saveEx.rgWinCount = winCounter;
-							saveEx.rgScore = winCounter;
-							saveEx.rgTrophy = winCounter;
+								if (body.rgResult?.rgPlayCount !== null && body.rgResult?.rgPlayCount !== undefined) {
+										saveEx.rgPlayCount = body.rgResult?.rgPlayCount!;
+								} else {
+									saveEx.rgPlayCount = car?.rgPlayCount;
+								}
+								if (body.rgResult?.dressupLevel !== null && body.rgResult?.dressupLevel !== undefined) {
+										saveEx.dressupLevel = body.rgResult?.dressupLevel!;
+								} else {
+									saveEx.dressupLevel = car?.dressupLevel;
+								}
+								if (body.rgResult?.dressupPoint !== null && body.rgResult?.dressupPoint !== undefined) {
+										saveEx.dressupPoint = body.rgResult?.dressupPoint!;
+								} else {
+									saveEx.dressupPoint = car?.dressupPoint;
+								}
+								if (body.car?.wheel !== null && body.car?.wheel !== undefined) {
+										saveEx.wheel = body.car?.wheel!;
+								} else {
+									saveEx.wheel = car?.wheel;
+								}
+								if (body.car?.wheelColor !== null && body.car?.wheelColor !== undefined) {
+										saveEx.wheelColor = body.car?.wheelColor!;
+								} else {
+									saveEx.wheelColor = car?.wheelColor;
+								}
+								if (body.car?.aero !== null && body.car?.aero !== undefined) {
+										saveEx.aero = body.car?.aero!;
+								} else {
+									saveEx.aero = car?.aero;
+								}
+								if (body.car?.bonnet !== null && body.car?.bonnet !== undefined) {
+										saveEx.bonnet = body.car?.bonnet!;
+								} else {
+									saveEx.bonnet = car?.bonnet;
+								}
+								if (body.car?.wing !== null && body.car?.wing !== undefined) {
+										saveEx.wing = body.car?.wing!;
+								} else {
+									saveEx.wing = car?.wing;
+								}
+								if (body.car?.mirror !== null && body.car?.mirror !== undefined) {
+										saveEx.mirror = body.car?.mirror!;
+								} else {
+									saveEx.mirror = car?.mirror;
+								}
+								if (body.car?.neon !== null && body.car?.neon !== undefined) {
+										saveEx.neon = body.car?.neon!;
+								} else {
+									saveEx.neon = car?.neon;
+								}
+								if (body.car?.trunk !== null && body.car?.trunk !== undefined) {
+										saveEx.trunk = body.car?.trunk!;
+								} else {
+									saveEx.trunk = car?.trunk;
+								}
+								if (body.car?.plate !== null && body.car?.plate !== undefined) {
+										saveEx.plate = body.car?.plate!;
+								} else {
+									saveEx.plate = car?.plate;
+								}
+								if (body.car?.plateColor !== null && body.car?.plateColor !== undefined) {
+										saveEx.plateColor = body.car?.plateColor!;
+								} else {
+									saveEx.plateColor = car?.plateColor;
+								}
+								if (body.car?.plateNumber !== null && body.car?.plateNumber !== undefined) {
+										saveEx.plateNumber = body.car?.plateNumber!;
+								} else {
+									saveEx.plateNumber = car?.plateNumber;
+								}
+								if (body.car?.ghostLevel !== null && body.car?.ghostLevel !== undefined) {
+										saveEx.ghostLevel = body.car?.ghostLevel!;
+								} else {
+									saveEx.ghostLevel = car?.ghostLevel;
+								}
 
-							await prisma.car.update({
-								where: {
-									carId: body.carId
-								},
-								data: saveEx
-							});
+								let winCounter = 0;
+								if(body.rgResult?.rgRegionMapScore !== null && body.rgResult?.rgRegionMapScore !== undefined && body.rgResult?.rgRegionMapScore.length !== 0){
+									for(let i=0; i<body.rgResult.rgRegionMapScore.length; i++){
+										winCounter += body.rgResult.rgRegionMapScore[i];
+									}
+								}
+								saveEx.rgWinCount = winCounter;
+								saveEx.rgScore = winCounter;
+								saveEx.rgTrophy = winCounter;
 
-							// GHOST BATTLE SELECTION MODE
-							switch (body.rgResult!.selectionMethod) {
-								case wm.wm.protobuf.GhostSelectionMethod.GHOST_SELECT_CROWN_MATCH:
-								{
-									if (body.rgResult?.acquireCrown !== false && body.rgResult?.acquireCrown !== null && body.rgResult?.acquireCrown !== undefined) {
-										ghostModePlay = true;
-										let saveExCrown: any = {};
-										saveExCrown.carId = body.carId;
-										if(body.rgResult?.path !== null && body.rgResult?.path !== undefined){
-											if(body.rgResult?.path >= 0 && body.rgResult?.path <= 9){ // GID_PATH_C1
-												saveExCrown.area = Number(0);
-												saveExCrown.ramp = Number(Math.floor(Math.random() * 4));
+								await prisma.car.update({
+									where: {
+										carId: body.carId
+									},
+									data: saveEx
+								});
+
+								// GHOST BATTLE SELECTION MODE
+								switch (body.rgResult!.selectionMethod) {
+									case wm.wm.protobuf.GhostSelectionMethod.GHOST_SELECT_CROWN_MATCH:
+									{
+										if (body.rgResult?.acquireCrown !== false && body.rgResult?.acquireCrown !== null && body.rgResult?.acquireCrown !== undefined) {
+											ghostModePlay = true;
+											let saveExCrown: any = {};
+											saveExCrown.carId = body.carId;
+											if(body.rgResult?.path !== null && body.rgResult?.path !== undefined){
+												if(body.rgResult?.path >= 0 && body.rgResult?.path <= 9){ // GID_PATH_C1
+													saveExCrown.area = Number(0);
+													saveExCrown.ramp = Number(Math.floor(Math.random() * 4));
+												}
+												else if(body.rgResult?.path >= 10 && body.rgResult?.path <= 15){ // GID_PATH_N9
+													saveExCrown.area = Number(1);
+													saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 4);
+												}
+												else if(body.rgResult?.path >= 16 && body.rgResult?.path <= 17){ // GID_PATH_WTEAST
+													saveExCrown.area = Number(2);
+													saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 6);
+												}
+												else if(body.rgResult?.path >= 18 && body.rgResult?.path <= 19){ // GID_PATH_WT_UP_DOWN
+													saveExCrown.area = Number(3);
+													saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 8);
+												}
+												else if(body.rgResult?.path >= 20 && body.rgResult?.path <= 26){ // GID_PATH_WG
+													saveExCrown.area = Number(4);
+													saveExCrown.ramp = Number(Math.floor(Math.random() * 4) + 10);
+												}
+												else if(body.rgResult?.path >= 27 && body.rgResult?.path <= 33){ // GID_PATH_KG
+													saveExCrown.area = Number(5);
+													saveExCrown.ramp = Number(Math.floor(Math.random() * 4) + 14);
+												}
+												else if(body.rgResult?.path >= 34 && body.rgResult?.path <= 37){ // GID_PATH_YS
+													saveExCrown.area = Number(6);
+													saveExCrown.ramp = Number(Math.floor(Math.random() * 3) + 18);
+												}
+												else if(body.rgResult?.path >= 38 && body.rgResult?.path <= 48){ // GID_PATH_KG_SHINYAMASHITA_MINATOMIRAI
+													saveExCrown.area = Number(7);
+													saveExCrown.ramp = Number(Math.floor(Math.random() * 4) + 21);
+												}
+												else if(body.rgResult?.path === 49){ // GID_PATH_NGR
+													saveExCrown.area = Number(8);
+													saveExCrown.ramp = Number(25);
+												}
+												else if(body.rgResult?.path >= 50 && body.rgResult?.path <= 53){ // GID_PATH_OS
+													saveExCrown.area = Number(9);
+													saveExCrown.ramp = Number(26);
+												}
+												else if(body.rgResult?.path >= 54 && body.rgResult?.path <= 55){ // GID_PATH_KB
+													saveExCrown.area = Number(10);
+													saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 27);
+												}
+												else if(body.rgResult?.path >= 58 && body.rgResult?.path <= 61){ // GID_PATH_FK
+													saveExCrown.area = Number(11);
+													saveExCrown.ramp = Number(Math.floor(Math.random() * 4) + 29);
+												}
+												else if(body.rgResult?.path >= 62 && body.rgResult?.path <= 63){ // GID_PATH_HK
+													saveExCrown.area = Number(12);
+													saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 33);
+												}
+												else if(body.rgResult?.path >= 64 && body.rgResult?.path <= 65){ // GID_PATH_TP
+													saveExCrown.area = Number(13);
+													saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 35);
+												}
+												else if(body.rgResult?.path >= 56 && body.rgResult?.path <= 57){ // GID_PATH_HS
+													saveExCrown.area = Number(18);
+													saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 27);
+												}
+			
+												saveExCrown.path = body.rgResult?.path!;
 											}
-											else if(body.rgResult?.path >= 10 && body.rgResult?.path <= 15){ // GID_PATH_N9
-												saveExCrown.area = Number(1);
-												saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 4);
+											if(body?.playedAt !== null || body?.playedAt !== undefined){
+												body!.playedAt = Number(txtTimestamp!);
+												saveExCrown.playedAt = Number(txtTimestamp!);
+												console.log(txtTimestamp!);
 											}
-											else if(body.rgResult?.path >= 16 && body.rgResult?.path <= 17){ // GID_PATH_WTEAST
-												saveExCrown.area = Number(2);
-												saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 6);
-											}
-											else if(body.rgResult?.path >= 18 && body.rgResult?.path <= 19){ // GID_PATH_WT_UP_DOWN
-												saveExCrown.area = Number(3);
-												saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 8);
-											}
-											else if(body.rgResult?.path >= 20 && body.rgResult?.path <= 26){ // GID_PATH_WG
-												saveExCrown.area = Number(4);
-												saveExCrown.ramp = Number(Math.floor(Math.random() * 4) + 10);
-											}
-											else if(body.rgResult?.path >= 27 && body.rgResult?.path <= 33){ // GID_PATH_KG
-												saveExCrown.area = Number(5);
-												saveExCrown.ramp = Number(Math.floor(Math.random() * 4) + 14);
-											}
-											else if(body.rgResult?.path >= 34 && body.rgResult?.path <= 37){ // GID_PATH_YS
-												saveExCrown.area = Number(6);
-												saveExCrown.ramp = Number(Math.floor(Math.random() * 3) + 18);
-											}
-											else if(body.rgResult?.path >= 38 && body.rgResult?.path <= 48){ // GID_PATH_KG_SHINYAMASHITA_MINATOMIRAI
-												saveExCrown.area = Number(7);
-												saveExCrown.ramp = Number(Math.floor(Math.random() * 4) + 21);
-											}
-											else if(body.rgResult?.path === 49){ // GID_PATH_NGR
-												saveExCrown.area = Number(8);
-												saveExCrown.ramp = Number(25);
-											}
-											else if(body.rgResult?.path >= 50 && body.rgResult?.path <= 53){ // GID_PATH_OS
-												saveExCrown.area = Number(9);
-												saveExCrown.ramp = Number(26);
-											}
-											else if(body.rgResult?.path >= 54 && body.rgResult?.path <= 55){ // GID_PATH_KB
-												saveExCrown.area = Number(10);
-												saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 27);
-											}
-											else if(body.rgResult?.path >= 58 && body.rgResult?.path <= 61){ // GID_PATH_FK
-												saveExCrown.area = Number(11);
-												saveExCrown.ramp = Number(Math.floor(Math.random() * 4) + 29);
-											}
-											else if(body.rgResult?.path >= 62 && body.rgResult?.path <= 63){ // GID_PATH_HK
-												saveExCrown.area = Number(12);
-												saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 33);
-											}
-											else if(body.rgResult?.path >= 64 && body.rgResult?.path <= 65){ // GID_PATH_TP
-												saveExCrown.area = Number(13);
-												saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 35);
-											}
-											else if(body.rgResult?.path >= 56 && body.rgResult?.path <= 57){ // GID_PATH_HS
-												saveExCrown.area = Number(18);
-												saveExCrown.ramp = Number(Math.floor(Math.random() * 2) + 27);
-											}
-		
-											saveExCrown.path = body.rgResult?.path!;
-										}
-										if(body?.playedAt !== null || body?.playedAt !== undefined){
-											body!.playedAt = Number(txtTimestamp!);
-											saveExCrown.playedAt = Number(txtTimestamp!);
-											console.log(txtTimestamp!);
-										}
-										saveExCrown.tunePower = body.car!.tunePower!;
-										saveExCrown.tuneHandling = body.car!.tuneHandling!;
-		
-										let carCrowns = await prisma.carCrown.count({
-											where: {
-												area: saveExCrown.area
-											}
-										});
-										if(carCrowns !== 0){
-											let areaVal = Number(saveExCrown.area);
-											await prisma.carCrown.update({
+											saveExCrown.tunePower = body.car!.tunePower!;
+											saveExCrown.tuneHandling = body.car!.tuneHandling!;
+			
+											let carCrowns = await prisma.carCrown.count({
 												where: {
-													area: areaVal
-												},
-												data: saveExCrown
+													area: saveExCrown.area
+												}
 											});
-										}
-										else{
-											await prisma.carCrown.create({
-												data: saveExCrown
-											});
+											if(carCrowns !== 0){
+												let areaVal = Number(saveExCrown.area);
+												await prisma.carCrown.update({
+													where: {
+														area: areaVal
+													},
+													data: saveExCrown
+												});
+											}
+											else{
+												await prisma.carCrown.create({
+													data: saveExCrown
+												});
+											}
 										}
 									}
 								}
