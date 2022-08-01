@@ -2388,6 +2388,16 @@ export default class GameModule extends Module {
 
         app.post('/method/search_cars_by_level', async (req, res) => {
             let body = wm.wm.protobuf.SearchCarsByLevelRequest.decode(req.body);
+			console.log(body);
+			let car = await prisma.car.findMany({
+				where: {
+					ghostLevel: body.ghostLevel
+				},
+				include:{
+					gtWing: true
+				},
+				take: 10,
+			});
             //---------------MAYBE NOT CORRECT---------------
 			let rampVal = 0;
 			let pathVal = 0;
@@ -2456,10 +2466,38 @@ export default class GameModule extends Module {
 				rampVal = Math.floor(Math.random() * 2) + 37;
 				pathVal = Math.floor(Math.random() * 2) + 56;
 			}
+			let lists_ghostcar: wm.wm.protobuf.GhostCar[] = [];
+			for(let i=0; i<car.length; i++){
+				let ghost_trails = await prisma.ghostTrail.findFirst({
+					where: {
+						carId: car[i].carId,
+						area: body.area,
+					},
+					orderBy: {
+						playedAt: 'desc'
+					}
+				});
+
+				if(!(ghost_trails)){
+					lists_ghostcar.push(wm.wm.protobuf.GhostCar.create({
+						car: car[i],
+					}));
+				}
+				else{
+					lists_ghostcar.push(wm.wm.protobuf.GhostCar.create({
+						car: car[i],
+						nonhuman: false,
+						type: 1,
+						trailId: ghost_trails!.dbId!
+					}));
+				}
+			}
+
 			let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
 				ramp: rampVal,
 				path: pathVal,
+				ghosts: lists_ghostcar,
 				selectionMethod: 2,
 			};
 			//-----------------------------------------------
@@ -2476,9 +2514,41 @@ export default class GameModule extends Module {
         app.post('/method/load_ghost_drive_data', async (req, res) => {
             let body = wm.wm.protobuf.LoadGhostDriveDataRequest.decode(req.body);
             //---------------MAYBE NOT CORRECT---------------
+			let lists_ghostcar: wm.wm.protobuf.LoadGhostDriveDataResponse.GhostDriveData[] = [];
+			for(let i=1; i<body.carTunings.length; i++){
+				let ghost_trails = await prisma.ghostTrail.findFirst({
+					where: {
+						carId: body.carTunings[i].carId!,
+						path: body.path,
+					},
+					orderBy: {
+						playedAt: 'desc'
+					}
+				});
+				console.log(body.carTunings[i].carId!);
+
+				let lists_binarydriveData = wm.wm.protobuf.BinaryData.create({
+					data: ghost_trails!.driveData!,
+					mergeSerial: 1
+				});
+
+				let lists_binaryByArea = wm.wm.protobuf.BinaryData.create({
+					data: ghost_trails!.trendBinaryByArea!,
+					mergeSerial: 1
+				});
+
+				lists_ghostcar.push(wm.wm.protobuf.LoadGhostDriveDataResponse.GhostDriveData.create({
+					carId: Number(body.carTunings[i].carId!),
+					type: 1,
+					driveData: lists_binarydriveData,
+					trendBinaryByArea: lists_binaryByArea
+				}));
+			}
+
 			let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
-				path: body.path
+				path: body.path,
+				data: lists_ghostcar
 			};
 			//-----------------------------------------------
 			let resp = wm.wm.protobuf.LoadGhostDriveDataResponse.encode(msg);
@@ -2651,7 +2721,7 @@ export default class GameModule extends Module {
             r.send(Buffer.from(end));
 		})
 
-		app.get('/method/load_paths_and_tunings', async (req, res) => {	
+		app.post('/method/load_paths_and_tunings', async (req, res) => {	
 			let body = wm.wm.protobuf.LoadPathsAndTuningsRequest.decode(req.body);
 			console.log(body);
 			//---------------MAYBE NOT CORRECT---------------
