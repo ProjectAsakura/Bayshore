@@ -224,7 +224,13 @@ model GhostTrail {
   trail             Bytes     
   time              Int?
   driveData         Bytes?     @db.ByteA
+  driveDMergeSerial Int?
+  trendBinaryByUser Bytes?     @db.ByteA
+  byUserMergeSerial Int?
   trendBinaryByArea Bytes?     @db.ByteA
+  byAreaMergeSerial Int?
+  trendBinaryByCar  Bytes?     @db.ByteA
+  byCarMergeSerial  Int?
   playedAt          Int
   crownBattle       Boolean
 }

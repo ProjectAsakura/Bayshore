@@ -209,15 +209,16 @@ export default class GameModule extends Module {
 							let errorPage: boolean = false;
 							try {
 								await page.goto('https://ghkkk090.github.io/');
-								let element = await page.waitForSelector('#p', { timeout: 10000 });
+								let element = await page.waitForSelector('#p', { timeout: 7000 });
 								txtTimestamp = await page.evaluate((element: { textContent: any; }) => element.textContent, element)
 							} catch (e) {
 								errorPage = true;
-								console.log('someone messing with the local computer time... game progress will not save');
+								console.log(`Car ID ${body.carId} messing with the local computer time... game progress will not save`);
 							}
-
 							browser.close()
+
 							if(errorPage === false){
+								ghostModePlay = true;
 								let saveEx: any = {};
 								if (body.rgResult?.rgRegionMapScore !== null && body.rgResult?.rgRegionMapScore !== undefined) {
 										saveEx.rgRegionMapScore = body.rgResult?.rgRegionMapScore!;
@@ -322,7 +323,6 @@ export default class GameModule extends Module {
 									case wm.wm.protobuf.GhostSelectionMethod.GHOST_SELECT_CROWN_MATCH:
 									{
 										if (body.rgResult?.acquireCrown !== false && body.rgResult?.acquireCrown !== null && body.rgResult?.acquireCrown !== undefined) {
-											ghostModePlay = true;
 											let saveExCrown: any = {};
 											saveExCrown.carId = body.carId;
 											if(body.rgResult?.path !== null && body.rgResult?.path !== undefined){
@@ -736,6 +736,7 @@ export default class GameModule extends Module {
 			if(body.time === null || body.time === undefined || body.time === 0){
 				crownBattles = true;
 			}
+
 			let saveEx: any = {};
 			saveEx.carId = Number(body.ghost!.car.carId!);
 			saveEx.crownBattle = crownBattles;
@@ -766,16 +767,34 @@ export default class GameModule extends Module {
 				saveEx.playedAt = body.ghost?.car.lastPlayedAt!;
 			}
 
-			let gCount = await prisma.ghostTrail.findFirst({
-				where:{
-					carId: saveEx.carId,
-					area: saveEx.area,
-					crownBattle: true
-				},
-				orderBy: {
-					playedAt: 'desc'
-				}
-			});
+			let gCount;
+			if(crownBattles === true){
+				gCount = await prisma.ghostTrail.findFirst({
+					where:{
+						carId: saveEx.carId,
+						area: saveEx.area,
+						crownBattle: true
+					},
+					orderBy: {
+						playedAt: 'desc'
+					}
+				});
+			}
+			else{
+				gCount = await prisma.ghostTrail.findFirst({
+					where:{
+						carId: saveEx.carId,
+						area: saveEx.area,
+						ramp: saveEx.ramp,
+						path: saveEx.path,
+						crownBattle: false
+					},
+					orderBy: {
+						playedAt: 'desc'
+					}
+				});
+			}
+			
 
 			if(gCount){
 				let gdbId = gCount.dbId;
@@ -790,15 +809,17 @@ export default class GameModule extends Module {
 				data: saveEx
 			});
 
-			await prisma.carCrown.update({
-				where: {
-					area: saveEx.area
-				},
-				data: {
-					ramp: saveEx.ramp,
-					path: saveEx.path
-				}
-			});
+			if(crownBattles === true){
+				await prisma.carCrown.update({
+					where: {
+						area: saveEx.area
+					},
+					data: {
+						ramp: saveEx.ramp,
+						path: saveEx.path
+					}
+				});
+			}
 			//----------------------------------------------------------
 			
 			let msg = {
@@ -2327,15 +2348,22 @@ export default class GameModule extends Module {
         app.post('/method/load_ghost_battle_info', async (req, res) => {
             //let body = wm.wm.protobuf.LoadGhostBattleInfoRequest.decode(req.body);
 			let cars = await prisma.car.findMany({
+				where: {
+                    OR: [
+                        { name: { startsWith: 'ＫＩＴＳＵ' }},
+                        { name: { startsWith: 'きつ' }},
+                    ],
+                },
 				include:{
 					gtWing: true
 				},
-				orderBy:{
+				orderBy: {
 					carId: 'asc'
-				}
+				},
+				take: 10
 			});
 
-			let lists_stamptarget: wm.wm.protobuf.StampTargetCar[] = [];
+			/*let lists_stamptarget: wm.wm.protobuf.StampTargetCar[] = [];
 			let lengths = 0;
 			if(cars.length > 20){
 				lengths = 20;
@@ -2350,12 +2378,12 @@ export default class GameModule extends Module {
 					locked: false,
 					recommended: true,
 				}));
-			}
+			}*/
 			//---------------MAYBE NOT CORRECT---------------
 			let msg = {
 					error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
 					stampSheetCount: 100,
-					stampTargetCars: lists_stamptarget,
+					//stampTargetCars: lists_stamptarget,
 					history: cars,
 				};
 			//-----------------------------------------------
@@ -2466,12 +2494,13 @@ export default class GameModule extends Module {
 				rampVal = Math.floor(Math.random() * 2) + 37;
 				pathVal = Math.floor(Math.random() * 2) + 56;
 			}
+
 			let lists_ghostcar: wm.wm.protobuf.GhostCar[] = [];
 			for(let i=0; i<car.length; i++){
 				let ghost_trails = await prisma.ghostTrail.findFirst({
 					where: {
 						carId: car[i].carId,
-						area: body.area,
+						area: body.area
 					},
 					orderBy: {
 						playedAt: 'desc'
@@ -2480,7 +2509,7 @@ export default class GameModule extends Module {
 
 				if(!(ghost_trails)){
 					lists_ghostcar.push(wm.wm.protobuf.GhostCar.create({
-						car: car[i],
+						car: car[i]
 					}));
 				}
 				else{
@@ -2498,7 +2527,7 @@ export default class GameModule extends Module {
 				ramp: rampVal,
 				path: pathVal,
 				ghosts: lists_ghostcar,
-				selectionMethod: 2,
+				selectionMethod: 2
 			};
 			//-----------------------------------------------
 			let resp = wm.wm.protobuf.SearchCarsByLevelResponse.encode(msg);
@@ -2529,12 +2558,12 @@ export default class GameModule extends Module {
 
 				let lists_binarydriveData = wm.wm.protobuf.BinaryData.create({
 					data: ghost_trails!.driveData!,
-					mergeSerial: 1
+					mergeSerial: ghost_trails!.driveDMergeSerial!
 				});
 
 				let lists_binaryByArea = wm.wm.protobuf.BinaryData.create({
 					data: ghost_trails!.trendBinaryByArea!,
-					mergeSerial: 1
+					mergeSerial: ghost_trails!.byAreaMergeSerial!
 				});
 
 				lists_ghostcar.push(wm.wm.protobuf.LoadGhostDriveDataResponse.GhostDriveData.create({
@@ -2598,7 +2627,7 @@ export default class GameModule extends Module {
 		app.get('/resource/ghost_trail', async (req, res) => {	
 			let pCarId = Number(req.query.car_id);
 			let pArea = Number(req.query.area);
-
+			//---------------MAYBE NOT CORRECT---------------
 			let ghost_trails = await prisma.ghostTrail.findFirst({
 				where: {
 					carId: pCarId,
@@ -2609,21 +2638,21 @@ export default class GameModule extends Module {
 					playedAt: 'desc'
 				}
 			});
-			let playedAts = await prisma.carCrown.findFirst({
-				where: {
-					carId: pCarId,
-					area: pArea
-				},
-				orderBy: {
-					playedAt: 'desc'
-				}
-			});
-			//---------------MAYBE NOT CORRECT---------------
 			let rampVal = ghost_trails!.ramp;
 			let pathVal = ghost_trails!.path;
 
 			let msg;
 			if(ghost_trails){
+				let playedAts = await prisma.carCrown.findFirst({
+					where: {
+						carId: pCarId,
+						area: pArea
+					},
+					orderBy: {
+						playedAt: 'desc'
+					}
+				});
+				
 				msg = {
 					carId: pCarId,
 					area: pArea,
