@@ -11,7 +11,6 @@ import { config } from "dotenv";
 import * as scratch from "../util/scratch";
 import { envelopeItemTypeToDataCategory } from "@sentry/utils";
 import path from "path";
-const puppeteer = require('puppeteer');
 
 export default class GameModule extends Module {
     register(app: Application): void {
@@ -202,24 +201,6 @@ export default class GameModule extends Module {
 				case wm.wm.protobuf.GameMode.MODE_GHOST_BATTLE:
 					{
 						if (!(body.retired)) {
-							let browser = await puppeteer.launch({});
-							let page = await browser.newPage();
-
-							let txtTimestamp = '';
-							let errorPage: boolean = false;
-							if(body.rgResult?.acquireCrown !== false && body.rgResult?.acquireCrown !== null && body.rgResult?.acquireCrown !== undefined){
-								try {
-									await page.goto('https://ghkkk090.github.io/');
-									let element = await page.waitForSelector('#p', { timeout: 7000 });
-									txtTimestamp = await page.evaluate((element: { textContent: any; }) => element.textContent, element)
-								} catch (e) {
-									errorPage = true;
-									console.log(`Car ID ${body.carId} messing with the local computer time... crown game will not save`);
-								}
-							}
-							browser.close()
-
-							if(errorPage === false){
 								ghostModePlay = true;
 								let saveEx: any = {};
 								if (body.rgResult?.rgRegionMapScore !== null && body.rgResult?.rgRegionMapScore !== undefined) {
@@ -392,9 +373,7 @@ export default class GameModule extends Module {
 												saveExCrown.path = body.rgResult?.path!;
 											}
 											if(body?.playedAt !== null || body?.playedAt !== undefined){
-												body!.playedAt = Number(txtTimestamp!);
-												saveExCrown.playedAt = Number(txtTimestamp!);
-												console.log(txtTimestamp!);
+												body!.playedAt = body?.playedAt!;
 											}
 											saveExCrown.tunePower = body.car!.tunePower!;
 											saveExCrown.tuneHandling = body.car!.tuneHandling!;
@@ -421,7 +400,6 @@ export default class GameModule extends Module {
 										}
 									}
 								}
-							}
 						}
 						break;
 					}
