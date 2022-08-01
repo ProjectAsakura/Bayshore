@@ -207,13 +207,15 @@ export default class GameModule extends Module {
 
 							let txtTimestamp = '';
 							let errorPage: boolean = false;
-							try {
-								await page.goto('https://ghkkk090.github.io/');
-								let element = await page.waitForSelector('#p', { timeout: 7000 });
-								txtTimestamp = await page.evaluate((element: { textContent: any; }) => element.textContent, element)
-							} catch (e) {
-								errorPage = true;
-								console.log(`Car ID ${body.carId} messing with the local computer time... game progress will not save`);
+							if(body.rgResult?.acquireCrown !== false && body.rgResult?.acquireCrown !== null && body.rgResult?.acquireCrown !== undefined){
+								try {
+									await page.goto('https://ghkkk090.github.io/');
+									let element = await page.waitForSelector('#p', { timeout: 7000 });
+									txtTimestamp = await page.evaluate((element: { textContent: any; }) => element.textContent, element)
+								} catch (e) {
+									errorPage = true;
+									console.log(`Car ID ${body.carId} messing with the local computer time... crown game will not save`);
+								}
 							}
 							browser.close()
 
