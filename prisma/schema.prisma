@@ -215,8 +215,8 @@ model CarCrown {
 }
 
 model GhostTrail {
-  dbId              Int       @id @default(autoincrement())
-  car               Car       @relation(fields: [carId], references: [carId])
+  dbId              Int        @id @default(autoincrement())
+  car               Car        @relation(fields: [carId], references: [carId])
   carId             Int
   area              Int
   ramp              Int
@@ -224,7 +224,15 @@ model GhostTrail {
   trail             Bytes     
   time              Int?
   driveData         Bytes?     @db.ByteA
+  driveDMergeSerial Int?
+  trendBinaryByUser Bytes?     @db.ByteA
+  byUserMergeSerial Int?
   trendBinaryByArea Bytes?     @db.ByteA
-  playedAt          Int
-  crownBattle       Boolean
+  byAreaMergeSerial Int?
+  trendBinaryByCar  Bytes?     @db.ByteA
+  byCarMergeSerial  Int?
+  playedAt          Int        @default(0)
+  tunePower         Int        @default(0)
+  tuneHandling      Int        @default(0)
+  crownBattle       Boolean    @default(false)
 }
