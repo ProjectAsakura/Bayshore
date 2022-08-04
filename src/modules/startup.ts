@@ -300,7 +300,6 @@ export default class StartupModule extends Module {
                         if(car!.regionId === 0){
                             car!.regionId = 1; // Hokkaido
                         }
-                        car!.aura = 0;
                         car!.tunePower = car_crown[counter].tunePower;
                         car!.tuneHandling = car_crown[counter].tuneHandling;
                         car!.lastPlayedAt = 1659286800;
