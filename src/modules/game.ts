@@ -399,6 +399,92 @@ export default class GameModule extends Module {
 								}
 							}
 						}
+
+						let saveExGhostHistory: any = {};
+						if (body.car?.carId !== null && body.car?.carId !== undefined) {
+							saveExGhostHistory.carId = body.car?.carId!;
+						}
+						if (body.car?.tunePower !== null && body.car?.tunePower !== undefined) {
+							saveExGhostHistory.tunePower = body.car?.tunePower!;
+						}
+						if (body.car?.tuneHandling !== null && body.car?.tuneHandling !== undefined) {
+							saveExGhostHistory.tuneHandling = body.car?.tuneHandling!;
+						}
+						for(let i=0; i<body.rgResult!.opponents!.length; i++){
+							if(i == 0){
+								saveExGhostHistory.opponent1CarId = body.rgResult!.opponents![0].carId;
+								saveExGhostHistory.opponent1TunePower = body.rgResult!.opponents![0].tunePower;
+								saveExGhostHistory.opponent1TuneHandling = body.rgResult!.opponents![0].tuneHandling;
+								saveExGhostHistory.opponent1Result = body.rgResult!.opponents![0].result;
+							}
+							else if(i == 1){
+								saveExGhostHistory.opponent2CarId = body.rgResult!.opponents![1].carId;
+								saveExGhostHistory.opponent2TunePower = body.rgResult!.opponents![1].tunePower;
+								saveExGhostHistory.opponent2TuneHandling = body.rgResult!.opponents![1].tuneHandling;
+								saveExGhostHistory.opponent2Result = body.rgResult!.opponents![1].result;
+							}
+							else if(i == 2){
+								saveExGhostHistory.opponent3CarId = body.rgResult!.opponents![2].carId;
+								saveExGhostHistory.opponent3TunePower = body.rgResult!.opponents![2].tunePower;
+								saveExGhostHistory.opponent3TuneHandling = body.rgResult!.opponents![2].tuneHandling;
+								saveExGhostHistory.opponent3Result = body.rgResult!.opponents![2].result;
+							}
+						}
+						if (body.playedAt !== null && body.playedAt !== undefined) {
+							saveExGhostHistory.playedAt = body.playedAt!;
+						}
+						if(body.rgResult?.path !== null && body.rgResult?.path !== undefined){
+							if(body.rgResult?.path >= 0 && body.rgResult?.path <= 9){ // GID_PATH_C1
+								saveExGhostHistory.area = Number(0);
+							}
+							else if(body.rgResult?.path >= 10 && body.rgResult?.path <= 15){ // GID_PATH_N9
+								saveExGhostHistory.area = Number(1);
+							}
+							else if(body.rgResult?.path >= 16 && body.rgResult?.path <= 17){ // GID_PATH_WTEAST
+								saveExGhostHistory.area = Number(2);
+							}
+							else if(body.rgResult?.path >= 18 && body.rgResult?.path <= 19){ // GID_PATH_WT_UP_DOWN
+								saveExGhostHistory.area = Number(3);
+							}
+							else if(body.rgResult?.path >= 20 && body.rgResult?.path <= 26){ // GID_PATH_WG
+								saveExGhostHistory.area = Number(4);
+							}
+							else if(body.rgResult?.path >= 27 && body.rgResult?.path <= 33){ // GID_PATH_KG
+								saveExGhostHistory.area = Number(5);
+							}
+							else if(body.rgResult?.path >= 34 && body.rgResult?.path <= 37){ // GID_PATH_YS
+								saveExGhostHistory.area = Number(6);
+							}
+							else if(body.rgResult?.path >= 38 && body.rgResult?.path <= 48){ // GID_PATH_KG_SHINYAMASHITA_MINATOMIRAI
+								saveExGhostHistory.area = Number(7);
+							}
+							else if(body.rgResult?.path === 49){ // GID_PATH_NGR
+								saveExGhostHistory.area = Number(8);
+							}
+							else if(body.rgResult?.path >= 50 && body.rgResult?.path <= 53){ // GID_PATH_OS
+								saveExGhostHistory.area = Number(9);
+							}
+							else if(body.rgResult?.path >= 54 && body.rgResult?.path <= 55){ // GID_PATH_KB
+								saveExGhostHistory.area = Number(10);
+							}
+							else if(body.rgResult?.path >= 58 && body.rgResult?.path <= 61){ // GID_PATH_FK
+								saveExGhostHistory.area = Number(11);
+							}
+							else if(body.rgResult?.path >= 62 && body.rgResult?.path <= 63){ // GID_PATH_HK
+								saveExGhostHistory.area = Number(12);
+							}
+							else if(body.rgResult?.path >= 64 && body.rgResult?.path <= 65){ // GID_PATH_TP
+								saveExGhostHistory.area = Number(13);
+							}
+							else if(body.rgResult?.path >= 56 && body.rgResult?.path <= 57){ // GID_PATH_HS
+								saveExGhostHistory.area = Number(18);
+							}
+						}
+						saveExGhostHistory.playedShopName = 'Bayshore';
+
+						await prisma.ghostBattleRecord.create({
+							data: saveExGhostHistory
+						});
 					}
 					break;
 				}
@@ -2323,12 +2409,109 @@ export default class GameModule extends Module {
 				}));
 			}
 
+			let ghostHistoryData = await prisma.ghostBattleRecord.findMany({
+				where: {
+					carId: body.carId
+				}, 
+				orderBy: {
+					playedAt: 'asc'
+				},
+				take: 3
+			});
+
+			let list_ghostHistoryData: wm.wm.protobuf.LoadGameHistoryResponse.GhostBattleRecord[] = [];
+			for(let i=0; i<ghostHistoryData.length; i++){
+				// Our car setting
+				let carSetings = wm.wm.protobuf.LoadGameHistoryResponse.GhostBattleRecord.GhostCarSetting.create({
+					tunePower: ghostHistoryData![i].tunePower,
+					tuneHandling: ghostHistoryData![i].tuneHandling,
+				});
+
+				// ---Opponent 1---
+				let ghostOpponentCar = await prisma.car.findFirst({
+					where: {
+						carId: ghostHistoryData![i].opponent1CarId!
+					}
+				});
+				if(!(ghostOpponentCar)){
+					ghostOpponentCar = await prisma.car.findFirst({});
+					ghostOpponentCar!.name = 'ＧＵＥＳＴ';
+					ghostOpponentCar!.visualModel = 29;
+				}
+				ghostOpponentCar!.regionId = 1;
+				ghostOpponentCar!.tunePower = ghostHistoryData![i].opponent1TunePower!;
+				ghostOpponentCar!.tuneHandling = ghostHistoryData![i].opponent1TuneHandling!;
+				let ghostOpponent = wm.wm.protobuf.LoadGameHistoryResponse.GhostBattleRecord.GhostBattleRecordCar.create({
+					car: {
+						...ghostOpponentCar!
+					},
+					result: ghostHistoryData![i].opponent1Result!
+				});
+				// ----------------------
+
+				// ---Opponent 2 & 3---
+				let ghostMob: wm.wm.protobuf.LoadGameHistoryResponse.GhostBattleRecord.GhostBattleRecordCar[] = [];
+				if(ghostHistoryData[i]?.opponent2CarId !== null || ghostHistoryData[i]?.opponent2CarId !== undefined){
+					let ghostOpponentCar2 = await prisma.car.findFirst({
+						where: {
+							carId: ghostHistoryData![i].opponent2CarId!
+						}
+					});
+					if(!(ghostOpponentCar2)){
+						ghostOpponentCar2 = await prisma.car.findFirst({});
+						ghostOpponentCar2!.name = 'ＧＵＥＳＴ';
+						ghostOpponentCar2!.visualModel = 29;
+					}
+					ghostOpponentCar2!.regionId = 1;
+					ghostOpponentCar2!.tunePower = ghostHistoryData![i].opponent2TunePower!;
+					ghostOpponentCar2!.tuneHandling = ghostHistoryData![i].opponent2TuneHandling!;
+					ghostMob.push(wm.wm.protobuf.LoadGameHistoryResponse.GhostBattleRecord.GhostBattleRecordCar.create({
+						car: {
+							...ghostOpponentCar2!
+						},
+						result: ghostHistoryData![i].opponent2Result!
+					}));
+				}
+				if(ghostHistoryData[i]?.opponent3CarId !== null || ghostHistoryData[i]?.opponent3CarId !== undefined){
+					let ghostOpponentCar3 = await prisma.car.findFirst({
+						where: {
+							carId: ghostHistoryData![i].opponent3CarId!
+						}
+					});
+					if(!(ghostOpponentCar3)){
+						ghostOpponentCar3 = await prisma.car.findFirst({});
+						ghostOpponentCar3!.name = 'ＧＵＥＳＴ';
+						ghostOpponentCar3!.visualModel = 29;
+					}
+					ghostOpponentCar3!.regionId = 1;
+					ghostOpponentCar3!.tunePower = ghostHistoryData![i].opponent3TunePower!;
+					ghostOpponentCar3!.tuneHandling = ghostHistoryData![i].opponent3TuneHandling!;
+					ghostMob.push(wm.wm.protobuf.LoadGameHistoryResponse.GhostBattleRecord.GhostBattleRecordCar.create({
+						car: {
+							...ghostOpponentCar3!
+						},
+						result: ghostHistoryData![i].opponent3Result!
+					}));
+				}
+
+				
+				list_ghostHistoryData.push(wm.wm.protobuf.LoadGameHistoryResponse.GhostBattleRecord.create({
+					carSetting: carSetings,
+					opponent: ghostOpponent,
+					mobs: ghostMob,
+					area: ghostHistoryData![i].area,
+					playedAt: ghostHistoryData![i].playedAt,
+					playedShopName: ghostHistoryData![i].playedShopName
+				}));
+			}
+			// ----------------------
 			let msg = {
                 error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
 				taRecords: ta_records,
 				taRankingUpdatedAt: 1,
-				ghostBattleCount: 0,
-				ghostBattleWinCount: 0,
+				ghostHistory: list_ghostHistoryData,
+				ghostBattleCount: car!.rgPlayCount,
+				ghostBattleWinCount: car!.rgWinCount,
 				stampSheetCount: 0,
             }
 

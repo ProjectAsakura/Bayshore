@@ -132,6 +132,7 @@ model Car {
   TimeAttackRecord       TimeAttackRecord[]
   CarCrown               CarCrown[]
   GhostTrail             GhostTrail[]
+  GhostBattleRecord      GhostBattleRecord[]
 }
 
 model CarGTWing {
@@ -235,4 +236,27 @@ model GhostTrail {
   tunePower         Int        @default(0)
   tuneHandling      Int        @default(0)
   crownBattle       Boolean    @default(false)
+}
+
+model GhostBattleRecord {
+  dbId                    Int        @id @default(autoincrement())
+  car                     Car        @relation(fields: [carId], references: [carId])
+  carId                   Int
+  tunePower               Int        @default(0)
+  tuneHandling            Int        @default(0)
+  opponent1CarId          Int
+  opponent1Result         Int
+  opponent1TunePower      Int
+  opponent1TuneHandling   Int
+  opponent2CarId          Int?
+  opponent2Result         Int?
+  opponent2TunePower      Int?
+  opponent2TuneHandling   Int?
+  opponent3CarId          Int?
+  opponent3Result         Int?
+  opponent3TunePower      Int?
+  opponent3TuneHandling   Int?
+  area                    Int        @default(0)
+  playedAt                Int        @default(0)
+  playedShopName          String     @default("Bayshore")
 }
