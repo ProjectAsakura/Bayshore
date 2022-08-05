@@ -856,7 +856,7 @@ export default class GameModule extends Module {
 			}
 
 			let gCount;
-			if(crownBattles === true){
+			if(crownBattles === true){ // Crown Ghost Battle
 				gCount = await prisma.ghostTrail.findFirst({
 					where:{
 						carId: saveEx.carId,
@@ -868,7 +868,7 @@ export default class GameModule extends Module {
 					}
 				});
 			}
-			else{
+			else{ // Normal Ghost Battle
 				gCount = await prisma.ghostTrail.findFirst({
 					where:{
 						carId: saveEx.carId,
@@ -883,18 +883,20 @@ export default class GameModule extends Module {
 				});
 			}
 
-			if(gCount){
+			if(gCount){ // Record exist, update it
 				let gdbId = gCount.dbId;
-				await prisma.ghostTrail.delete({
+				await prisma.ghostTrail.update({
 					where: {
 						dbId: gdbId
-					}
+					},
+					data: saveEx
 				});
 			}
-			await prisma.ghostTrail.create({
-				data: saveEx
-			});
-
+			else{ // Record does not exist, create new
+				await prisma.ghostTrail.create({
+					data: saveEx
+				});
+			}
 
 			let cPaT_count = await prisma.carPathandTuning.findFirst({
 				where:{
@@ -906,27 +908,38 @@ export default class GameModule extends Module {
 				}
 			});
 			
-			if(cPaT_count){
+			if(cPaT_count){ // Record exist, update it
 				let cPaTdbId = cPaT_count.dbId;
-				await prisma.ghostTrail.delete({
+				await prisma.carPathandTuning.update({
 					where: {
 						dbId: cPaTdbId
+					},
+					data:{
+						carId: saveEx.carId,
+						area: saveEx.area,
+						ramp: saveEx.ramp,
+						path: saveEx.path,
+						tunePower: saveEx.tunePower,
+						tuneHandling: saveEx.tuneHandling,
+						lastPlayedAt: saveEx.playedAt
 					}
 				});
 			}
-			await prisma.carPathandTuning.create({
-				data: {
-					carId: saveEx.carId,
-					area: saveEx.area,
-					ramp: saveEx.ramp,
-					path: saveEx.path,
-					tunePower: saveEx.tunePower,
-					tuneHandling: saveEx.tuneHandling,
-					lastPlayedAt: saveEx.playedAt
-				}
-			});
+			else{ // Record does not exist, create new
+				await prisma.carPathandTuning.create({
+					data: {
+						carId: saveEx.carId,
+						area: saveEx.area,
+						ramp: saveEx.ramp,
+						path: saveEx.path,
+						tunePower: saveEx.tunePower,
+						tuneHandling: saveEx.tuneHandling,
+						lastPlayedAt: saveEx.playedAt
+					}
+				});
+			}
 
-			if(crownBattles === true){
+			if(crownBattles === true){ // Update randomized ramp and path to the correct one
 				await prisma.carCrown.update({
 					where: {
 						area: saveEx.area
@@ -3031,10 +3044,77 @@ export default class GameModule extends Module {
 			let body = wm.wm.protobuf.LoadPathsAndTuningsRequest.decode(req.body);
 			let carTbyP: wm.wm.protobuf.LoadPathsAndTuningsResponse.CarTuningsByPath[] = [];
 			for(let j=0; j<14; j++){
+				let rampVal = 0;
+				let pathVal = 0;
+				let rampPathUsingGhostRecord: boolean = false;
+				if(j === 0){ //GID_RUNAREA_C1
+					rampVal = Math.floor(Math.random() * 4);
+					pathVal = Math.floor(Math.random() * 10);
+				}
+				else if(j === 1){ //GID_RUNAREA_RING
+					rampVal = Math.floor(Math.random() * 2) + 4;
+					pathVal = Math.floor(Math.random() * 6) + 10;
+				}
+				else if(j === 2){ //GID_RUNAREA_SUBTOKYO_3_4
+					rampVal = Math.floor(Math.random() * 2) + 6;
+					pathVal = Math.floor(Math.random() * 2) + 16;
+				}
+				else if(j === 3){ //GID_RUNAREA_SUBTOKYO_5
+					rampVal = Math.floor(Math.random() * 2) + 8;
+					pathVal = Math.floor(Math.random() * 2) + 18;
+				}
+				else if(j === 4){ //GID_RUNAREA_WANGAN
+					rampVal = Math.floor(Math.random() * 4) + 10;
+					pathVal = Math.floor(Math.random() * 7) + 20;
+				}
+				else if(j === 5){ //GID_RUNAREA_K1
+					rampVal = Math.floor(Math.random() * 4) + 14;
+					pathVal = Math.floor(Math.random() * 7) + 27;
+				}
+				else if(j === 6){ //GID_RUNAREA_YAESU
+					rampVal = Math.floor(Math.random() * 3) + 18;
+					pathVal = Math.floor(Math.random() * 4) + 34;
+				}
+				else if(j === 7){ //GID_RUNAREA_YOKOHAMA
+					rampVal = Math.floor(Math.random() * 4) + 21;
+					pathVal = Math.floor(Math.random() * 11) + 38;
+				}
+				else if(j === 8){ //GID_RUNAREA_NAGOYA
+					rampVal = 25;
+					pathVal = 49;
+				}
+				else if(j === 9){ //GID_RUNAREA_OSAKA
+					rampVal = 26;
+					pathVal = Math.floor(Math.random() * 4) + 50;
+				}
+				else if(j === 10){ //GID_RUNAREA_KOBE
+					rampVal = Math.floor(Math.random() * 2) + 27;
+					pathVal = Math.floor(Math.random() * 2) + 54;
+				}
+				else if(j === 11){ //GID_RUNAREA_FUKUOKA
+					rampVal = Math.floor(Math.random() * 4) + 29;
+					pathVal = Math.floor(Math.random() * 4) + 58;
+				}
+				else if(j === 12){ //GID_RUNAREA_HAKONE
+					rampVal = Math.floor(Math.random() * 2) + 33;
+					pathVal = Math.floor(Math.random() * 2) + 62;
+				}
+				else if(j === 13){ //GID_RUNAREA_TURNPIKE
+					rampVal = Math.floor(Math.random() * 2) + 35;
+					pathVal = Math.floor(Math.random() * 2) + 64;
+				}
+				//14 - 16 are dummy area
+				else if(j === 17){ //GID_RUNAREA_C1_CLOSED
+					rampVal = Math.floor(Math.random() * 4);
+					pathVal = Math.floor(Math.random() * 10); //probably not correct
+				}
+				else if(j === 18){ //GID_RUNAREA_HIROSHIMA
+					rampVal = Math.floor(Math.random() * 2) + 37;
+					pathVal = Math.floor(Math.random() * 2) + 56;
+				}
+
 				let carTuning: wm.wm.protobuf.CarTuning[] = [];
 				let pathAndTuning: CarPathandTuning | null;
-				let carTbyP_ramp = Math.floor(Math.random() * 10);
-				let carTbyP_path = Math.floor(Math.random() * 10);
 				for(let i=0; i<body.selectedCars.length; i++){
 					pathAndTuning = await prisma.carPathandTuning.findFirst({
 						where: {
@@ -3053,21 +3133,33 @@ export default class GameModule extends Module {
 							tuneHandling: pathAndTuning!.tuneHandling,
 							lastPlayedAt: pathAndTuning!.lastPlayedAt
 						}));
-						carTbyP_ramp = pathAndTuning!.ramp;
-						carTbyP_path = pathAndTuning!.path;
+						if(rampPathUsingGhostRecord === false){
+							rampVal = pathAndTuning!.ramp;
+							pathVal = pathAndTuning!.path;
+							rampPathUsingGhostRecord = true;
+						}
 					}
 					else{
+						let car = await prisma.car.findFirst({
+							where: {
+								carId: body.carId
+							},
+							select:{
+								tunePower: true,
+								tuneHandling: true
+							}
+						});	
 						carTuning.push(wm.wm.protobuf.CarTuning.create({
 							carId: body.selectedCars[i],
-							tunePower: 17,
-							tuneHandling: 17
+							tunePower: car!.tunePower,
+							tuneHandling: car!.tuneHandling
 						}));
 					}
 				}
 				carTbyP.push(wm.wm.protobuf.LoadPathsAndTuningsResponse.CarTuningsByPath.create({
 					area: j,
-					ramp: carTbyP_ramp,
-					path: carTbyP_path,
+					ramp: rampVal,
+					path: pathVal,
 					carTunings: carTuning,
 					selectionMethod: wm.wm.protobuf.PathSelectionMethod.PATH_NORMAL
 				}));
