@@ -66,9 +66,9 @@ export default class StartupModule extends Module {
                     orderBy: {
                         time: 'asc'
                     },
-                    take: 20,
+                    take: 10,
                 });
-                if(ta_time.length !== 0){
+                if(ta_time.length > 0){
                     let list_ta: wmsrv.wm.protobuf.Ranking.Entry[] = [];
                     for(let j=0; j<ta_time.length; j++){
                         let car_ta = await prisma.car.findFirst({
@@ -78,7 +78,7 @@ export default class StartupModule extends Module {
                         });
                         
                         list_ta.push(wmsrv.wm.protobuf.Ranking.Entry.create({
-                            carId: car_ta!.carId,
+                            carId: ta_time[j].carId,
                             rank: car_ta!.level,
                             result: ta_time[j].time,
                             name: car_ta!.name,
@@ -86,26 +86,26 @@ export default class StartupModule extends Module {
                             model: car_ta!.model,
                             visualModel: car_ta!.visualModel,
                             defaultColor: car_ta!.defaultColor,
-                            tunePower: car_ta!.tunePower,
-                            tuneHandling: car_ta!.tuneHandling,
+                            tunePower: ta_time[j].tunePower,
+                            tuneHandling: ta_time[j].tuneHandling,
                             title: car_ta!.title,
                             level: car_ta!.level
                          }));
                     }
-                    if(ta_time.length < 20){
-                        for(let j=ta_time.length; j<20; j++){
-                            let resulttime = 599999;
+                    if(ta_time.length < 11){
+                        for(let j=ta_time.length; j<11; j++){
+                            let resultTime = 599999;
                             if(i === 22 || i === 23){
-                                resulttime = 1199999
+                                resultTime = 1199999;
                             }
                             list_ta.push(wmsrv.wm.protobuf.Ranking.Entry.create({
                                 carId: 0,
                                 rank: 0,
-                                result: resulttime,
+                                result: resultTime,
                                 name: 'ＧＵＥＳＴ',
                                 regionId: 0,
                                 model: Math.floor(Math.random() * 50),
-                                visualModel: Math.floor(Math.random() * 106),
+                                visualModel: Math.floor(Math.random() * 100),
                                 defaultColor: 0,
                                 tunePower: 0,
                                 tuneHandling: 0,
@@ -115,6 +115,34 @@ export default class StartupModule extends Module {
                         }
                     }
     
+                    lists.push(new wmsrv.wm.protobuf.Ranking.List({
+                        rankingType: i, // RANKING_TA_*AREA*
+                        topRecords: list_ta
+                    }));
+                }
+                else{
+                    let list_ta: wmsrv.wm.protobuf.Ranking.Entry[] = [];
+                    for(let j=0; j<11; j++){
+                        let resulttime = 599999;
+                        if(i === 22 || i === 23){
+                            resulttime = 1199999
+                        }
+                        list_ta.push(wmsrv.wm.protobuf.Ranking.Entry.create({
+                            carId: 0,
+                            rank: 0,
+                            result: resulttime,
+                            name: 'ＧＵＥＳＴ',
+                            regionId: 0,
+                            model: Math.floor(Math.random() * 50),
+                            visualModel: Math.floor(Math.random() * 100),
+                            defaultColor: 0,
+                            tunePower: 0,
+                            tuneHandling: 0,
+                            title: 'Wangan Beginner',
+                            level: 0
+                        }));
+                    }
+
                     lists.push(new wmsrv.wm.protobuf.Ranking.List({
                         rankingType: i, // RANKING_TA_*AREA*
                         topRecords: list_ta
@@ -148,7 +176,7 @@ export default class StartupModule extends Module {
                  }));
             }
             if(car_vs.length < 20){
-                for(let j=car_vs.length; j<20; j++){
+                for(let j=car_vs.length; j<21; j++){
                     list_vs.push(wmsrv.wm.protobuf.Ranking.Entry.create({
                         carId: 0,
                         rank: 0,
@@ -156,7 +184,7 @@ export default class StartupModule extends Module {
                         name: 'ＧＵＥＳＴ',
                         regionId: 0,
                         model: Math.floor(Math.random() * 50),
-                        visualModel: Math.floor(Math.random() * 106),
+                        visualModel: Math.floor(Math.random() * 100),
                         defaultColor: 0,
                         tunePower: 0,
                         tuneHandling: 0,
@@ -196,7 +224,7 @@ export default class StartupModule extends Module {
                  }));
             }
             if(car_ghost.length < 20){
-                for(let j=car_ghost.length; j<20; j++){
+                for(let j=car_ghost.length; j<21; j++){
                     list_ghost.push(wmsrv.wm.protobuf.Ranking.Entry.create({
                         carId: 0,
                         rank: 0,
@@ -204,7 +232,7 @@ export default class StartupModule extends Module {
                         name: 'ＧＵＥＳＴ',
                         regionId: 0,
                         model: Math.floor(Math.random() * 50),
-                        visualModel: Math.floor(Math.random() * 106),
+                        visualModel: Math.floor(Math.random() * 100),
                         defaultColor: 0,
                         tunePower: 0,
                         tuneHandling: 0,
@@ -247,22 +275,7 @@ export default class StartupModule extends Module {
 
         app.get('/resource/crown_list', async (req, res) => {
             console.log('crown_list');
-            //-------------FOR TESTING PURPOSE---------------
             let list_crown: wmsrv.wm.protobuf.Crown[] = [];
-            /*let car_crown = await prisma.car.findFirst({
-                where: {
-                    OR: [
-                        { name: { startsWith: 'ＫＩＴＳＵ'}, visualModel: 32 },
-                        { name: { startsWith: 'きつ', }, visualModel: 32 },
-                    ],
-                },
-                include: {
-                    gtWing: true
-                },
-                orderBy: {
-					carId: 'asc'
-				}
-            });*/
             let car_crown = await prisma.carCrown.findMany({
                 orderBy: {
 					area: 'asc'
@@ -287,10 +300,9 @@ export default class StartupModule extends Module {
                         if(car!.regionId === 0){
                             car!.regionId = 1; // Hokkaido
                         }
-                        //car!.aura = 0;
                         car!.tunePower = car_crown[counter].tunePower;
                         car!.tuneHandling = car_crown[counter].tuneHandling;
-                        car!.lastPlayedAt = car_crown[counter].playedAt - 100000;
+                        car!.lastPlayedAt = 1659286800; // 2 August 2022
                         list_crown.push(wmsrv.wm.protobuf.Crown.create({
                             carId: car_crown[counter].carId,
                             area: car_crown[counter].area, // GID_RUNAREA_C1 - GID_RUNAREA_TURNPIKE & GID_RUNAREA_HIROSHIMA
@@ -312,25 +324,21 @@ export default class StartupModule extends Module {
                 }
             }
             else{
-                for(let i=0; i<14; i++){ 
+                for(let i=0; i<19; i++){
+                    if(i >= 14){
+                        i = 18;
+                    }
                     list_crown.push(wmsrv.wm.protobuf.Crown.create({
                         carId: i,
-                        area: i, // GID_RUNAREA_C1 - GID_RUNAREA_TURNPIKE
+                        area: i, // GID_RUNAREA_C1 - GID_RUNAREA_TURNPIKE & GID_RUNAREA_HIROSHIMA
                         unlockAt: 0,
                     }));
                 }
-                list_crown.push(wmsrv.wm.protobuf.Crown.create({
-                    carId: 18, 
-                    area: 18, // GID_RUNAREA_HIROSHIMA
-                    unlockAt: 0,
-                }));
             } 
 
             let msg = {
                 crowns: list_crown
             };
-            //-----------------------------------------------
-
             let resp = wmsrv.wm.protobuf.CrownList.encode(msg);
             let end = resp.finish();
             let r = res
