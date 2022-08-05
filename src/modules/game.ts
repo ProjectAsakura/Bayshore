@@ -2496,7 +2496,7 @@ export default class GameModule extends Module {
 
 				// ---Opponent 2 & 3---
 				let ghostMob: wm.wm.protobuf.LoadGameHistoryResponse.GhostBattleRecord.GhostBattleRecordCar[] = [];
-				if(ghostHistoryData[i]?.opponent2CarId !== null || ghostHistoryData[i]?.opponent2CarId !== undefined){
+				if(ghostHistoryData[i]?.opponent2CarId !== null && ghostHistoryData[i]?.opponent2CarId !== undefined){
 					let ghostOpponentCar2 = await prisma.car.findFirst({
 						where: {
 							carId: ghostHistoryData![i].opponent2CarId!
@@ -2519,7 +2519,7 @@ export default class GameModule extends Module {
 						result: ghostHistoryData![i].opponent2Result!
 					}));
 				}
-				if(ghostHistoryData[i]?.opponent3CarId !== null || ghostHistoryData[i]?.opponent3CarId !== undefined){
+				if(ghostHistoryData[i]?.opponent3CarId !== null && ghostHistoryData[i]?.opponent3CarId !== undefined){
 					let ghostOpponentCar3 = await prisma.car.findFirst({
 						where: {
 							carId: ghostHistoryData![i].opponent3CarId!
