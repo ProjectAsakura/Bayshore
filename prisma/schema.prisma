@@ -133,6 +133,7 @@ model Car {
   CarCrown               CarCrown[]
   GhostTrail             GhostTrail[]
   GhostBattleRecord      GhostBattleRecord[]
+  CarPathandTuning       CarPathandTuning[]
 }
 
 model CarGTWing {
@@ -259,4 +260,16 @@ model GhostBattleRecord {
   area                    Int        @default(0)
   playedAt                Int        @default(0)
   playedShopName          String     @default("Bayshore")
+}
+
+model CarPathandTuning {
+  dbId          Int        @id @default(autoincrement())
+  car           Car        @relation(fields: [carId], references: [carId])
+  carId         Int
+  area          Int        @default(0)
+  ramp          Int        @default(0)
+  path          Int        @default(0)
+  tunePower     Int        @default(17)
+  tuneHandling  Int        @default(17)
+  lastPlayedAt  Int        @default(0)
 }

@@ -3,7 +3,7 @@ import { Module } from "../module";
 import * as wm from "../wmmt/wm.proto";
 import * as wmsrv from "../wmmt/service.proto";
 import { prisma } from "..";
-import { Car, User } from "@prisma/client";
+import { Car, CarPathandTuning, User } from "@prisma/client";
 import { Config } from "../config";
 import Long from "long";
 import { userInfo } from "os";
@@ -891,9 +891,39 @@ export default class GameModule extends Module {
 					}
 				});
 			}
-			
 			await prisma.ghostTrail.create({
 				data: saveEx
+			});
+
+
+			let cPaT_count = await prisma.carPathandTuning.findFirst({
+				where:{
+					carId: saveEx.carId,
+					area: saveEx.area,
+				},
+				orderBy: {
+					lastPlayedAt: 'desc'
+				}
+			});
+			
+			if(cPaT_count){
+				let cPaTdbId = cPaT_count.dbId;
+				await prisma.ghostTrail.delete({
+					where: {
+						dbId: cPaTdbId
+					}
+				});
+			}
+			await prisma.carPathandTuning.create({
+				data: {
+					carId: saveEx.carId,
+					area: saveEx.area,
+					ramp: saveEx.ramp,
+					path: saveEx.path,
+					tunePower: saveEx.tunePower,
+					tuneHandling: saveEx.tuneHandling,
+					lastPlayedAt: saveEx.playedAt
+				}
 			});
 
 			if(crownBattles === true){
@@ -2436,6 +2466,8 @@ export default class GameModule extends Module {
 				if(!(ghostOpponentCar)){
 					ghostOpponentCar = await prisma.car.findFirst({});
 					ghostOpponentCar!.name = 'ＧＵＥＳＴ';
+					ghostOpponentCar!.manufacturer = 5;
+					ghostOpponentCar!.model = 27;
 					ghostOpponentCar!.visualModel = 29;
 				}
 				ghostOpponentCar!.regionId = 1;
@@ -2460,6 +2492,8 @@ export default class GameModule extends Module {
 					if(!(ghostOpponentCar2)){
 						ghostOpponentCar2 = await prisma.car.findFirst({});
 						ghostOpponentCar2!.name = 'ＧＵＥＳＴ';
+						ghostOpponentCar2!.manufacturer = 5;
+						ghostOpponentCar2!.model = 27;
 						ghostOpponentCar2!.visualModel = 29;
 					}
 					ghostOpponentCar2!.regionId = 1;
@@ -2481,6 +2515,8 @@ export default class GameModule extends Module {
 					if(!(ghostOpponentCar3)){
 						ghostOpponentCar3 = await prisma.car.findFirst({});
 						ghostOpponentCar3!.name = 'ＧＵＥＳＴ';
+						ghostOpponentCar3!.manufacturer = 5;
+						ghostOpponentCar3!.model = 27;
 						ghostOpponentCar3!.visualModel = 29;
 					}
 					ghostOpponentCar3!.regionId = 1;
@@ -2493,7 +2529,6 @@ export default class GameModule extends Module {
 						result: ghostHistoryData![i].opponent3Result!
 					}));
 				}
-
 				
 				list_ghostHistoryData.push(wm.wm.protobuf.LoadGameHistoryResponse.GhostBattleRecord.create({
 					carSetting: carSetings,
@@ -2526,7 +2561,6 @@ export default class GameModule extends Module {
         })
 
 		app.post('/method/update_user_session', (req, res) => {
-			// Get the request body
 			// let body = wm.wm.protobuf.UpdateUserSessionRequest.decode(req.body);
 
             let msg = {
@@ -2995,9 +3029,52 @@ export default class GameModule extends Module {
 
 		app.post('/method/load_paths_and_tunings', async (req, res) => {	
 			let body = wm.wm.protobuf.LoadPathsAndTuningsRequest.decode(req.body);
-			console.log(body);
+			let carTbyP: wm.wm.protobuf.LoadPathsAndTuningsResponse.CarTuningsByPath[] = [];
+			for(let j=0; j<14; j++){
+				let carTuning: wm.wm.protobuf.CarTuning[] = [];
+				let pathAndTuning: CarPathandTuning | null;
+				let carTbyP_ramp = Math.floor(Math.random() * 10);
+				let carTbyP_path = Math.floor(Math.random() * 10);
+				for(let i=0; i<body.selectedCars.length; i++){
+					pathAndTuning = await prisma.carPathandTuning.findFirst({
+						where: {
+							carId: body.selectedCars[i],
+							area: j
+						},
+						orderBy: {
+							area: 'asc'
+						}
+					});
+
+					if(pathAndTuning){
+						carTuning.push(wm.wm.protobuf.CarTuning.create({
+							carId: body.selectedCars[i],
+							tunePower: pathAndTuning!.tunePower,
+							tuneHandling: pathAndTuning!.tuneHandling,
+							lastPlayedAt: pathAndTuning!.lastPlayedAt
+						}));
+						carTbyP_ramp = pathAndTuning!.ramp;
+						carTbyP_path = pathAndTuning!.path;
+					}
+					else{
+						carTuning.push(wm.wm.protobuf.CarTuning.create({
+							carId: body.selectedCars[i],
+							tunePower: 17,
+							tuneHandling: 17
+						}));
+					}
+				}
+				carTbyP.push(wm.wm.protobuf.LoadPathsAndTuningsResponse.CarTuningsByPath.create({
+					area: j,
+					ramp: carTbyP_ramp,
+					path: carTbyP_path,
+					carTunings: carTuning,
+					selectionMethod: wm.wm.protobuf.PathSelectionMethod.PATH_NORMAL
+				}));
+			}
             let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+				data: carTbyP || null
 			};
 			let resp = wm.wm.protobuf.LoadPathsAndTuningsResponse.encode(msg);
 			let end = resp.finish();
