@@ -2457,7 +2457,7 @@ export default class GameModule extends Module {
 					carId: body.carId
 				}, 
 				orderBy: {
-					playedAt: 'asc'
+					playedAt: 'desc'
 				},
 				take: 3
 			});
