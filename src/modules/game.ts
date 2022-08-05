@@ -2690,68 +2690,68 @@ export default class GameModule extends Module {
 			//---------------MAYBE NOT CORRECT---------------
 			let rampVal = 0;
 			let pathVal = 0;
-			if(body.area === 0){ //GID_RUNAREA_C1
+			if(body.area === 0){ // GID_RUNAREA_C1
 				rampVal = Math.floor(Math.random() * 4);
 				pathVal = Math.floor(Math.random() * 10);
 			}
-			else if(body.area === 1){ //GID_RUNAREA_RING
+			else if(body.area === 1){ // GID_RUNAREA_RING
 				rampVal = Math.floor(Math.random() * 2) + 4;
 				pathVal = Math.floor(Math.random() * 6) + 10;
 			}
-			else if(body.area === 2){ //GID_RUNAREA_SUBTOKYO_3_4
+			else if(body.area === 2){ // GID_RUNAREA_SUBTOKYO_3_4
 				rampVal = Math.floor(Math.random() * 2) + 6;
 				pathVal = Math.floor(Math.random() * 2) + 16;
 			}
-			else if(body.area === 3){ //GID_RUNAREA_SUBTOKYO_5
+			else if(body.area === 3){ // GID_RUNAREA_SUBTOKYO_5
 				rampVal = Math.floor(Math.random() * 2) + 8;
 				pathVal = Math.floor(Math.random() * 2) + 18;
 			}
-			else if(body.area === 4){ //GID_RUNAREA_WANGAN
+			else if(body.area === 4){ // GID_RUNAREA_WANGAN
 				rampVal = Math.floor(Math.random() * 4) + 10;
 				pathVal = Math.floor(Math.random() * 7) + 20;
 			}
-			else if(body.area === 5){ //GID_RUNAREA_K1
+			else if(body.area === 5){ // GID_RUNAREA_K1
 				rampVal = Math.floor(Math.random() * 4) + 14;
 				pathVal = Math.floor(Math.random() * 7) + 27;
 			}
-			else if(body.area === 6){ //GID_RUNAREA_YAESU
+			else if(body.area === 6){ // GID_RUNAREA_YAESU
 				rampVal = Math.floor(Math.random() * 3) + 18;
 				pathVal = Math.floor(Math.random() * 4) + 34;
 			}
-			else if(body.area === 7){ //GID_RUNAREA_YOKOHAMA
+			else if(body.area === 7){ // GID_RUNAREA_YOKOHAMA
 				rampVal = Math.floor(Math.random() * 4) + 21;
 				pathVal = Math.floor(Math.random() * 11) + 38;
 			}
-			else if(body.area === 8){ //GID_RUNAREA_NAGOYA
+			else if(body.area === 8){ // GID_RUNAREA_NAGOYA
 				rampVal = 25;
 				pathVal = 49;
 			}
-			else if(body.area === 9){ //GID_RUNAREA_OSAKA
+			else if(body.area === 9){ // GID_RUNAREA_OSAKA
 				rampVal = 26;
 				pathVal = Math.floor(Math.random() * 4) + 50;
 			}
-			else if(body.area === 10){ //GID_RUNAREA_KOBE
+			else if(body.area === 10){ // GID_RUNAREA_KOBE
 				rampVal = Math.floor(Math.random() * 2) + 27;
 				pathVal = Math.floor(Math.random() * 2) + 54;
 			}
-			else if(body.area === 11){ //GID_RUNAREA_FUKUOKA
+			else if(body.area === 11){ // GID_RUNAREA_FUKUOKA
 				rampVal = Math.floor(Math.random() * 4) + 29;
 				pathVal = Math.floor(Math.random() * 4) + 58;
 			}
-			else if(body.area === 12){ //GID_RUNAREA_HAKONE
+			else if(body.area === 12){ // GID_RUNAREA_HAKONE
 				rampVal = Math.floor(Math.random() * 2) + 33;
 				pathVal = Math.floor(Math.random() * 2) + 62;
 			}
-			else if(body.area === 13){ //GID_RUNAREA_TURNPIKE
+			else if(body.area === 13){ // GID_RUNAREA_TURNPIKE
 				rampVal = Math.floor(Math.random() * 2) + 35;
 				pathVal = Math.floor(Math.random() * 2) + 64;
 			}
 			//14 - 16 are dummy area
-			else if(body.area === 17){ //GID_RUNAREA_C1_CLOSED
+			else if(body.area === 17){ // GID_RUNAREA_C1_CLOSED
 				rampVal = Math.floor(Math.random() * 4);
-				pathVal = Math.floor(Math.random() * 10); //probably not correct
+				pathVal = Math.floor(Math.random() * 10); // probably not correct
 			}
-			else if(body.area === 18){ //GID_RUNAREA_HIROSHIMA
+			else if(body.area === 18){ // GID_RUNAREA_HIROSHIMA
 				rampVal = Math.floor(Math.random() * 2) + 37;
 				pathVal = Math.floor(Math.random() * 2) + 56;
 			}
@@ -2953,72 +2953,72 @@ export default class GameModule extends Module {
 				ghostTrail = ghost_trails!.trail;
 			}
 			else{
-				if(pArea === 0){ //GID_RUNAREA_C1
+				if(pArea === 0){ // GID_RUNAREA_C1
 					rampVal = Math.floor(Math.random() * 4);
 					pathVal = Math.floor(Math.random() * 10);
 				}
-				else if(pArea === 1){ //GID_RUNAREA_RING
+				else if(pArea === 1){ // GID_RUNAREA_RING
 					rampVal = Math.floor(Math.random() * 2) + 4;
 					pathVal = Math.floor(Math.random() * 6) + 10;
 				}
-				else if(pArea === 2){ //GID_RUNAREA_SUBTOKYO_3_4
+				else if(pArea === 2){ // GID_RUNAREA_SUBTOKYO_3_4
 					rampVal = Math.floor(Math.random() * 2) + 6;
 					pathVal = Math.floor(Math.random() * 2) + 16;
 				}
-				else if(pArea === 3){ //GID_RUNAREA_SUBTOKYO_5
+				else if(pArea === 3){ // GID_RUNAREA_SUBTOKYO_5
 					rampVal = Math.floor(Math.random() * 2) + 8;
 					pathVal = Math.floor(Math.random() * 2) + 18;
 				}
-				else if(pArea === 4){ //GID_RUNAREA_WANGAN
+				else if(pArea === 4){ // GID_RUNAREA_WANGAN
 					rampVal = Math.floor(Math.random() * 4) + 10;
 					pathVal = Math.floor(Math.random() * 7) + 20;
 				}
-				else if(pArea === 5){ //GID_RUNAREA_K1
+				else if(pArea === 5){ // GID_RUNAREA_K1
 					rampVal = Math.floor(Math.random() * 4) + 14;
 					pathVal = Math.floor(Math.random() * 7) + 27;
 				}
-				else if(pArea === 6){ //GID_RUNAREA_YAESU
+				else if(pArea === 6){ // GID_RUNAREA_YAESU
 					rampVal = Math.floor(Math.random() * 3) + 18;
 					pathVal = Math.floor(Math.random() * 4) + 34;
 				}
-				else if(pArea === 7){ //GID_RUNAREA_YOKOHAMA
+				else if(pArea === 7){ // GID_RUNAREA_YOKOHAMA
 					rampVal = Math.floor(Math.random() * 4) + 21;
 					pathVal = Math.floor(Math.random() * 11) + 38;
 				}
-				else if(pArea === 8){ //GID_RUNAREA_NAGOYA
+				else if(pArea === 8){ // GID_RUNAREA_NAGOYA
 					rampVal = 25;
 					pathVal = 49;
 				}
-				else if(pArea === 9){ //GID_RUNAREA_OSAKA
+				else if(pArea === 9){ // GID_RUNAREA_OSAKA
 					rampVal = 26;
 					pathVal = Math.floor(Math.random() * 4) + 50;
 				}
-				else if(pArea === 10){ //GID_RUNAREA_KOBE
+				else if(pArea === 10){ // GID_RUNAREA_KOBE
 					rampVal = Math.floor(Math.random() * 2) + 27;
 					pathVal = Math.floor(Math.random() * 2) + 54;
 				}
-				else if(pArea === 11){ //GID_RUNAREA_FUKUOKA
+				else if(pArea === 11){ // GID_RUNAREA_FUKUOKA
 					rampVal = Math.floor(Math.random() * 4) + 29;
 					pathVal = Math.floor(Math.random() * 4) + 58;
 				}
-				else if(pArea === 12){ //GID_RUNAREA_HAKONE
+				else if(pArea === 12){ // GID_RUNAREA_HAKONE
 					rampVal = Math.floor(Math.random() * 2) + 33;
 					pathVal = Math.floor(Math.random() * 2) + 62;
 				}
-				else if(pArea === 13){ //GID_RUNAREA_TURNPIKE
+				else if(pArea === 13){ // GID_RUNAREA_TURNPIKE
 					rampVal = Math.floor(Math.random() * 2) + 35;
 					pathVal = Math.floor(Math.random() * 2) + 64;
 				}
 				//14 - 16 are dummy area
-				else if(pArea === 17){ //GID_RUNAREA_C1_CLOSED
+				else if(pArea === 17){ // GID_RUNAREA_C1_CLOSED
 					rampVal = Math.floor(Math.random() * 4);
-					pathVal = Math.floor(Math.random() * 10); //probably not correct
+					pathVal = Math.floor(Math.random() * 10); // probably not correct
 				}
-				else if(pArea === 18){ //GID_RUNAREA_HIROSHIMA
+				else if(pArea === 18){ // GID_RUNAREA_HIROSHIMA
 					rampVal = Math.floor(Math.random() * 2) + 37;
 					pathVal = Math.floor(Math.random() * 2) + 56;
 				}
-				ghostTrail = new Uint8Array([1, 2, 3, 4]);
+				ghostTrail = new Uint8Array([1, 2, 3, 4]); // random value lmao, just for default ghost trail stuff
 			}
 
 			let msg = {
@@ -3047,68 +3047,68 @@ export default class GameModule extends Module {
 				let rampVal = 0;
 				let pathVal = 0;
 				let rampPathUsingGhostRecord: boolean = false;
-				if(j === 0){ //GID_RUNAREA_C1
+				if(j === 0){ // GID_RUNAREA_C1
 					rampVal = Math.floor(Math.random() * 4);
 					pathVal = Math.floor(Math.random() * 10);
 				}
-				else if(j === 1){ //GID_RUNAREA_RING
+				else if(j === 1){ // GID_RUNAREA_RING
 					rampVal = Math.floor(Math.random() * 2) + 4;
 					pathVal = Math.floor(Math.random() * 6) + 10;
 				}
-				else if(j === 2){ //GID_RUNAREA_SUBTOKYO_3_4
+				else if(j === 2){ // GID_RUNAREA_SUBTOKYO_3_4
 					rampVal = Math.floor(Math.random() * 2) + 6;
 					pathVal = Math.floor(Math.random() * 2) + 16;
 				}
-				else if(j === 3){ //GID_RUNAREA_SUBTOKYO_5
+				else if(j === 3){ // GID_RUNAREA_SUBTOKYO_5
 					rampVal = Math.floor(Math.random() * 2) + 8;
 					pathVal = Math.floor(Math.random() * 2) + 18;
 				}
-				else if(j === 4){ //GID_RUNAREA_WANGAN
+				else if(j === 4){ // GID_RUNAREA_WANGAN
 					rampVal = Math.floor(Math.random() * 4) + 10;
 					pathVal = Math.floor(Math.random() * 7) + 20;
 				}
-				else if(j === 5){ //GID_RUNAREA_K1
+				else if(j === 5){ // GID_RUNAREA_K1
 					rampVal = Math.floor(Math.random() * 4) + 14;
 					pathVal = Math.floor(Math.random() * 7) + 27;
 				}
-				else if(j === 6){ //GID_RUNAREA_YAESU
+				else if(j === 6){ // GID_RUNAREA_YAESU
 					rampVal = Math.floor(Math.random() * 3) + 18;
 					pathVal = Math.floor(Math.random() * 4) + 34;
 				}
-				else if(j === 7){ //GID_RUNAREA_YOKOHAMA
+				else if(j === 7){ // GID_RUNAREA_YOKOHAMA
 					rampVal = Math.floor(Math.random() * 4) + 21;
 					pathVal = Math.floor(Math.random() * 11) + 38;
 				}
-				else if(j === 8){ //GID_RUNAREA_NAGOYA
+				else if(j === 8){ // GID_RUNAREA_NAGOYA
 					rampVal = 25;
 					pathVal = 49;
 				}
-				else if(j === 9){ //GID_RUNAREA_OSAKA
+				else if(j === 9){ // GID_RUNAREA_OSAKA
 					rampVal = 26;
 					pathVal = Math.floor(Math.random() * 4) + 50;
 				}
-				else if(j === 10){ //GID_RUNAREA_KOBE
+				else if(j === 10){ // GID_RUNAREA_KOBE
 					rampVal = Math.floor(Math.random() * 2) + 27;
 					pathVal = Math.floor(Math.random() * 2) + 54;
 				}
-				else if(j === 11){ //GID_RUNAREA_FUKUOKA
+				else if(j === 11){ // GID_RUNAREA_FUKUOKA
 					rampVal = Math.floor(Math.random() * 4) + 29;
 					pathVal = Math.floor(Math.random() * 4) + 58;
 				}
-				else if(j === 12){ //GID_RUNAREA_HAKONE
+				else if(j === 12){ // GID_RUNAREA_HAKONE
 					rampVal = Math.floor(Math.random() * 2) + 33;
 					pathVal = Math.floor(Math.random() * 2) + 62;
 				}
-				else if(j === 13){ //GID_RUNAREA_TURNPIKE
+				else if(j === 13){ // GID_RUNAREA_TURNPIKE
 					rampVal = Math.floor(Math.random() * 2) + 35;
 					pathVal = Math.floor(Math.random() * 2) + 64;
 				}
 				//14 - 16 are dummy area
-				else if(j === 17){ //GID_RUNAREA_C1_CLOSED
+				else if(j === 17){ // GID_RUNAREA_C1_CLOSED
 					rampVal = Math.floor(Math.random() * 4);
-					pathVal = Math.floor(Math.random() * 10); //probably not correct
+					pathVal = Math.floor(Math.random() * 10); // probably not correct
 				}
-				else if(j === 18){ //GID_RUNAREA_HIROSHIMA
+				else if(j === 18){ // GID_RUNAREA_HIROSHIMA
 					rampVal = Math.floor(Math.random() * 2) + 37;
 					pathVal = Math.floor(Math.random() * 2) + 56;
 				}
