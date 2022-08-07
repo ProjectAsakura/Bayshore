@@ -1173,6 +1173,17 @@ export default class GameModule extends Module {
 					userItemId: true
 				}
 			})
+			
+			let wsString = "";
+			let wsFont = 0;
+			if(user.cars[0].windowStickerString !== null && user.cars[0].windowStickerString !== undefined && user.cars[0].windowStickerString !== ''){
+				wsString = user.cars[0].windowStickerString;
+				wsFont = user.cars[0].windowStickerFont;
+			}
+			else{
+				wsString = 'ＷＡＮＧＡＮ';
+				wsFont = 0;
+			}
 
 			let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
@@ -1182,8 +1193,8 @@ export default class GameModule extends Module {
 				carStates,
 				// 5 cars in-game, 200 cars on terminal
 				cars: user.cars.slice(0, body.maxCars),
-				windowStickerString: user.cars[0].windowStickerString,
-				windowStickerFont: user.cars[0].windowStickerFont,
+				windowStickerString: wsString,
+				windowStickerFont: wsFont,
 				userId: user.id,
 				banapassportAmId: 1,
 				mbId: 1,
