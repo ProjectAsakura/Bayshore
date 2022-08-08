@@ -372,7 +372,7 @@ export default class GameModule extends Module {
 										saveExCrown.path = body.rgResult?.path!;
 									}
 									if(body?.playedAt !== null || body?.playedAt !== undefined){
-										body!.playedAt = body?.playedAt!;
+										saveExCrown.playedAt = body?.playedAt!;
 									}
 									saveExCrown.tunePower = body.car!.tunePower!;
 									saveExCrown.tuneHandling = body.car!.tuneHandling!;
@@ -799,7 +799,7 @@ export default class GameModule extends Module {
 
 			// Saving normal ghost and crown ghost trail
 			let crownBattles: boolean = false;
-			if(body.time === null || body.time === undefined || body.time === 0){
+			if(body.driveData === null || body.driveData === undefined){
 				crownBattles = true;
 			}
 
@@ -946,7 +946,8 @@ export default class GameModule extends Module {
 					},
 					data: {
 						ramp: saveEx.ramp,
-						path: saveEx.path
+						path: saveEx.path,
+						playedAt: saveEx.playedAt
 					}
 				});
 			}
@@ -1173,6 +1174,17 @@ export default class GameModule extends Module {
 					userItemId: true
 				}
 			})
+			
+			let wsString = "";
+			let wsFont = 0;
+			if(user.cars[0].windowStickerString !== null && user.cars[0].windowStickerString !== undefined && user.cars[0].windowStickerString !== ''){
+				wsString = user.cars[0].windowStickerString;
+				wsFont = user.cars[0].windowStickerFont;
+			}
+			else{
+				wsString = 'ＷＡＮＧＡＮ';
+				wsFont = 0;
+			}
 
 			let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
@@ -1182,8 +1194,8 @@ export default class GameModule extends Module {
 				carStates,
 				// 5 cars in-game, 200 cars on terminal
 				cars: user.cars.slice(0, body.maxCars),
-				windowStickerString: user.cars[0].windowStickerString,
-				windowStickerFont: user.cars[0].windowStickerFont,
+				windowStickerString: wsString,
+				windowStickerFont: wsFont,
 				userId: user.id,
 				banapassportAmId: 1,
 				mbId: 1,
@@ -2949,7 +2961,7 @@ export default class GameModule extends Module {
 						playedAt: 'desc'
 					}
 				});
-				playedAt = time!.playedAt;
+				playedAt = time!.playedAt - 172800;
 				ghostTrail = ghost_trails!.trail;
 			}
 			else{

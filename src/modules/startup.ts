@@ -302,7 +302,8 @@ export default class StartupModule extends Module {
                         }
                         car!.tunePower = car_crown[counter].tunePower;
                         car!.tuneHandling = car_crown[counter].tuneHandling;
-                        car!.lastPlayedAt = 1659286800; // 2 August 2022
+                        car!.lastPlayedAt = car_crown[counter].playedAt - 172800;
+			car_crown[counter].playedAt = car_crown[counter].playedAt - 172800;
                         list_crown.push(wmsrv.wm.protobuf.Crown.create({
                             carId: car_crown[counter].carId,
                             area: car_crown[counter].area, // GID_RUNAREA_C1 - GID_RUNAREA_TURNPIKE & GID_RUNAREA_HIROSHIMA
