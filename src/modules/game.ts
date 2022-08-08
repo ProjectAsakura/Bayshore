@@ -799,7 +799,7 @@ export default class GameModule extends Module {
 
 			// Saving normal ghost and crown ghost trail
 			let crownBattles: boolean = false;
-			if(body.time === null || body.time === undefined || body.time === 0){
+			if(body.driveData === null || body.driveData === undefined){
 				crownBattles = true;
 			}
 
