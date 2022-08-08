@@ -372,7 +372,7 @@ export default class GameModule extends Module {
 										saveExCrown.path = body.rgResult?.path!;
 									}
 									if(body?.playedAt !== null || body?.playedAt !== undefined){
-										body!.playedAt = body?.playedAt!;
+										saveExCrown.playedAt = body?.playedAt!;
 									}
 									saveExCrown.tunePower = body.car!.tunePower!;
 									saveExCrown.tuneHandling = body.car!.tuneHandling!;
@@ -946,7 +946,8 @@ export default class GameModule extends Module {
 					},
 					data: {
 						ramp: saveEx.ramp,
-						path: saveEx.path
+						path: saveEx.path,
+						playedAt: saveEx.playedAt
 					}
 				});
 			}
