@@ -2960,7 +2960,7 @@ export default class GameModule extends Module {
 						playedAt: 'desc'
 					}
 				});
-				playedAt = time!.playedAt;
+				playedAt = time!.playedAt - 172800;
 				ghostTrail = ghost_trails!.trail;
 			}
 			else{
