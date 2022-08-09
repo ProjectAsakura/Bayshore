@@ -1977,15 +1977,19 @@ export default class GameModule extends Module {
 				}
 			})
 
-			if(userData!.windowStickerString !== saveEx.windowStickerString){
-				await prisma.car.updateMany({
-					where: {
-						userId: userData!.userId
-					}, 
-					data: {
-						windowStickerString: saveEx.windowStickerString
-					}
-				})
+			if (body.car?.windowStickerString !== null && body.car?.windowStickerString !== undefined)
+			{
+				if(userData!.windowStickerString !== saveEx.windowStickerString)
+				{
+					await prisma.car.updateMany({
+						where: {
+							userId: userData!.userId
+						}, 
+						data: {
+							windowStickerString: saveEx.windowStickerString
+						}
+					})
+				}
 			}
 
 			// Get car item
