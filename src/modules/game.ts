@@ -2961,7 +2961,14 @@ export default class GameModule extends Module {
 						playedAt: 'desc'
 					}
 				});
-				playedAt = time!.playedAt - 172800;
+				
+				if(time!.playedAt !== 0)
+				{
+					playedAt = time!.playedAt - 172800;
+				}
+				else if(time!.playedAt === 0){
+					playedAt = 1659805200;
+				}
 				ghostTrail = ghost_trails!.trail;
 			}
 			else{
