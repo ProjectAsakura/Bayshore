@@ -2985,11 +2985,12 @@ export default class GameModule extends Module {
 					}
 				});
 				
-				if(time!.playedAt !== 0)
+				if(time!.playedAt !== 0 && time!.playedAt >= 1659805200)
 				{
 					playedAt = time!.playedAt - 172800;
 				}
-				else if(time!.playedAt === 0 || time!.playedAt < 1659805200){
+				else if(time!.playedAt === 0 || time!.playedAt < 1659805200)
+				{
 					playedAt = 1659805200;
 				}
 				ghostTrail = ghost_trails!.trail;
