@@ -1180,7 +1180,7 @@ export default class GameModule extends Module {
 			let wsFont = 0;
 
 			// No car data
-			if(user.cars.length > 0)
+			if(user.cars.length <= 0)
 			{
 				wsString = 'ＷＡＮＧＡＮ';
 				wsFont = 0;
