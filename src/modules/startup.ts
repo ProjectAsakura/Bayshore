@@ -302,8 +302,26 @@ export default class StartupModule extends Module {
                         }
                         car!.tunePower = car_crown[counter].tunePower;
                         car!.tuneHandling = car_crown[counter].tuneHandling;
-                        car!.lastPlayedAt = car_crown[counter].playedAt - 172800;
-			car_crown[counter].playedAt = car_crown[counter].playedAt - 172800;
+			    
+			// Error handling if played At value is current date
+                        if(car_crown[counter].playedAt !== 0)
+                        {
+                            // Acquired crown timestamp - 1 day
+                            car!.lastPlayedAt = car_crown[counter].playedAt - 172800;
+
+                            // Acquired crown timestamp - 1 day
+                            car_crown[counter].playedAt = car_crown[counter].playedAt - 172800;
+                        }
+                        // Error handling if played At value is 0
+                        else if(car_crown[counter].playedAt === 0)
+                        {
+                            // Acquired crown timestamp become 7 August 2022
+                            car!.lastPlayedAt = 1659805200;
+
+                            // Acquired crown timestamp become 7 August 2022
+                            car_crown[counter].playedAt = 1659805200;
+                        }
+			    
                         list_crown.push(wmsrv.wm.protobuf.Crown.create({
                             carId: car_crown[counter].carId,
                             area: car_crown[counter].area, // GID_RUNAREA_C1 - GID_RUNAREA_TURNPIKE & GID_RUNAREA_HIROSHIMA
