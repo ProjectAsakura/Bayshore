@@ -1175,15 +1175,31 @@ export default class GameModule extends Module {
 				}
 			})
 			
+			// Error handling if windowStickerString is undefined if user registering bannapass from terminal first instead of driver unit
 			let wsString = "";
 			let wsFont = 0;
-			if(user.cars[0].windowStickerString !== null && user.cars[0].windowStickerString !== undefined && user.cars[0].windowStickerString !== ''){
-				wsString = user.cars[0].windowStickerString;
-				wsFont = user.cars[0].windowStickerFont;
-			}
-			else{
+
+			// No car data
+			if(user.cars.length > 0)
+			{
 				wsString = 'ＷＡＮＧＡＮ';
 				wsFont = 0;
+			}
+			// There is car data
+			else 
+			{
+				// User atleast have cars
+				if(user.cars){
+					if(user.cars[0]?.windowStickerString !== null && user.cars[0]?.windowStickerString !== undefined && user.cars[0]?.windowStickerString !== ''){
+						wsString = user.cars[0].windowStickerString;
+						wsFont = user.cars[0].windowStickerFont;
+					}
+				}
+				// User don't have car yet
+				else{
+					wsString = 'ＷＡＮＧＡＮ';
+					wsFont = 0;
+				}
 			}
 
 			let msg = {
