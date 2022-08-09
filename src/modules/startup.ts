@@ -313,7 +313,7 @@ export default class StartupModule extends Module {
                             car_crown[counter].playedAt = car_crown[counter].playedAt - 172800;
                         }
                         // Error handling if played At value is 0
-                        else if(car_crown[counter].playedAt === 0)
+                        else if(car_crown[counter].playedAt === 0 || car_crown[counter].playedAt < 1659805200)
                         {
                             // Acquired crown timestamp become 7 August 2022
                             car!.lastPlayedAt = 1659805200;
