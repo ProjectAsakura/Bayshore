@@ -2345,10 +2345,10 @@ export default class GameModule extends Module {
 			});
 			
 			// Error handling if ghostLevel accidentally set to 0 or more than 10
-			if(car!.ghostLevel > 1){
+			if(car!.ghostLevel < 1){
 				car!.ghostLevel = 1;
 			}
-			else if(car!.ghostLevel < 10){
+			else if(car!.ghostLevel > 11){
 				car!.ghostLevel = 10;
 			}
 
