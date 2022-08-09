@@ -304,7 +304,7 @@ export default class StartupModule extends Module {
                         car!.tuneHandling = car_crown[counter].tuneHandling;
 			    
 			// Error handling if played At value is current date
-                        if(car_crown[counter].playedAt !== 0)
+                        if(car_crown[counter].playedAt !== 0 && car_crown[counter].playedAt >= 1659805200)
                         {
                             // Acquired crown timestamp - 1 day
                             car!.lastPlayedAt = car_crown[counter].playedAt - 172800;
