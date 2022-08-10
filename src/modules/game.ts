@@ -1175,31 +1175,25 @@ export default class GameModule extends Module {
 				}
 			})
 			
-			// Error handling if windowStickerString is undefined if user registering bannapass from terminal first instead of driver unit
-			let wsString = "";
+			// Error handling if windowStickerString and windowStickerFont is undefined or null
+			// User is registering bannapass from terminal unit first instead of driver unit
+			// Default value for windowStickerString and windowStickerFont
+			let wsString = 'ＷＡＮＧＡＮ';
 			let wsFont = 0;
 
-			// No car data
-			if(user.cars.length <= 0)
+			// user.cars found
+			if(user.cars)
 			{
-				wsString = 'ＷＡＮＧＡＮ';
-				wsFont = 0;
-			}
-			// There is car data
-			else 
-			{
-				// User atleast have cars
-				if(user.cars){
-					if(user.cars[0]?.windowStickerString !== null && user.cars[0]?.windowStickerString !== undefined && user.cars[0]?.windowStickerString !== ''){
-						wsString = user.cars[0].windowStickerString;
-						wsFont = user.cars[0].windowStickerFont;
-					}
+				// User atleast have 1 car
+				if(user.cars[0]?.windowStickerString !== null && 
+				   user.cars[0]?.windowStickerString !== undefined && 
+				   user.cars[0]?.windowStickerString !== '')
+				{
+					wsString = user.cars[0].windowStickerString;
+					wsFont = user.cars[0].windowStickerFont;
 				}
-				// User don't have car yet
-				else{
-					wsString = 'ＷＡＮＧＡＮ';
-					wsFont = 0;
-				}
+
+				// else{} User don't have a car... returning default windowStickerString and windowStickerFont value
 			}
 
 			let msg = {
@@ -1915,7 +1909,7 @@ export default class GameModule extends Module {
 			if (body.car?.windowStickerString !== null && body.car?.windowStickerString !== undefined) {
 				saveEx.windowStickerString = body.car?.windowStickerString!;
 			} else {
-				saveEx.windowStickerString = 'ＷＡＮＧＡＮ';
+				saveEx.windowStickerString = car?.windowStickerString;
 			}
 			if (body.car?.windowStickerFont !== null && body.car?.windowStickerFont !== undefined) {
 				saveEx.windowStickerFont = body.car?.windowStickerFont!;
