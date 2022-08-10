@@ -1175,15 +1175,31 @@ export default class GameModule extends Module {
 				}
 			})
 			
+			// Error handling if windowStickerString is undefined if user registering bannapass from terminal first instead of driver unit
 			let wsString = "";
 			let wsFont = 0;
-			if(user.cars[0].windowStickerString !== null && user.cars[0].windowStickerString !== undefined && user.cars[0].windowStickerString !== ''){
-				wsString = user.cars[0].windowStickerString;
-				wsFont = user.cars[0].windowStickerFont;
-			}
-			else{
+
+			// No car data
+			if(user.cars.length <= 0)
+			{
 				wsString = 'ＷＡＮＧＡＮ';
 				wsFont = 0;
+			}
+			// There is car data
+			else 
+			{
+				// User atleast have cars
+				if(user.cars){
+					if(user.cars[0]?.windowStickerString !== null && user.cars[0]?.windowStickerString !== undefined && user.cars[0]?.windowStickerString !== ''){
+						wsString = user.cars[0].windowStickerString;
+						wsFont = user.cars[0].windowStickerFont;
+					}
+				}
+				// User don't have car yet
+				else{
+					wsString = 'ＷＡＮＧＡＮ';
+					wsFont = 0;
+				}
 			}
 
 			let msg = {
@@ -1961,15 +1977,19 @@ export default class GameModule extends Module {
 				}
 			})
 
-			if(userData!.windowStickerString !== saveEx.windowStickerString){
-				await prisma.car.updateMany({
-					where: {
-						userId: userData!.userId
-					}, 
-					data: {
-						windowStickerString: saveEx.windowStickerString
-					}
-				})
+			if (body.car?.windowStickerString !== null && body.car?.windowStickerString !== undefined)
+			{
+				if(userData!.windowStickerString !== saveEx.windowStickerString)
+				{
+					await prisma.car.updateMany({
+						where: {
+							userId: userData!.userId
+						}, 
+						data: {
+							windowStickerString: saveEx.windowStickerString
+						}
+					})
+				}
 			}
 
 			// Get car item
@@ -2328,6 +2348,13 @@ export default class GameModule extends Module {
 				}
 			});
 			
+			// Error handling if ghostLevel accidentally set to 0 or more than 10
+			if(car!.ghostLevel < 1){
+				car!.ghostLevel = 1;
+			}
+			else if(car!.ghostLevel > 11){
+				car!.ghostLevel = 10;
+			}
 
 			// This is fucking terrible
 			let longLoseBits = Long.fromString(car!.stLoseBits.toString());
@@ -2961,7 +2988,15 @@ export default class GameModule extends Module {
 						playedAt: 'desc'
 					}
 				});
-				playedAt = time!.playedAt - 172800;
+				
+				if(time!.playedAt !== 0 && time!.playedAt >= 1659805200)
+				{
+					playedAt = time!.playedAt - 172800;
+				}
+				else if(time!.playedAt === 0 || time!.playedAt < 1659805200)
+				{
+					playedAt = 1659805200;
+				}
 				ghostTrail = ghost_trails!.trail;
 			}
 			else{
