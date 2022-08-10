@@ -2237,6 +2237,30 @@ export default class GameModule extends Module {
 				regionId: body.car.regionId!,
 				lastPlayedAt: date,
 			};
+			
+			let checkWindowSticker = await prisma.car.findFirst({
+				where: {
+					userId: body.userId
+				},
+				select: {
+					windowStickerString: true,
+					windowStickerFont: true
+				}
+			});
+
+			// Check if user have more than one cars
+			let additionalWindowStickerInsert = {
+					
+			}
+
+			// If more than one cars
+			if(checkWindowSticker)
+			{
+				additionalWindowStickerInsert = {
+					windowStickerString: checkWindowSticker.windowStickerString,
+					windowStickerFont: checkWindowSticker.windowStickerFont,
+				}
+			}
 
 			// Additional car values (for basic / full tune)
 			let additionalInsert = {
@@ -2316,7 +2340,8 @@ export default class GameModule extends Module {
 				carId: car.carId,
 				car,
 				...carInsert,
-				...additionalInsert
+				...additionalInsert,
+				...additionalWindowStickerInsert
             }
             let resp = wm.wm.protobuf.CreateCarResponse.encode(msg);
             let end = resp.finish();
