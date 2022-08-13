@@ -2910,7 +2910,7 @@ export default class GameModule extends Module {
 
 				let lists_binaryByCar
 				if(ghost_trails?.trendBinaryByCar !== null && ghost_trails?.trendBinaryByCar !== undefined){
-					lists_binaryByArea = wm.wm.protobuf.BinaryData.create({
+					lists_binaryByCar = wm.wm.protobuf.BinaryData.create({
 						data: ghost_trails!.trendBinaryByCar!,
 						mergeSerial: ghost_trails!.byCarMergeSerial!
 					});
@@ -2918,7 +2918,7 @@ export default class GameModule extends Module {
 
 				let lists_binaryByUser
 				if(ghost_trails?.trendBinaryByUser !== null && ghost_trails?.trendBinaryByUser !== undefined){
-					lists_binaryByArea = wm.wm.protobuf.BinaryData.create({
+					lists_binaryByUser = wm.wm.protobuf.BinaryData.create({
 						data: ghost_trails!.trendBinaryByUser!,
 						mergeSerial: ghost_trails!.byUserMergeSerial!
 					});
