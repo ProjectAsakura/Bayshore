@@ -1175,31 +1175,25 @@ export default class GameModule extends Module {
 				}
 			})
 			
-			// Error handling if windowStickerString is undefined if user registering bannapass from terminal first instead of driver unit
-			let wsString = "";
+			// Error handling if windowStickerString and windowStickerFont is undefined or null
+			// User is registering bannapass from terminal unit first instead of driver unit
+			// Default value for windowStickerString and windowStickerFont
+			let wsString = 'ＷＡＮＧＡＮ';
 			let wsFont = 0;
 
-			// No car data
-			if(user.cars.length <= 0)
+			// user.cars found
+			if(user.cars)
 			{
-				wsString = 'ＷＡＮＧＡＮ';
-				wsFont = 0;
-			}
-			// There is car data
-			else 
-			{
-				// User atleast have cars
-				if(user.cars){
-					if(user.cars[0]?.windowStickerString !== null && user.cars[0]?.windowStickerString !== undefined && user.cars[0]?.windowStickerString !== ''){
-						wsString = user.cars[0].windowStickerString;
-						wsFont = user.cars[0].windowStickerFont;
-					}
+				// User atleast have 1 car
+				if(user.cars[0]?.windowStickerString !== null && 
+				   user.cars[0]?.windowStickerString !== undefined && 
+				   user.cars[0]?.windowStickerString !== '')
+				{
+					wsString = user.cars[0].windowStickerString;
+					wsFont = user.cars[0].windowStickerFont;
 				}
-				// User don't have car yet
-				else{
-					wsString = 'ＷＡＮＧＡＮ';
-					wsFont = 0;
-				}
+
+				// else{} User don't have a car... returning default windowStickerString and windowStickerFont value
 			}
 
 			let msg = {
@@ -1915,7 +1909,7 @@ export default class GameModule extends Module {
 			if (body.car?.windowStickerString !== null && body.car?.windowStickerString !== undefined) {
 				saveEx.windowStickerString = body.car?.windowStickerString!;
 			} else {
-				saveEx.windowStickerString = 'ＷＡＮＧＡＮ';
+				saveEx.windowStickerString = car?.windowStickerString;
 			}
 			if (body.car?.windowStickerFont !== null && body.car?.windowStickerFont !== undefined) {
 				saveEx.windowStickerFont = body.car?.windowStickerFont!;
@@ -2243,6 +2237,30 @@ export default class GameModule extends Module {
 				regionId: body.car.regionId!,
 				lastPlayedAt: date,
 			};
+			
+			let checkWindowSticker = await prisma.car.findFirst({
+				where: {
+					userId: body.userId
+				},
+				select: {
+					windowStickerString: true,
+					windowStickerFont: true
+				}
+			});
+
+			// Check if user have more than one cars
+			let additionalWindowStickerInsert = {
+					
+			}
+
+			// If more than one cars
+			if(checkWindowSticker)
+			{
+				additionalWindowStickerInsert = {
+					windowStickerString: checkWindowSticker.windowStickerString,
+					windowStickerFont: checkWindowSticker.windowStickerFont,
+				}
+			}
 
 			// Additional car values (for basic / full tune)
 			let additionalInsert = {
@@ -2322,7 +2340,8 @@ export default class GameModule extends Module {
 				carId: car.carId,
 				car,
 				...carInsert,
-				...additionalInsert
+				...additionalInsert,
+				...additionalWindowStickerInsert
             }
             let resp = wm.wm.protobuf.CreateCarResponse.encode(msg);
             let end = resp.finish();
@@ -2891,7 +2910,7 @@ export default class GameModule extends Module {
 
 				let lists_binaryByCar
 				if(ghost_trails?.trendBinaryByCar !== null && ghost_trails?.trendBinaryByCar !== undefined){
-					lists_binaryByArea = wm.wm.protobuf.BinaryData.create({
+					lists_binaryByCar = wm.wm.protobuf.BinaryData.create({
 						data: ghost_trails!.trendBinaryByCar!,
 						mergeSerial: ghost_trails!.byCarMergeSerial!
 					});
@@ -2899,7 +2918,7 @@ export default class GameModule extends Module {
 
 				let lists_binaryByUser
 				if(ghost_trails?.trendBinaryByUser !== null && ghost_trails?.trendBinaryByUser !== undefined){
-					lists_binaryByArea = wm.wm.protobuf.BinaryData.create({
+					lists_binaryByUser = wm.wm.protobuf.BinaryData.create({
 						data: ghost_trails!.trendBinaryByUser!,
 						mergeSerial: ghost_trails!.byUserMergeSerial!
 					});
