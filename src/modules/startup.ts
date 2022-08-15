@@ -25,72 +25,57 @@ export default class StartupModule extends Module {
 
             // Get current active OCM Event
             let ocmEventDate = await prisma.oCMEvent.findFirst({
-                where: {
-                    OR: [
-                        {
-							// qualifyingPeriodStartAt is less than current date
-							qualifyingPeriodStartAt: { lte: date },
-
-							// qualifyingPeriodCloseAt is greater than current date
-							qualifyingPeriodCloseAt: { gte: date },
-						},
-						{ 
-							// competitionStartAt is less than current date
-							competitionStartAt: { lte: date },
-
-							// competitionCloseAt is greater than current date
-							competitionCloseAt: { gte: date },
-						},
-                        {
-							// competitionCloseAt is less than current date 
-							competitionCloseAt: { lte: date },
-
-							// competitionEndAt is greater than current date
-							competitionEndAt: {gte: date },
-						}
-                    ],
-                },
-                orderBy:{
-                    dbId: 'desc'
-                }
+                orderBy: [
+                    {
+                        dbId: 'desc'
+                    },
+                    {
+                        competitionEndAt: 'desc',
+                    },
+                ],
             });
-
             // Declare GhostCompetitionSchedule
             let compeSch; 
-            if(ocmEventDate){
-                // Creating GhostCompetitionSchedule
-                compeSch = wm.wm.protobuf.GhostCompetitionSchedule.create({ 
+            if(ocmEventDate)
+            {
+                let pastDay = date - ocmEventDate.competitionEndAt
 
-                    // OCM Competition ID (1 = C1 (Round 16), 4 = Nagoya (Round 19), 8 = Hiroshima (Round 21))
-                    competitionId: ocmEventDate.competitionId,
+                if(pastDay < 604800)
+                {
+                    // Creating GhostCompetitionSchedule
+                    compeSch = wm.wm.protobuf.GhostCompetitionSchedule.create({ 
 
-                    // OCM Qualifying Start Timestamp
-                    qualifyingPeriodStartAt: ocmEventDate.qualifyingPeriodStartAt, 
+                        // OCM Competition ID (1 = C1 (Round 16), 4 = Nagoya (Round 19), 8 = Hiroshima (Round 21))
+                        competitionId: ocmEventDate.competitionId,
 
-                     // OCM Qualifying Close Timestamp
-                    qualifyingPeriodCloseAt: ocmEventDate.qualifyingPeriodCloseAt,
+                        // OCM Qualifying Start Timestamp
+                        qualifyingPeriodStartAt: ocmEventDate.qualifyingPeriodStartAt, 
 
-                    // OCM Competition (Main Draw) Start Timestamp
-                    competitionStartAt: ocmEventDate.competitionStartAt, 
+                        // OCM Qualifying Close Timestamp
+                        qualifyingPeriodCloseAt: ocmEventDate.qualifyingPeriodCloseAt,
 
-                    // OCM Competition (Main Draw) Close Timestamp
-                    competitionCloseAt: ocmEventDate.competitionCloseAt, 
+                        // OCM Competition (Main Draw) Start Timestamp
+                        competitionStartAt: ocmEventDate.competitionStartAt, 
 
-                    // OCM Competition (Main Draw) End Timestamp
-                    competitionEndAt: ocmEventDate.competitionEndAt, 
+                        // OCM Competition (Main Draw) Close Timestamp
+                        competitionCloseAt: ocmEventDate.competitionCloseAt, 
 
-                    // idk what this is
-                    lengthOfPeriod: ocmEventDate.lengthOfPeriod, 
+                        // OCM Competition (Main Draw) End Timestamp
+                        competitionEndAt: ocmEventDate.competitionEndAt, 
 
-                    // idk what this is
-                    lengthOfInterval: ocmEventDate.lengthOfInterval, 
+                        // idk what this is
+                        lengthOfPeriod: ocmEventDate.lengthOfPeriod, 
 
-                    // Area for the event (GID_RUNAREA_*, 8 is GID_RUNAREA_NAGOYA)
-                    area: ocmEventDate.area, 
+                        // idk what this is
+                        lengthOfInterval: ocmEventDate.lengthOfInterval, 
 
-                    // idk what this is
-                    minigamePatternId: ocmEventDate.minigamePatternId 
-                });
+                        // Area for the event (GID_RUNAREA_*, 8 is GID_RUNAREA_NAGOYA)
+                        area: ocmEventDate.area, 
+
+                        // idk what this is
+                        minigamePatternId: ocmEventDate.minigamePatternId 
+                    });
+                }
             }
             
             // Response data

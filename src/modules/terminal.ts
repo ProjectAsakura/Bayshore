@@ -564,6 +564,20 @@ export default class TerminalModule extends Module {
                 }
             });
 
+			if(!(ocmEventDate))
+			{
+				ocmEventDate = await prisma.oCMEvent.findFirst({
+					orderBy:{
+						dbId: 'desc'
+					}
+				});
+
+				if(ocmEventDate)
+				{
+					console.log('Previous OCM found');
+				}
+			}
+
 			// Declare GhostCompetitionSchedule
             let compeSch; 
 			let msg: any;
@@ -773,9 +787,81 @@ export default class TerminalModule extends Module {
 					}
 				}
 				// OCM has ended
-				else if(ocmEventDate!.competitionCloseAt < date && ocmEventDate!.competitionEndAt > date)
+				else
 				{
-					console.log('Current OCM Day : OCM has Ended');
+					console.log('Current / Previous OCM Day : OCM has Ended');
+
+					let ocmParticipant = await prisma.oCMTally.findMany({
+						where:{
+							competitionId: ocmEventDate!.competitionId,
+							periodId: 999999999
+						},
+						orderBy: {
+							result: 'desc'
+						}
+					})
+
+					numOfParticipants = ocmParticipant.length;
+					periodId = 0;
+					let ranking = 0;
+
+					if(ocmParticipant)
+					{
+						for(let i=0; i<ocmParticipant.length; i++)
+						{
+							let cars = await prisma.car.findFirst({
+								where:{
+									carId: ocmParticipant[i].carId
+								}
+							});
+
+							let ocmGhostrecord = await prisma.oCMGhostBattleRecord.findFirst({
+								where:{
+									carId: ocmParticipant[i].carId,
+									competitionId: ocmEventDate!.competitionId,
+								}
+							});
+
+							if(ocmParticipant[i].carId === body.carId && ranking === 0)
+							{
+								// User car setting
+								ownRecords = wm.wm.protobuf.LoadGhostCompetitionRankingResponse.Entry.create({
+									rank: i + 1,
+									result: ocmParticipant[i].result,
+									carId: ocmParticipant[i].carId,
+									name: cars!.name,
+									regionId: cars!.regionId,
+									model: cars!.model,
+									visualModel: cars!.visualModel,
+									defaultColor: cars!.defaultColor,
+									title: cars!.title,
+									level: cars!.level,
+									windowStickerString: cars!.windowStickerString,
+									playedShopName: ocmGhostrecord!.playedShopName,
+									playedAt: ocmGhostrecord!.playedAt
+								});
+
+								ranking++;
+							}
+
+							// Generate OCM Top Records
+							topRecords.push(wm.wm.protobuf.LoadGhostCompetitionRankingResponse.Entry.create({
+								rank: i + 1,
+								result: ocmParticipant[i].result,
+								carId: ocmParticipant[i].carId,
+								name: cars!.name,
+								regionId: cars!.regionId,
+								model: cars!.model,
+								visualModel: cars!.visualModel,
+								defaultColor: cars!.defaultColor,
+								title: cars!.title,
+								level: cars!.level,
+								windowStickerString: cars!.windowStickerString,
+								playedShopName: ocmGhostrecord!.playedShopName,
+								playedAt: ocmGhostrecord!.playedAt
+							}));
+						}
+					}
 				}
 
 				// Response data

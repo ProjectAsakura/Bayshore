@@ -199,6 +199,7 @@ export default class GhostModule extends Module {
 						let OCMTallyCount = await prisma.oCMTally.count({ 
 							where: {
 								competitionId: OCMCurrentPeriod.competitionId,
+								periodId: 999999999
 							},
 							orderBy:{
 								periodId: 'desc'
@@ -275,6 +276,7 @@ export default class GhostModule extends Module {
 
 							let checkNameplate = await prisma.carItem.count({
 								where:{
+									carId: checkOneParticipant.carId,
 									category: 17,
 									itemId: itemId
 								},
@@ -286,11 +288,7 @@ export default class GhostModule extends Module {
 
 							if(checkNameplate === 0)
 							{
-								console.log('Giving OCM Rewards');
-
 								await ghost_ocm.ocmGiveNamePlateReward(ocmEventDate.competitionId);
-
-								console.log('OCM Rewards Given');
 							}
 
 							// else{} nameplate reward already given
