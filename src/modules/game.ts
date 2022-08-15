@@ -1117,8 +1117,6 @@ export default class GameModule extends Module {
 			
 			for(let i=0; i<user.cars.length; i++)
 			{
-				let randomRegionId = Math.floor(Math.random() * 47) + 1;
-				user.cars[i].regionid = Number(randomRegionId);
 				user.cars[i].country = 'JPN';
 			}
 
@@ -2389,6 +2387,12 @@ export default class GameModule extends Module {
 			}
 			else if(car!.ghostLevel > 11){
 				car!.ghostLevel = 10;
+			}
+			
+			if(car!.regionId === 0)
+			{
+				let randomRegionId = Math.floor(Math.random() * 47) + 1;
+				car!.regionId = Number(randomRegionId);
 			}
 
 			// This is fucking terrible
