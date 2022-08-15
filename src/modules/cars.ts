@@ -155,7 +155,7 @@ export default class CarModule extends Module {
 				announceEventModePrize: true,
 				opponentGhost: ghostCarsNo1 || null,
 				opponentTrailId: trailIdNo1 || null,
-				opponentCompetitionId: ocmEventDate!.competitionId || null
+				opponentCompetitionId: ocmEventDate?.competitionId || null
 			};
 
             // Generate the load car response message

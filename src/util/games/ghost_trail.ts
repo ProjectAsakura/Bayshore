@@ -11,8 +11,33 @@ export async function getOCMGhostTrail(carId: number, trailId: number)
     // Get current date
     let date = Math.floor(new Date().getTime() / 1000);
 
-    // Get current active OCM Event
+    // Get current / previous active OCM Event
     let ocmEventDate = await prisma.oCMEvent.findFirst({
+        where: {
+            OR: [
+                {
+                    // qualifyingPeriodStartAt is less than current date
+                    qualifyingPeriodStartAt: { lte: date },
+
+                    // qualifyingPeriodCloseAt is greater than current date
+                    qualifyingPeriodCloseAt: { gte: date },
+                },
+                { 
+                    // competitionStartAt is less than current date
+                    competitionStartAt: { lte: date },
+
+                    // competitionCloseAt is greater than current date
+                    competitionCloseAt: { gte: date },
+                },
+                {
+                    // competitionCloseAt is less than current date 
+                    competitionCloseAt: { lte: date },
+
+                    // competitionEndAt is greater than current date
+                    competitionEndAt: {gte: date },
+                }
+            ],
+        },
         orderBy: [
             {
                 dbId: 'desc'
@@ -22,6 +47,20 @@ export async function getOCMGhostTrail(carId: number, trailId: number)
             },
         ],
     });
+
+    if(!(ocmEventDate))
+    {
+        ocmEventDate = await prisma.oCMEvent.findFirst({
+            orderBy: [
+                {
+                    dbId: 'desc'
+                },
+                {
+                    competitionEndAt: 'desc',
+                },
+            ],
+        });
+    }
 
     let ghost_trails: OCMTop1GhostTrail | null;
     // Current date is OCM main draw
