@@ -1114,6 +1114,11 @@ export default class GameModule extends Module {
 
 			// Get the user's cars
 			let cars = user.cars; 
+			
+			for(let i=0; i<cars.length; i++)
+			{
+				cars[i].country = 'JPN';
+			}
 
 			// If the car order array has not been created
 			if (user.carOrder.length > 0)
@@ -2389,7 +2394,8 @@ export default class GameModule extends Module {
 			let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
 				car: {
-					...car!
+					...car!,
+					country: 'JPN'
 				},
 				tuningPoint: car!.tuningPoints,
 				setting: car!.settings,
