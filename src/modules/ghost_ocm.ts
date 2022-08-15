@@ -473,7 +473,7 @@ export default class GhostModule extends Module {
 
 				// Generate default S660 car data
 				cars = wm.wm.protobuf.Car.create({ 
-					carId: 999999999,
+					carId: 999999999, // Don't change this
 					name: 'Ｓ６６０',
 					regionId: 18, // IDN (福井)
 					manufacturer: 12, // HONDA
@@ -497,12 +497,12 @@ export default class GhostModule extends Module {
 					rivalMarker: 32,
 					aura: 551,
 					windowSticker: true,
-					windowStickerString: 'ＢＡＹＳＨＯＲＥ', // ＧＧＷＰ
+					windowStickerString: 'ＢＡＹＳＨＯＲＥ',
 					windowStickerFont: 0,
 					title: 'You don\'t have S660? LMAO',
 					level: 65, // SSSSS
 					lastPlayedAt: checkGhostTrail!.playedAt,
-					
+					country: 'GLB'
 				});
 				
 				// Set Ghost stuff Value

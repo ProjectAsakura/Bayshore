@@ -61,6 +61,7 @@ model Car {
     name                String
     manufacturer        Int
     regionId            Int     @default(0)
+    country             String  @default("JPN")
     model               Int
     visualModel         Int
     customColor         Int     @default(0)

@@ -15,7 +15,7 @@ export async function ocmTallying(body: wm.protobuf.LoadGhostCompetitionInfoRequ
 
         if(periodId === 0)
         {
-            console.log('Tallying');
+            console.log('Tallying data from Qualifying');
 
             // Get user that playing OCM qualifying day
             let gbRecordTally = await prisma.oCMGhostBattleRecord.findMany({ 
@@ -39,7 +39,7 @@ export async function ocmTallying(body: wm.protobuf.LoadGhostCompetitionInfoRequ
                     // Get the Top 1 Advantage
                     if(top1advantage === null)
                     {
-                        top1advantage = gbRecordTally[i].result
+                        top1advantage = gbRecordTally[i].result;
 
                         let getTrail = await prisma.oCMGhostTrail.findFirst({
                             where:{
@@ -106,6 +106,8 @@ export async function ocmTallying(body: wm.protobuf.LoadGhostCompetitionInfoRequ
                     });
 
                     if(i === 0){
+                        console.log('Making OCM Top 1 Ghost Data');
+
                         // Create Top 1 ghost data
                         await prisma.oCMTop1Ghost.create({
                             data: data
@@ -116,10 +118,11 @@ export async function ocmTallying(body: wm.protobuf.LoadGhostCompetitionInfoRequ
         }
         else
         {
+            console.log('Tallying data from previous Period');
+
             // Get user that playing OCM qualifying day
-            let gbRecordTally = await prisma.oCMGhostBattleRecord.findMany({ 
+            let OCMTally = await prisma.oCMTally.findMany({ 
                 where:{
-                    ocmMainDraw: true,
                     competitionId: body.competitionId,
                     periodId: periodId
                 },
@@ -129,42 +132,98 @@ export async function ocmTallying(body: wm.protobuf.LoadGhostCompetitionInfoRequ
             });
             
             // gbRecordTally is set
-            if(gbRecordTally)
+            if(OCMTally)
             {
-                let top1advantage = 0;
-                for(let i=0; i<gbRecordTally.length; i++)
+                let top1advantage = null;
+                let currentResult = 0;
+                for(let i=0; i<OCMTally.length; i++)
                 {
                     // Get the Top 1 Advantage
-                    if(top1advantage === 0)
+                    if(top1advantage === null)
                     {
-                        top1advantage = gbRecordTally[i].result
+                        top1advantage = OCMTally[i].result;
+
+                        let getTrail = await prisma.oCMGhostTrail.findFirst({
+                            where:{
+                                carId: OCMTally[i].carId,
+                                competitionId: body.competitionId,
+                                ocmMainDraw: true
+                            }
+                        })
+
+                        if(getTrail)
+                        {
+                            await prisma.oCMTop1GhostTrail.create({
+                                data: {
+                                    carId: getTrail.carId,
+                                    area: getTrail.area,
+                                    ramp: getTrail.ramp,
+                                    path: getTrail.path,
+                                    trail: getTrail.trail,
+                                    competitionId: getTrail.competitionId,
+                                    periodId: getTrail.periodId + 1,
+                                    playedAt: getTrail.playedAt,
+                                    tunePower: getTrail.tunePower,
+                                    tuneHandling: getTrail.tuneHandling,
+                                    ocmMainDraw: true
+                                }
+                            })
+                        }
                     }
 
-                    // User is lose VS Top 1 Qualifying Ghost (minus advantage like -10 meter)
-                    if(gbRecordTally[i].result < 0)
+                    // Get the Top 1 Advantage
+                    if(top1advantage > 0)
                     {
-                        gbRecordTally[i].result = top1advantage + Math.abs(gbRecordTally[i].result);
-                    }
+                        if(OCMTally[i].result <= 0)
+                        {
+                            currentResult = top1advantage + Math.abs(OCMTally[i].result);
 
-                    // Get current Result after calculated
-                    let currentResult = top1advantage - gbRecordTally[i].result
+                            currentResult = -Math.abs(currentResult);
+                        }
+                        else
+                        {
+                            currentResult = OCMTally[i].result - top1advantage;
+                        }
+                    }
+                    else
+                    {
+                        currentResult = top1advantage +  Math.abs(OCMTally[i].result);
+
+                        currentResult = -Math.abs(currentResult);
+                    }
 
                     // Moving data to OCM Tally
                     let data : any = {
-                        carId: gbRecordTally[i].carId,
+                        carId: OCMTally[i].carId,
                         result: currentResult,
-                        tunePower: gbRecordTally[i].tunePower,
-                        tuneHandling: gbRecordTally[i].tuneHandling,
+                        tunePower: OCMTally[i].tunePower,
+                        tuneHandling: OCMTally[i].tuneHandling,
                         competitionId: body.competitionId,
-                        periodId: periodId
+                        periodId: periodId + 1
                     }
 
-                    // Create the data
-                    await prisma.oCMTally.create({
-                        data: data
+                    let checkOCMTally = await prisma.oCMTally.findFirst({
+                        where: {
+                            carId: OCMTally[i].carId,
+                            competitionId: body.competitionId,
+                        }
                     });
 
+                    if(checkOCMTally)
+                    {
+                        // Update the tally data
+                        await prisma.oCMTally.update({
+                            where:{
+                                dbId: checkOCMTally?.dbId
+                            },
+                            data: data
+                        });
+                    }
+                    
+
                     if(i === 0){
+                        console.log('Making OCM Top 1 Ghost Data');
+
                         // Create Top 1 ghost data
                         await prisma.oCMTop1Ghost.create({
                             data: data
@@ -177,10 +236,11 @@ export async function ocmTallying(body: wm.protobuf.LoadGhostCompetitionInfoRequ
     // OCM is ended
     else
     {
+        console.log('Tallying data for end of OCM');
+
         // Get user that playing OCM qualifying day
-        let gbRecordTally = await prisma.oCMGhostBattleRecord.findMany({ 
+        let OCMTally = await prisma.oCMTally.findMany({ 
             where:{
-                ocmMainDraw: true,
                 competitionId: body.competitionId,
                 periodId: periodId
             },
@@ -190,42 +250,98 @@ export async function ocmTallying(body: wm.protobuf.LoadGhostCompetitionInfoRequ
         });
         
         // gbRecordTally is set
-        if(gbRecordTally)
+        if(OCMTally)
         {
-            let top1advantage = 0;
-            for(let i=0; i<gbRecordTally.length; i++)
+            let top1advantage = null;
+            let currentResult = 0;
+            for(let i=0; i<OCMTally.length; i++)
             {
                 // Get the Top 1 Advantage
-                if(top1advantage === 0)
+                if(top1advantage === null)
                 {
-                    top1advantage = gbRecordTally[i].result
+                    top1advantage = OCMTally[i].result;
+
+                    let getTrail = await prisma.oCMGhostTrail.findFirst({
+                        where:{
+                            carId: OCMTally[i].carId,
+                            competitionId: body.competitionId,
+                            ocmMainDraw: true
+                        }
+                    })
+
+                    if(getTrail)
+                    {
+                        await prisma.oCMTop1GhostTrail.create({
+                            data: {
+                                carId: getTrail.carId,
+                                area: getTrail.area,
+                                ramp: getTrail.ramp,
+                                path: getTrail.path,
+                                trail: getTrail.trail,
+                                competitionId: getTrail.competitionId,
+                                periodId: getTrail.periodId + 1,
+                                playedAt: getTrail.playedAt,
+                                tunePower: getTrail.tunePower,
+                                tuneHandling: getTrail.tuneHandling,
+                                ocmMainDraw: true
+                            }
+                        })
+                    }
                 }
 
-                // User is lose VS Top 1 Qualifying Ghost (minus advantage like -10 meter)
-                if(gbRecordTally[i].result < 0)
+                // Get the Top 1 Advantage
+                if(top1advantage > 0)
                 {
-                    gbRecordTally[i].result = top1advantage + Math.abs(gbRecordTally[i].result);
-                }
+                    if(OCMTally[i].result <= 0)
+                    {
+                        currentResult = top1advantage + Math.abs(OCMTally[i].result);
 
-                // Get current Result after calculated
-                let currentResult = top1advantage - gbRecordTally[i].result
+                        currentResult = -Math.abs(currentResult);
+                    }
+                    else
+                    {
+                        currentResult = OCMTally[i].result - top1advantage;
+                    }
+                }
+                else
+                {
+                    currentResult = top1advantage +  Math.abs(OCMTally[i].result);
+
+                    currentResult = -Math.abs(currentResult);
+                }
 
                 // Moving data to OCM Tally
                 let data : any = {
-                    carId: gbRecordTally[i].carId,
+                    carId: OCMTally[i].carId,
                     result: currentResult,
-                    tunePower: gbRecordTally[i].tunePower,
-                    tuneHandling: gbRecordTally[i].tuneHandling,
+                    tunePower: OCMTally[i].tunePower,
+                    tuneHandling: OCMTally[i].tuneHandling,
                     competitionId: body.competitionId,
-                    periodId: periodId
+                    periodId: periodId + 1
                 }
 
-                // Create the data
-                await prisma.oCMTally.create({
-                    data: data
+                let checkOCMTally = await prisma.oCMTally.findFirst({
+                    where: {
+                        carId: OCMTally[i].carId,
+                        competitionId: body.competitionId,
+                    }
                 });
 
+                if(checkOCMTally)
+                {
+                    // Update the tally data
+                    await prisma.oCMTally.update({
+                        where:{
+                            dbId: checkOCMTally?.dbId
+                        },
+                        data: data
+                    });
+                }
+                
+
                 if(i === 0){
+                    console.log('Making OCM Top 1 Ghost Data');
+
                     // Create Top 1 ghost data
                     await prisma.oCMTop1Ghost.create({
                         data: data
