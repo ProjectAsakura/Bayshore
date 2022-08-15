@@ -1,0 +1,44 @@
+######################## OCMEvent TABLE ########################
+// Structure
+INSERT INTO "public"."OCMEvent" VALUES (dbId, competitionId, qualifyingPeriodStartAt, qualifyingPeriodCloseAt, competitionStartAt, competitionCloseAt, competitionEndAt, lengthOfPeriod, lengthOfInterval, area, minigamePattern);
+
+// Query Example
+INSERT INTO "public"."OCMEvent" VALUES (1, 4, 1659286800, 1660064400, 1660150800, 1660928400, 1661792400, 86400, 0, 0, 1);
+
+// CompetitionId Reference :
+BASE_PATH\src\util\games\games_util\ghost_ocm_area.ts
+
+// Description
+competitionId			= OCM Event number (also for changing the area)
+qualifyingPeriodStartAt	= start timestamp (datetime) of OCM Qualifying
+qualifyingPeriodCloseAt	= end timestamp (datetime) of OCM Qualifying
+competitionStartAt 		= start timestamp (datetime) of OCM Main Draw
+competitionCloseAt 		= end timestamp (datetime) of OCM Main Draw
+competitionEndAt 		= idk what this is, maybe timestamp (datetime) OCM gone from the game ghost battle menu
+lengthOfPeriod			= not sure what this is, maybe the length of the timestamp of each period (like how much time for each period)
+lengthOfInterval		= idk what this is (maybe interval for each period)
+area					= course area, not really important tbh.. set to 0 still works fine
+minigamePattern			= idk the correct value
+
+
+
+
+######################## OCMPeriod TABLE ########################
+// Structure
+INSERT INTO "public"."OCMPeriod" VALUES (dbId, competitionDbId, competitionId, periodId, startAt, closeAt);
+
+// INSERT QUERY is automatic.. no need to insert manually
+
+// Description
+competitionId	= OCM Event number (connected to OCMEvent table)
+periodId		= idk how to explain this...
+startAt			= start timestamp (datetime) of each period
+closeAt			= end timestamp (datetime) of each period
+
+// periodId formula (idk if this is correct) :
+1. x = competitionStartAt + lengthOfPeriod
+2. if x is still less than competitionCloseAt, periodId = 1
+3. competitionStartAt = x + lengthOfInterval
+4. do the count again (no 1)
+5. if x is still less than competitionCloseAt, periodId = periodId + 1 (in this case is periodId = 2)
+6. do it again until x is more than or same like competitionCloseAt (better make it same like competitionCloseAt)
