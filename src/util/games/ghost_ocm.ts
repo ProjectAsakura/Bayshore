@@ -161,7 +161,7 @@ export async function ocmTallying(body: wm.protobuf.LoadGhostCompetitionInfoRequ
                                     path: getTrail.path,
                                     trail: getTrail.trail,
                                     competitionId: getTrail.competitionId,
-                                    periodId: getTrail.periodId + 1,
+                                    periodId: periodId + 1,
                                     playedAt: getTrail.playedAt,
                                     tunePower: getTrail.tunePower,
                                     tuneHandling: getTrail.tuneHandling,
@@ -279,7 +279,7 @@ export async function ocmTallying(body: wm.protobuf.LoadGhostCompetitionInfoRequ
                                 path: getTrail.path,
                                 trail: getTrail.trail,
                                 competitionId: getTrail.competitionId,
-                                periodId: getTrail.periodId + 1,
+                                periodId: 999999999,
                                 playedAt: getTrail.playedAt,
                                 tunePower: getTrail.tunePower,
                                 tuneHandling: getTrail.tuneHandling,
@@ -317,7 +317,7 @@ export async function ocmTallying(body: wm.protobuf.LoadGhostCompetitionInfoRequ
                     tunePower: OCMTally[i].tunePower,
                     tuneHandling: OCMTally[i].tuneHandling,
                     competitionId: body.competitionId,
-                    periodId: periodId + 1
+                    periodId: 999999999
                 }
 
                 let checkOCMTally = await prisma.oCMTally.findFirst({
@@ -521,7 +521,7 @@ export async function ocmGiveNamePlateReward(competitionId: number)
             competitionId: competitionId,
         },
         orderBy:{
-            result: 'asc'
+            result: 'desc'
         }
     });
 

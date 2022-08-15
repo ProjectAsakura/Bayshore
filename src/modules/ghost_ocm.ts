@@ -107,7 +107,7 @@ export default class GhostModule extends Module {
 				}
 
 				// Current date is OCM main draw
-				if(ocmEventDate!.competitionStartAt < date && ocmEventDate!.competitionCloseAt > date)
+				if(ocmEventDate!.competitionStartAt <= date && ocmEventDate!.competitionCloseAt >= date)
 				{
 					console.log('Current OCM Day : Competition Day / Main Draw');
 
@@ -199,7 +199,6 @@ export default class GhostModule extends Module {
 						let OCMTallyCount = await prisma.oCMTally.count({ 
 							where: {
 								competitionId: OCMCurrentPeriod.competitionId,
-								periodId: OCMCurrentPeriod.periodId
 							},
 							orderBy:{
 								periodId: 'desc'
@@ -211,92 +210,90 @@ export default class GhostModule extends Module {
 						{ 
 							console.log('Tallying');
 
-							await ghost_ocm.ocmTallying(body, OCMCurrentPeriod.periodId + 1, true);
+							await ghost_ocm.ocmTallying(body, OCMCurrentPeriod.periodId, true);
 
 							// Completed
 							console.log('Last Tally Completed!');
 						}
-						// Tallied
-						else
+
+						
+						// Checking if nameplate reward is given
+						let checkOneParticipant = await prisma.oCMPlayRecord.findFirst({
+							orderBy:{
+								dbId: 'desc'
+							}
+						});
+
+						if(checkOneParticipant)
 						{
-							// Checking if nameplate reward is given
-							let checkOneParticipant = await prisma.oCMPlayRecord.findFirst({
+							let itemId = 0;
+							// 16th - C1
+							if(ocmEventDate.competitionId === 1)
+							{
+								itemId = 204;
+							}
+							// 17th - Osaka
+							else if(ocmEventDate.competitionId === 2)
+							{
+								itemId = 210;
+							}
+							// 18th - Fukuoka
+							else if(ocmEventDate.competitionId === 3)
+							{
+								itemId = 216;
+							}
+							// 19th - Nagoya
+							else if(ocmEventDate.competitionId === 4)
+							{
+								itemId = 222;
+							}
+							// 6th - C1
+							else if(ocmEventDate.competitionId === 5) 
+							{
+								itemId = 35;
+							}
+							// 20th - Kobe
+							else if(ocmEventDate.competitionId === 6) 
+							{
+								itemId = 228;
+							}
+							// 7th - Fukutoshin
+							else if(ocmEventDate.competitionId === 7) 
+							{
+								itemId = 41;
+							}
+							// 21st - Hiroshima
+							else if(ocmEventDate.competitionId === 8) 
+							{
+								itemId = 234;
+							}
+							// 8th - Hakone
+							else if(ocmEventDate.competitionId === 9) 
+							{
+								itemId = 47;
+							}
+
+							let checkNameplate = await prisma.carItem.count({
+								where:{
+									category: 17,
+									itemId: itemId
+								},
 								orderBy:{
-									dbId: 'asc'
+									itemId: 'desc'
 								}
 							});
+							
 
-							if(checkOneParticipant)
+							if(checkNameplate === 0)
 							{
-								let itemId = 0;
-								// 16th - C1
-								if(ocmEventDate.competitionId === 1)
-								{
-									itemId = 204;
-								}
-								// 17th - Osaka
-								else if(ocmEventDate.competitionId === 2)
-								{
-									itemId = 210;
-								}
-								// 18th - Fukuoka
-								else if(ocmEventDate.competitionId === 3)
-								{
-									itemId = 216;
-								}
-								// 19th - Nagoya
-								else if(ocmEventDate.competitionId === 4)
-								{
-									itemId = 222;
-								}
-								// 6th - C1
-								else if(ocmEventDate.competitionId === 5) 
-								{
-									itemId = 35;
-								}
-								// 20th - Kobe
-								else if(ocmEventDate.competitionId === 6) 
-								{
-									itemId = 228;
-								}
-								// 7th - Fukutoshin
-								else if(ocmEventDate.competitionId === 7) 
-								{
-									itemId = 41;
-								}
-								// 21st - Hiroshima
-								else if(ocmEventDate.competitionId === 8) 
-								{
-									itemId = 234;
-								}
-								// 8th - Hakone
-								else if(ocmEventDate.competitionId === 9) 
-								{
-									itemId = 47;
-								}
+								console.log('Giving OCM Rewards');
 
-								let checkNameplate = await prisma.carItem.count({
-									where:{
-										category: 17,
-										itemId: itemId
-									},
-									orderBy:{
-										itemId: 'desc'
-									}
-								});
-								
+								await ghost_ocm.ocmGiveNamePlateReward(ocmEventDate.competitionId);
 
-								if(checkNameplate === 0)
-								{
-									console.log('Giving OCM Rewards');
-
-									await ghost_ocm.ocmGiveNamePlateReward(ocmEventDate.competitionId);
-
-									console.log('OCM Rewards Given');
-								}
-
-								// else{} nameplate reward already given
+								console.log('OCM Rewards Given');
 							}
+
+							// else{} nameplate reward already given
 						}
 					}
 
