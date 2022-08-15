@@ -338,10 +338,10 @@ export default class UserModule extends Module {
 						// Check Car State
 						// Get OCM Data
 						let ocmTallyRecord = await prisma.oCMTally.findMany({ 
+							where:{
+								competitionId: ocmEventDate!.competitionId
+							},
 							orderBy: [
-								{
-									dbId: 'asc',
-								},
 								{
 									competitionId: 'desc',
 								},
@@ -385,7 +385,11 @@ export default class UserModule extends Module {
 						}
 
 						// Check Car State
+						// Get OCM Data
 						let ocmRecord = await prisma.oCMPlayRecord.findMany({ 
+							where:{
+								competitionId: ocmEventDate!.competitionId
+							},
 							orderBy: [
 								{
 									dbId: 'asc',
@@ -423,6 +427,38 @@ export default class UserModule extends Module {
 						if(checkParticipation)
 						{
 							ParticipationEndedCounter++
+						}
+
+						// Check Car State
+						// Get OCM Data
+						let ocmTallyRecord = await prisma.oCMTally.findMany({ 
+							where:{
+								competitionId: ocmEventDate!.competitionId
+							},
+							orderBy: [
+								{
+									competitionId: 'desc',
+								},
+								{
+									periodId: 'desc',
+								},
+								{
+									result: 'desc',
+								},
+							],
+						});
+
+						for(let j=0; j<ocmTallyRecord.length; j++)
+						{
+							if(carStates[i].dbId === ocmTallyRecord[j].carId)
+							{
+								carStates[i].eventJoined = true;
+								carStates[i].competitionState = wm.wm.protobuf.GhostCompetitionParticipantState.COMPETITION_QUALIFIED
+							}
+							if(carStates[i].dbId === ocmTallyRecord[j].carId && j === 0)
+							{
+								carStates[i].competitionState = wm.wm.protobuf.GhostCompetitionParticipantState.COMPETITION_WON
+							}
 						}
 					}
 				}

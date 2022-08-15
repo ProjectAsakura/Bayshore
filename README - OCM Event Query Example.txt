@@ -20,7 +20,7 @@ lengthOfInterval		= idk what this is (maybe interval for each period)
 area					= course area, not really important tbh.. set to 0 still works fine
 minigamePattern			= idk the correct value
 
----PLEASE DON'T CHANGE THE TIMETAMPS AFTER YOU SET YOURS OCM EVENT.. DO IT BEFORE YOU RUN THE QUERY---
+---PLEASE DON'T CHANGE THE TIMETAMPS (maybe competitionId too) AFTER YOU SET YOURS OCM EVENT.. DO IT BEFORE YOU RUN THE QUERY---
 
 
 ######################## OCMPeriod TABLE ########################
