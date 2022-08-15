@@ -23,7 +23,7 @@ export default class StartupModule extends Module {
             // Get current date
             let date = Math.floor(new Date().getTime() / 1000);
 
-            // Get current active OCM Event
+            // Get current / previous active OCM Event
             let ocmEventDate = await prisma.oCMEvent.findFirst({
                 orderBy: [
                     {

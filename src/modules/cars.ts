@@ -45,6 +45,95 @@ export default class CarModule extends Module {
 			// Convert the database lose bits to a Long
 			let longLoseBits = Long.fromString(car!.stLoseBits.toString());
 
+			// Get current date
+            let date = Math.floor(new Date().getTime() / 1000);
+
+			// Get current / previous active OCM Event
+            let ocmEventDate = await prisma.oCMEvent.findFirst({
+				where:{
+					competitionEndAt:
+					{
+						lte: date // competitionEndAt less than current date
+					}
+				},
+                orderBy: [
+                    {
+                        dbId: 'desc'
+                    },
+                    {
+                        competitionEndAt: 'desc',
+                    },
+                ],
+            });
+            // Declare GhostCompetitionSchedule
+			let ghostCarsNo1;
+			let trailIdNo1: number = 0;
+            if(ocmEventDate)
+            {
+                let pastDay = date - ocmEventDate.competitionEndAt
+
+                if(pastDay < 604800)
+                {
+					let getNo1OCM = await prisma.oCMTally.findFirst({
+						where:{
+							competitionId: ocmEventDate.competitionId,
+							periodId: 999999999
+						},
+						orderBy:{
+							result: 'desc'
+						}
+					});
+
+					if(getNo1OCM)
+					{
+						let carId = getNo1OCM.carId
+
+						// Get Car Data
+						let cars = await prisma.car.findFirst({
+							where:{
+								carId: carId
+							},
+							include:{
+								gtWing: true
+							}
+						});
+
+						// Get Place
+						let playedPlace = wm.wm.protobuf.Place.create({ 
+							placeId: 'JPN0123',
+							shopName: Config.getConfig().shopName,
+							regionId: 18,
+							country: 'JPN'
+						});
+
+						// Get Ghost Trail
+						let ghostTrailNo1 = await prisma.oCMTop1GhostTrail.findFirst({
+							where:{
+								carId: carId,
+								competitionId: ocmEventDate.competitionId,
+								periodId: 999999999
+							}
+						});
+
+						trailIdNo1 = ghostTrailNo1!.dbId;
+
+						ghostCarsNo1 = wm.wm.protobuf.GhostCar.create({ 
+							car: {
+								...cars!,
+								lastPlayedPlace: playedPlace
+							},
+							area: ghostTrailNo1!.area,
+							ramp: ghostTrailNo1!.ramp,
+							path: ghostTrailNo1!.path,
+							nonhuman: false,
+							type: wm.wm.protobuf.GhostType.GHOST_NORMAL,
+							trailId: trailIdNo1
+						});
+					}
+					
+				}
+			}
+
             // Response data
 			let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
@@ -63,7 +152,10 @@ export default class CarModule extends Module {
 				stLoseBits: longLoseBits,
 				ownedItems: car!.items,
 				lastPlayedAt: car!.lastPlayedAt,
-				announceEventModePrize: true
+				announceEventModePrize: true,
+				opponentGhost: ghostCarsNo1 || null,
+				opponentTrailId: trailIdNo1 || null,
+				opponentCompetitionId: ocmEventDate!.competitionId || null
 			};
 
             // Generate the load car response message

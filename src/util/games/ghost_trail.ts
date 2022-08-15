@@ -13,34 +13,14 @@ export async function getOCMGhostTrail(carId: number, trailId: number)
 
     // Get current active OCM Event
     let ocmEventDate = await prisma.oCMEvent.findFirst({
-        where: {
-            OR: [
-                {
-                    // qualifyingPeriodStartAt is less than current date
-                    qualifyingPeriodStartAt: { lte: date },
-
-                    // qualifyingPeriodCloseAt is greater than current date
-                    qualifyingPeriodCloseAt: { gte: date },
-                },
-                { 
-                    // competitionStartAt is less than current date
-                    competitionStartAt: { lte: date },
-
-                    // competitionCloseAt is greater than current date
-                    competitionCloseAt: { gte: date },
-                },
-                {
-                    // competitionCloseAt is less than current date 
-                    competitionCloseAt: { lte: date },
-
-                    // competitionEndAt is greater than current date
-                    competitionEndAt: {gte: date },
-                }
-            ],
-        },
-        orderBy:{
-            dbId: 'desc'
-        }
+        orderBy: [
+            {
+                dbId: 'desc'
+            },
+            {
+                competitionEndAt: 'desc',
+            },
+        ],
     });
 
     let ghost_trails: OCMTop1GhostTrail | null;
@@ -75,13 +55,28 @@ export async function getOCMGhostTrail(carId: number, trailId: number)
         });
     }
     // Current date is OCM qualifying day
-    else{ 
+    else if(ocmEventDate!.qualifyingPeriodStartAt < date && ocmEventDate!.qualifyingPeriodCloseAt > date)
+    {
         ghost_trails = await prisma.oCMTop1GhostTrail.findFirst({ 
             where: {
                 carId: carId,
                 dbId: trailId,
                 competitionId: ocmEventDate!.competitionId,
                 periodId: 0
+            },
+            orderBy: {
+                playedAt: 'desc'
+            }
+        });
+    }
+    else
+    {
+        ghost_trails = await prisma.oCMTop1GhostTrail.findFirst({ 
+            where: {
+                carId: carId,
+                dbId: trailId,
+                competitionId: ocmEventDate!.competitionId,
+                periodId: 999999999
             },
             orderBy: {
                 playedAt: 'desc'
