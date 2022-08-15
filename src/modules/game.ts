@@ -1504,7 +1504,7 @@ export default class GameModule extends Module {
 			r.send(Buffer.from(end));
 		})
 
-		// Car Summary Request (for bookmarks)
+		// Car Summary Request (for bookmarks, also for search ghost by name)
 		app.get('/resource/car_summary', async (req, res) => {
 
 			// Get the query from the request
@@ -1522,6 +1522,15 @@ export default class GameModule extends Module {
 					gtWing: true
 				}
 			});
+			
+			for(let i=0; i<cars.length; i++)
+			{
+				if(cars[i].regionId === 0)
+				{
+					let randomRegionId = Math.floor(Math.random() * 47) + 1;
+					cars[i].regionId = randomRegionId;
+				}
+			}
 
 			let msg = {
 				hitCount: cars.length,
