@@ -1115,9 +1115,11 @@ export default class GameModule extends Module {
 			// Get the user's cars
 			let cars = user.cars; 
 			
-			for(let i=0; i<cars.length; i++)
+			for(let i=0; i<user.cars.length; i++)
 			{
-				cars[i].country = 'JPN';
+				let randomRegionId = Math.floor(Math.random() * 47) + 1;
+				user.cars[i].regionid = Number(randomRegionId);
+				user.cars[i].country = 'JPN';
 			}
 
 			// If the car order array has not been created
