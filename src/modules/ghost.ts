@@ -261,7 +261,6 @@ export default class GhostModule extends Module {
 
             // Get the request body for the load ghost drive data request
             let body = wm.wm.protobuf.LoadGhostDriveDataRequest.decode(req.body);
-			console.log(body);
 
             // Get the path value from request body
 			let path = body.path;
