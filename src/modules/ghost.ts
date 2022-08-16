@@ -372,7 +372,7 @@ export default class GhostModule extends Module {
 			else if(actualSessionId > 0 && actualSessionId < 101)
 			{
                 // Check if it is crown ghost battle or not (crown ghost battle don't have time, driveData, trendBinaryByArea, trendBinaryByCar, trendBinaryByUser value from request body)
-				if(!(body.driveData))
+				if(!(body.trendBinaryByArea) && !(body.trendBinaryByCar) && !(body.trendBinaryByUser))
 				{
 					console.log('Crown Ghost Battle Game found');
 
