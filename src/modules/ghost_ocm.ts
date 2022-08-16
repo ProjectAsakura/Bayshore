@@ -76,7 +76,7 @@ export default class GhostModule extends Module {
 					let period = 1;
 
 					// Count how many period
-					while(competitionPeriodStartTimestamp < ocmEventDate.competitionEndAt)
+					while(competitionPeriodStartTimestamp < ocmEventDate.competitionCloseAt)
 					{
 						
 						// Count period closing timestamp
