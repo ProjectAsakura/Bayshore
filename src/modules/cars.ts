@@ -460,7 +460,7 @@ export default class CarModule extends Module {
             }
 
             // Generate the load car response message
-            let message = wm.wm.protobuf.UpdateCarResponse.encode(msg);
+            let message = wm.wm.protobuf.CreateCarResponse.encode(msg);
 
             // Send the response
             common.sendResponse(message, res);
