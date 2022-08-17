@@ -103,6 +103,19 @@ export default class GhostModule extends Module {
 						competitionPeriodStartTimestamp = competitionPeriodEndTimeStamp + ocmEventDate.lengthOfInterval;
 					}
 
+					if(ocmEventDate.lengthOfInterval !== 0)
+					{
+						let qualifyingEndTimeStamp = ocmEventDate.qualifyingPeriodCloseAt - ocmEventDate.lengthOfInterval
+						await prisma.oCMEvent.update({
+							where:{
+								dbId: ocmEventDate.dbId
+							},
+							data:{
+								qualifyingPeriodCloseAt: qualifyingEndTimeStamp
+							}
+						})
+					}
+
 					console.log('Calculating Period Completed!');
 				}
 
