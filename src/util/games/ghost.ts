@@ -292,8 +292,13 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                 {
                     saveExOCM.periodId = 0;
                 }
-                if(body.rgResult?.brakingPoint){
+                if(body.rgResult?.brakingPoint)
+                {
                     saveExOCM.brakingPoint = body.rgResult?.brakingPoint!;
+                }
+                else
+                {
+                    saveExOCM.brakingPoint = 0;
                 }
                 if(body?.playedAt){
                     saveExOCM.playedAt = body?.playedAt!;

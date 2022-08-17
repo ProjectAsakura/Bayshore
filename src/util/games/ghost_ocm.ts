@@ -484,6 +484,17 @@ export async function ocmQualifyingDay(body: wm.protobuf.LoadGhostCompetitionInf
                     };
                 }
             }
+            else
+            {
+                // Response data
+                msg = {
+                    error: wmproto.wm.protobuf.ErrorCode.ERR_SUCCESS,
+                    periodId: 0,
+                    closed: false,
+                    qualified: isQualified,
+                    result: gbRecord!.result
+                };
+            }
         }
         // Record not found
         else
