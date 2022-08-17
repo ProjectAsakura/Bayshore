@@ -73,15 +73,26 @@ allnetApp.use((req, res, next) => {
     next()
 });
 
+// Get all of the files in the modules directory
 let dirs = fs.readdirSync('dist/modules');
-for (let i of dirs) {
-    if (i.endsWith('.js')) {
+// Loop over the files
+for (let i of dirs) 
+{
+    // If the file is a .js file
+    if (i.endsWith('.js')) 
+    {
+        // Require the module file
         let mod = require(`./modules/${i.substring(0, i.length - 3)}`); // .js extension
+
+        // Create an instance of the module
         let inst = new mod.default();
+
+        // Register the module with the app
         inst.register(appRouter);
     }
 }
 
+// Host on / and /wmmt6/ path
 app.use('/', appRouter);
 app.use('/wmmt6/', appRouter);
 
@@ -90,15 +101,22 @@ app.all('*', (req, res) => {
     res.status(200).end();
 })
 
+// Register the ALL.NET / Mucha Server
 new AllnetModule().register(allnetApp);
 new MuchaModule().register(muchaApp);
 
+// Sentry is in use
 if (useSentry)
+{
+     // Use the sentry error handler
     app.use(Sentry.Handlers.errorHandler());
+}
 
+// Get the wangan key / certificate file
 let key = fs.readFileSync('./server_wangan.key');
 let cert = fs.readFileSync('./server_wangan.crt');
 
+// Create the (ALL.Net) server
 http.createServer(allnetApp).listen(PORT_ALLNET, '0.0.0.0', 511, () => {
     console.log(`ALL.net server listening on port ${PORT_ALLNET}!`);
     let unix = Config.getConfig().unix;
@@ -110,10 +128,12 @@ http.createServer(allnetApp).listen(PORT_ALLNET, '0.0.0.0', 511, () => {
     }
 })
 
+// Create the mucha server
 https.createServer({key, cert}, muchaApp).listen(PORT_MUCHA, '0.0.0.0', 511, () => {
     console.log(`Mucha server listening on port ${PORT_MUCHA}!`);
 })
 
+// Create the game server
 https.createServer({key, cert}, app).listen(PORT_BNGI, '0.0.0.0', 511, () => {
     console.log(`Game server listening on port ${PORT_BNGI}!`);
 })

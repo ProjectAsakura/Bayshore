@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Car" ADD COLUMN     "country" TEXT NOT NULL DEFAULT 'JPN',
+ALTER COLUMN "stLoseBits" SET DEFAULT 0;

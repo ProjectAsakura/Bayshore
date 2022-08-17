@@ -1,10 +1,10 @@
 {
     "shopName": "Bayshore",
-    "shopNickname": "BSH",
-    "regionName": "Bayshore",
+    "shopNickname": "Bayshore",
+    "regionName": "JPN0123",
     "serverIp": "127.0.0.1",
     "gameOptions": {
-        "grantFullTuneTicketToNewUsers": 3, 
+        "grantFullTuneTicketToNewUsers": 5, 
         "giftCarsFullyTuned": 0, 
         "scratchEnabled": 1, 
         "scratchType": 1, 
