@@ -178,6 +178,7 @@ export default class TerminalModule extends Module {
 			r.send(Buffer.from(end));
 		})
 
+		
 		// Car Summary Request (for bookmarks, also for search ghost by name)
 		app.get('/resource/car_summary', async (req, res) => {
 
@@ -221,6 +222,7 @@ export default class TerminalModule extends Module {
 			r.send(Buffer.from(end));
 
 		})
+
 
 		// Save upon timeout / exit terminal
 		app.post('/method/save_terminal_result', async (req, res) => {
