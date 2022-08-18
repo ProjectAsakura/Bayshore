@@ -462,6 +462,39 @@ export default class UserModule extends Module {
 						}
 					}
 				}
+				
+				if(!ocmEventDate)
+				{
+					let ocmEventDate = await prisma.oCMEvent.findFirst({
+						orderBy: [
+							{
+								dbId: 'desc'
+							},
+							{
+								competitionEndAt: 'desc',
+							},
+						],
+					});
+
+					if(ocmEventDate)
+					{
+						let pastDay = date - ocmEventDate.competitionEndAt;
+
+						if(pastDay < 604800)
+						{
+							let checkRegisteredGhost = await prisma.ghostRegisteredFromTerminal.findFirst({
+								where:{
+									carId: user.cars[i].carId
+								}
+							});
+
+							if(checkRegisteredGhost)
+							{
+								carStates[i].hasOpponentGhost = true;
+							}
+						}
+					}
+				}
 			}
 
 			// Participated to OCM Event

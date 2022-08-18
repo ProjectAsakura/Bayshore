@@ -22,9 +22,6 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
         // Set ghost mode play to true for saving the ghost trail later
         ghostModePlay = true;
 
-        // Set update new trail to true for updating the user's ghost trail after playing OCM ghost battle mode later
-        updateNewTrail = true;
-
         // Get the ghost result for the car
         let ghostResult = body?.rgResult;
 
@@ -115,7 +112,60 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
 
         switch (body.rgResult!.selectionMethod) 
         {
+            // Ghost Battle by Level
             case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SELECT_BY_LEVEL:
+            {
+                console.log('Normal Ghost Mode Found');
+
+                ghost_historys = await ghost_history.saveGhostHistory(body);
+
+                // Update the updateNewTrail value
+                updateNewTrail = ghost_historys.updateNewTrail;
+
+                break;
+            }
+
+            // Ghost Battle by Name
+            case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SEARCH_BY_NAME:
+            {
+                console.log('Normal Ghost Mode Found');
+
+                ghost_historys = await ghost_history.saveGhostHistory(body);
+
+                // Update the updateNewTrail value
+                updateNewTrail = ghost_historys.updateNewTrail;
+
+                break;
+            }
+
+            // Ghost Battle by Region
+            case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SEARCH_BY_REGION:
+            {
+                console.log('Normal Ghost Mode Found');
+
+                ghost_historys = await ghost_history.saveGhostHistory(body);
+
+                // Update the updateNewTrail value
+                updateNewTrail = ghost_historys.updateNewTrail;
+
+                break;
+            }
+
+            // Ghost Battle from History
+            case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SELECT_FROM_HISTORY:
+            {
+                console.log('Normal Ghost Mode Found');
+
+                ghost_historys = await ghost_history.saveGhostHistory(body);
+
+                // Update the updateNewTrail value
+                updateNewTrail = ghost_historys.updateNewTrail;
+
+                break;
+            }
+
+            // Ghost Battle by Shop
+            case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SEARCH_BY_SHOP:
             {
                 console.log('Normal Ghost Mode Found');
 
@@ -265,12 +315,12 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                             });
                         }
                     }
+
+                    ghost_historys = await ghost_history.saveGhostHistory(body);
+
+                    // Update the updateNewTrail value
+                    updateNewTrail = ghost_historys.updateNewTrail;
                 }
-
-                ghost_historys = await ghost_history.saveGhostHistory(body);
-
-                // Update the updateNewTrail value
-                updateNewTrail = ghost_historys.updateNewTrail;
 
                 break;
             }
@@ -279,6 +329,7 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
             case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_COMPETITION:
             {
                 console.log('OCM Ghost Mode Found');
+                
                 OCMModePlay = true;
                 let saveExOCM: any = {};
                 saveExOCM.carId = body.carId;

@@ -60,6 +60,7 @@ export default class StartupModule extends Module {
                 ],
             });
 
+            let pastEvent = 0;
             if(!(ocmEventDate))
             {
                 ocmEventDate = await prisma.oCMEvent.findFirst({
@@ -72,10 +73,13 @@ export default class StartupModule extends Module {
                         },
                     ],
                 });
+
+                pastEvent = 1;
             }
 
             // Declare GhostCompetitionSchedule
-            let compeSch; 
+            let competitionSchedule;
+            let lastCompetitionId: number = 0;
             if(ocmEventDate)
             {
                 let pastDay = date - ocmEventDate.competitionEndAt
@@ -83,7 +87,7 @@ export default class StartupModule extends Module {
                 if(pastDay < 604800)
                 {
                     // Creating GhostCompetitionSchedule
-                    compeSch = wm.wm.protobuf.GhostCompetitionSchedule.create({ 
+                    competitionSchedule = wm.wm.protobuf.GhostCompetitionSchedule.create({ 
 
                         // OCM Competition ID (1 = C1 (Round 16), 4 = Nagoya (Round 19), 8 = Hiroshima (Round 21))
                         competitionId: ocmEventDate.competitionId,
@@ -116,6 +120,11 @@ export default class StartupModule extends Module {
                         minigamePatternId: ocmEventDate.minigamePatternId 
                     });
                 }
+
+                if(pastEvent === 1 && pastDay < 604800)
+                {
+                    lastCompetitionId = ocmEventDate.competitionId
+                }
             }
             
             // Response data
@@ -133,7 +142,8 @@ export default class StartupModule extends Module {
                     pluses: 0,
                     releaseAt: 0 // idk what this is
                 },
-                competitionSchedule: compeSch || null // OCM Event Available or not
+                latestCompetitionId: lastCompetitionId || null,
+                competitionSchedule: competitionSchedule || null // OCM Event Available or not
             }
 
             // Encode the response
