@@ -968,5 +968,52 @@ export default class TerminalModule extends Module {
 			// Send the response to the client
             common.sendResponse(message, res);
 		})
+
+
+		/*
+		app.post('/method/load_unreceived_user_items', async (req, res) => {
+
+			// Response data
+            let msg = {
+				error: wmsrv.wm.protobuf.ErrorCode.ERR_SUCCESS,
+			};
+
+            // Encode the response
+			let message = wmsrv.wm.protobuf.LockStampTargetResponse.encode(msg);
+
+			// Send the response to the client
+            common.sendResponse(message, res);
+		})
+
+
+		app.post('/method/save_screenshot', async (req, res) => {
+
+			// Response data
+            let msg = {
+				error: wmsrv.wm.protobuf.ErrorCode.ERR_SUCCESS,
+			};
+
+            // Encode the response
+			let message = wmsrv.wm.protobuf.SaveScreenshotResponse.encode(msg);
+
+			// Send the response to the client
+            common.sendResponse(message, res);
+		})
+
+
+		app.post('/method/check_item_receivable_cars', async (req, res) => {
+
+			// Response data
+            let msg = {
+				error: wmsrv.wm.protobuf.ErrorCode.ERR_SUCCESS,
+			};
+
+            // Encode the response
+			let message = wmsrv.wm.protobuf.CheckItemReceivableCarsResponse.encode(msg);
+
+			// Send the response to the client
+            common.sendResponse(message, res);
+		})
+		*/
     }	
 }

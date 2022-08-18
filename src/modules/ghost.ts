@@ -636,5 +636,37 @@ export default class GhostModule extends Module {
 			// Send the response to the client
             common.sendResponse(message, res);
         })
+
+
+		/*
+		app.post('/method/lock_stamp_target', async (req, res) => {
+
+			// Response data
+            let msg = {
+				error: wmsrv.wm.protobuf.ErrorCode.ERR_SUCCESS,
+			};
+
+            // Encode the response
+			let message = wmsrv.wm.protobuf.LockStampTargetResponse.encode(msg);
+
+			// Send the response to the client
+            common.sendResponse(message, res);
+		})
+
+		
+		app.get('/resource/ghost_list', async (req, res) => {
+
+			// Response data
+            let msg = {
+				error: wmsrv.wm.protobuf.ErrorCode.ERR_SUCCESS,
+			};
+
+            // Encode the response
+			let message = wmsrv.wm.protobuf.GhostList.encode(msg);
+
+			// Send the response to the client
+            common.sendResponse(message, res);
+		})
+		*/
     }
 }
