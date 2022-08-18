@@ -656,25 +656,80 @@ export default class UserModule extends Module {
         // Start Transfer
         app.post('/method/start_transfer', (req, res) => {
 
+			// Response data
+            let msg = {
+				error: wmsrv.wm.protobuf.ErrorCode.ERR_SUCCESS,
+			};
+
+            // Encode the response
+			let message = wmsrv.wm.protobuf.StartTransferResponse.encode(msg);
+
+			// Send the response to the client
+            common.sendResponse(message, res);
         });
 
 
         // Grant Car Right
         app.post('/method/grant_car_right', (req, res) => {
 
+			// Response data
+            let msg = {
+				error: wmsrv.wm.protobuf.ErrorCode.ERR_SUCCESS,
+			};
+
+            // Encode the response
+			let message = wmsrv.wm.protobuf.GrantCarRightResponse.encode(msg);
+
+			// Send the response to the client
+            common.sendResponse(message, res);
         });
 
 
         // Ask Access Code
         app.post('/method/ask_access_code', (req, res) => {
 
+			// Response data
+            let msg = {
+				error: wmsrv.wm.protobuf.ErrorCode.ERR_SUCCESS,
+			};
+
+            // Encode the response
+			let message = wmsrv.wm.protobuf.AskAccessCodeResponse.encode(msg);
+
+			// Send the response to the client
+            common.sendResponse(message, res);
         });
 
         
         // Participate In Invite Friend Campaign
         app.post('/method/participate_in_invite_friend_campaign', (req, res) => {
 
+			// Response data
+            let msg = {
+				error: wmsrv.wm.protobuf.ErrorCode.ERR_SUCCESS,
+			};
+
+            // Encode the response
+			let message = wmsrv.wm.protobuf.ParticipateInInviteFriendCampaignResponse.encode(msg);
+
+			// Send the response to the client
+            common.sendResponse(message, res);
         });
+
+
+		app.post('/method/consume_user_item', async (req, res) => {
+
+			// Response data
+            let msg = {
+				error: wmsrv.wm.protobuf.ErrorCode.ERR_SUCCESS,
+			};
+
+            // Encode the response
+			let message = wmsrv.wm.protobuf.ConsumeUserItemResponse.encode(msg);
+
+			// Send the response to the client
+            common.sendResponse(message, res);
+		})
         */
     }
 }

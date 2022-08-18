@@ -610,5 +610,65 @@ export default class StartupModule extends Module {
             // Send the response to the client
             common.sendResponse(message, res);
         })
+
+
+        /*
+		app.post('/method/register_system_stats', async (req, res) => {
+
+			// Response data
+			let msg = {
+				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+			}
+
+			// Encode the response
+			let message = wm.wm.protobuf.RegisterSystemStatsResponse.encode(msg);
+
+			// Send the response to the client
+            common.sendResponse(message, res);
+		})
+
+
+        app.post('/method/update_event_mode_serial', async (req, res) => {
+
+			// Response data
+			let msg = {
+				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+			}
+
+			// Encode the response
+			let message = wm.wm.protobuf.UpdateEventModeSerialResponse.encode(msg);
+
+			// Send the response to the client
+            common.sendResponse(message, res);
+		})
+
+        app.post('/method/submit_client_log', async (req, res) => {
+
+			// Response data
+			let msg = {
+				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+			}
+
+			// Encode the response
+			let message = wm.wm.protobuf.SubmitClientLogResponse.encode(msg);
+
+			// Send the response to the client
+            common.sendResponse(message, res);
+		})
+
+        app.get('/resource/file_list', async (req, res) => {
+
+			// Response data
+			let msg = {
+				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+			}
+
+			// Encode the response
+			let message = wm.wm.protobuf.FileList.encode(msg);
+
+			// Send the response to the client
+            common.sendResponse(message, res);
+		})
+		*/
     }
 }
