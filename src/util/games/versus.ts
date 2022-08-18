@@ -7,7 +7,7 @@ import { wm } from "../../wmmt/wm.proto";
 // Save versus battle result
 export async function saveVersusBattleResult(body: wm.protobuf.SaveGameResultRequest)
 {
-    if (!(body.retired || body.timeup)) 
+    if (!(body.retired)) 
     {
         // Get the vs result for the car
         let vsResult = body?.vsResult;

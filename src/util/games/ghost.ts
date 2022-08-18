@@ -22,9 +22,6 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
         // Set ghost mode play to true for saving the ghost trail later
         ghostModePlay = true;
 
-        // Set update new trail to true for updating the user's ghost trail after playing OCM ghost battle mode later
-        updateNewTrail = true;
-
         // Get the ghost result for the car
         let ghostResult = body?.rgResult;
 
@@ -265,12 +262,12 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                             });
                         }
                     }
+
+                    ghost_historys = await ghost_history.saveGhostHistory(body);
+
+                    // Update the updateNewTrail value
+                    updateNewTrail = ghost_historys.updateNewTrail;
                 }
-
-                ghost_historys = await ghost_history.saveGhostHistory(body);
-
-                // Update the updateNewTrail value
-                updateNewTrail = ghost_historys.updateNewTrail;
 
                 break;
             }
@@ -279,6 +276,7 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
             case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_COMPETITION:
             {
                 console.log('OCM Ghost Mode Found');
+                
                 OCMModePlay = true;
                 let saveExOCM: any = {};
                 saveExOCM.carId = body.carId;
