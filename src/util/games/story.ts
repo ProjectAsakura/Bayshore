@@ -21,26 +21,11 @@ export async function saveStoryResult(body: wm.protobuf.SaveGameResultRequest, c
         // storyResult is set
         if (storyResult)
         {
-            // Check if stClearDivCount is not 0
-            let stClearDivCount = undefined;
-            if(storyResult.stClearDivCount && storyResult.stClearDivCount !== 0)
-            {
-                stClearDivCount = storyResult.stClearDivCount
-            }
-
-            // Check if stClearCount is not 0
-            let stClearCount = undefined;
-            if(storyResult.stClearCount && storyResult.stClearCount !== 0)
-            {
-                stClearCount = storyResult.stClearCount
-            }
-            
             // Story update data
             let data : any = {
-                stClearDivCount: stClearDivCount || undefined, 
+                stClearDivCount: storyResult.stClearDivCount || undefined, 
                 stPlayCount: storyResult.stPlayCount || undefined, 
-                stClearCount: stClearCount || undefined, 
-                stClearBits: storyResult.stClearBits || undefined,
+                stClearCount: storyResult.stClearCount || undefined, 
                 stConsecutiveWins: storyResult.stConsecutiveWins || undefined, 
                 tuningPoints: storyResult.tuningPoint || 0, 
                 stCompleted100Episodes: storyResult.stCompleted_100Episodes || undefined, 
@@ -65,6 +50,13 @@ export async function saveStoryResult(body: wm.protobuf.SaveGameResultRequest, c
                     // End the win streak
                     data.stConsecutiveWins = 0;
                 }
+            }
+
+            // Check if clearBits is not null, and not lose the story
+            if (storyResult.stClearBits !== null && storyResult.stClearBits !== undefined 
+                && data.stLoseBits === 0) 
+            {
+                data.stClearBits = storyResult.stClearBits;
             }
 
             // Calling give meter reward function (BASE_PATH/src/util/meter_reward.ts)
