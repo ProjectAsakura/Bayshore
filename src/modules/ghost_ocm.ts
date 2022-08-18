@@ -356,6 +356,8 @@ export default class GhostModule extends Module {
                 where: {
                     OR: [
                         {
+							competitionId: competition_id,
+
 							// qualifyingPeriodStartAt is less than current date
 							qualifyingPeriodStartAt: { lte: date },
 
@@ -363,6 +365,8 @@ export default class GhostModule extends Module {
 							qualifyingPeriodCloseAt: { gte: date },
 						},
 						{ 
+							competitionId: competition_id,
+
 							// competitionStartAt is less than current date
 							competitionStartAt: { lte: date },
 
@@ -370,6 +374,8 @@ export default class GhostModule extends Module {
 							competitionCloseAt: { gte: date },
 						},
                         {
+							competitionId: competition_id,
+							
 							// competitionCloseAt is less than current date 
 							competitionCloseAt: { lte: date },
 

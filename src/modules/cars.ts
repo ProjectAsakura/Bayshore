@@ -50,12 +50,31 @@ export default class CarModule extends Module {
 
 			// Get current / previous active OCM Event
             let ocmEventDate = await prisma.oCMEvent.findFirst({
-				where:{
-					competitionEndAt:
-					{
-						lte: date // competitionEndAt less than current date
-					}
-				},
+                where: {
+                    OR: [
+                        {
+							// qualifyingPeriodStartAt is less than current date
+							qualifyingPeriodStartAt: { lte: date },
+
+							// qualifyingPeriodCloseAt is greater than current date
+							qualifyingPeriodCloseAt: { gte: date },
+						},
+						{ 
+							// competitionStartAt is less than current date
+							competitionStartAt: { lte: date },
+
+							// competitionCloseAt is greater than current date
+							competitionCloseAt: { gte: date },
+						},
+                        {
+							// competitionCloseAt is less than current date 
+							competitionCloseAt: { lte: date },
+
+							// competitionEndAt is greater than current date
+							competitionEndAt: {gte: date },
+						}
+                    ],
+                },
                 orderBy: [
                     {
                         dbId: 'desc'
@@ -65,72 +84,99 @@ export default class CarModule extends Module {
                     },
                 ],
             });
-            // Declare GhostCompetitionSchedule
+
+			let pastEvent = 0;
+			if(!(ocmEventDate))
+            {
+            	ocmEventDate = await prisma.oCMEvent.findFirst({
+					orderBy: [
+						{
+							dbId: 'desc'
+						},
+						{
+							competitionEndAt: 'desc',
+						},
+					],
+				});
+
+				pastEvent = 1;
+			}
+
+            // Current / previous OCM Event is found
 			let ghostCarsNo1;
 			let trailIdNo1: number = 0;
             if(ocmEventDate)
             {
                 let pastDay = date - ocmEventDate.competitionEndAt
 
-                if(pastDay < 604800)
+				// Get Previous Top 1 OCM
+                if(pastDay < 604800 && pastEvent === 1)
                 {
-					let getNo1OCM = await prisma.oCMTally.findFirst({
+					let checkRegisteredGhost = await prisma.ghostRegisteredFromTerminal.findFirst({
 						where:{
-							competitionId: ocmEventDate.competitionId,
-							periodId: 999999999
-						},
-						orderBy:{
-							result: 'desc'
+							carId: body.carId
 						}
 					});
 
-					if(getNo1OCM)
+					if(checkRegisteredGhost)
 					{
-						let carId = getNo1OCM.carId
-
-						// Get Car Data
-						let cars = await prisma.car.findFirst({
+						let getNo1OCM = await prisma.oCMTally.findFirst({
 							where:{
-								carId: carId
-							},
-							include:{
-								gtWing: true
-							}
-						});
-
-						// Get Place
-						let playedPlace = wm.wm.protobuf.Place.create({ 
-							placeId: 'JPN0123',
-							shopName: Config.getConfig().shopName,
-							regionId: 18,
-							country: 'JPN'
-						});
-
-						// Get Ghost Trail
-						let ghostTrailNo1 = await prisma.oCMTop1GhostTrail.findFirst({
-							where:{
-								carId: carId,
 								competitionId: ocmEventDate.competitionId,
 								periodId: 999999999
+							},
+							orderBy:{
+								competitionId: 'desc'
 							}
 						});
 
-						trailIdNo1 = ghostTrailNo1!.dbId;
+						if(getNo1OCM)
+						{
+							let carId = getNo1OCM.carId
 
-						ghostCarsNo1 = wm.wm.protobuf.GhostCar.create({ 
-							car: {
-								...cars!,
-								lastPlayedPlace: playedPlace
-							},
-							area: ghostTrailNo1!.area,
-							ramp: ghostTrailNo1!.ramp,
-							path: ghostTrailNo1!.path,
-							nonhuman: false,
-							type: wm.wm.protobuf.GhostType.GHOST_NORMAL,
-							trailId: trailIdNo1
-						});
+							// Get Car Data
+							let cars = await prisma.car.findFirst({
+								where:{
+									carId: carId
+								},
+								include:{
+									gtWing: true
+								}
+							});
+
+							// Get Place
+							let playedPlace = wm.wm.protobuf.Place.create({ 
+								placeId: 'JPN0123',
+								shopName: Config.getConfig().shopName,
+								regionId: 18,
+								country: 'JPN'
+							});
+
+							// Get Ghost Trail
+							let ghostTrailNo1 = await prisma.oCMTop1GhostTrail.findFirst({
+								where:{
+									carId: carId,
+									competitionId: ocmEventDate.competitionId,
+									periodId: 999999999
+								}
+							});
+
+							trailIdNo1 = ghostTrailNo1!.dbId;
+
+							ghostCarsNo1 = wm.wm.protobuf.GhostCar.create({ 
+								car: {
+									...cars!,
+									lastPlayedPlace: playedPlace
+								},
+								area: ghostTrailNo1!.area,
+								ramp: ghostTrailNo1!.ramp,
+								path: ghostTrailNo1!.path,
+								nonhuman: false,
+								type: wm.wm.protobuf.GhostType.GHOST_NORMAL,
+								trailId: trailIdNo1
+							});
+						}
 					}
-					
 				}
 			}
 

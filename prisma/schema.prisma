@@ -137,11 +137,12 @@ model Car {
     GhostBattleRecord      GhostBattleRecord[]
     CarPathandTuning       CarPathandTuning[]
 
-    OCMGhostBattleRecord   OCMGhostBattleRecord[]
-    OCMTally               OCMTally[]
-    OCMTop1Ghost           OCMTop1Ghost[]
-    OCMGhostTrail          OCMGhostTrail[]
-    OCMPlayRecord          OCMPlayRecord[]
+    OCMGhostBattleRecord        OCMGhostBattleRecord[]
+    OCMTally                    OCMTally[]
+    OCMTop1Ghost                OCMTop1Ghost[]
+    OCMGhostTrail               OCMGhostTrail[]
+    OCMPlayRecord               OCMPlayRecord[]
+    GhostRegisteredFromTerminal GhostRegisteredFromTerminal[]
 }
 
 model CarGTWing {
@@ -385,4 +386,12 @@ model OCMPeriod {
     periodId                Int
     startAt                 Int
     closeAt                 Int
+}
+
+model GhostRegisteredFromTerminal {
+    dbId              Int        @id @default(autoincrement())
+    car               Car        @relation(fields: [carId], references: [carId])
+    carId             Int
+    competitionId     Int?
+    opponentCarId     Int
 }

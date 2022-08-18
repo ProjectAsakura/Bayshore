@@ -520,6 +520,7 @@ export default class TerminalModule extends Module {
 		
 		// Terminal OCM Ranking
 		app.post('/method/load_ghost_competition_ranking', async (req, res) => {
+
 			// Get the information from the request
 			let body = wm.wm.protobuf.LoadGhostCompetitionRankingRequest.decode(req.body);
 
@@ -876,6 +877,7 @@ export default class TerminalModule extends Module {
 			}
 			else
 			{
+				// Response data
 				msg = {
 					error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
 					numOfParticipants: 0,
@@ -888,5 +890,83 @@ export default class TerminalModule extends Module {
 			// Send the response to the client
             common.sendResponse(message, res);
 		})
-    }
+
+		// Recieve user items
+		app.post('/method/register_opponent_ghost', async (req, res) => {
+		
+			// Get the information from the request
+			let body = wm.wm.protobuf.RegisterOpponentGhostRequest.decode(req.body);
+			
+			let ocmEventDate = await prisma.oCMEvent.findFirst({
+				orderBy: [
+					{
+						dbId: 'desc'
+					},
+					{
+						competitionEndAt: 'desc',
+					},
+				],
+			});
+
+			if(ocmEventDate)
+			{
+				let checkRegisteredGhost = await prisma.ghostRegisteredFromTerminal.findFirst({
+					where:{
+						carId: body.carId
+					}
+				});
+
+				let getNo1OCM = await prisma.oCMTally.findFirst({
+					where:{
+						competitionId: ocmEventDate.competitionId,
+						periodId: 999999999
+					},
+					orderBy:{
+						competitionId: 'desc'
+					}
+				});
+
+				if(!(checkRegisteredGhost))
+				{
+					await prisma.ghostRegisteredFromTerminal.create({
+						data:{
+							carId: body.carId,
+							competitionId: ocmEventDate!.competitionId,
+							opponentCarId: getNo1OCM!.carId
+						}
+					});
+
+					console.log('Creating new Register Ghost Opponent entry')
+				}
+				else
+				{
+					await prisma.ghostRegisteredFromTerminal.update({
+						where:{
+							dbId: checkRegisteredGhost.dbId
+						},
+						data:{
+							carId: body.carId,
+							competitionId: ocmEventDate!.competitionId,
+							opponentCarId: getNo1OCM!.carId
+						}
+					});
+
+					console.log('Updating Register Ghost Opponent entry')
+				}
+
+				
+			}
+
+			// Response data
+			let msg = {
+				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+			}
+
+			// Encode the response
+			let message = wm.wm.protobuf.RegisterOpponentGhostResponse.encode(msg);
+
+			// Send the response to the client
+            common.sendResponse(message, res);
+		})
+    }	
 }
