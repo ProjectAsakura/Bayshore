@@ -177,18 +177,6 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                 break;
             }
 
-            case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SEARCH_BY_NAME:
-            {
-                console.log('Normal Ghost Mode Found');
-
-                ghost_historys = await ghost_history.saveGhostHistory(body);
-
-                // Update the updateNewTrail value
-                updateNewTrail = ghost_historys.updateNewTrail;
-
-                break;
-            }
-
             // Crown Ghost Battle Mode
             case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SELECT_CROWN_MATCH:
             {
