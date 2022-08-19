@@ -115,7 +115,7 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
             // Ghost Battle by Level
             case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SELECT_BY_LEVEL:
             {
-                console.log('Normal Ghost Mode Found');
+                console.log('Normal Ghost Mode Found - Select by Level');
 
                 ghost_historys = await ghost_history.saveGhostHistory(body);
 
@@ -128,7 +128,7 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
             // Ghost Battle by Name
             case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SEARCH_BY_NAME:
             {
-                console.log('Normal Ghost Mode Found');
+                console.log('Normal Ghost Mode Found - Search by Name');
 
                 ghost_historys = await ghost_history.saveGhostHistory(body);
 
@@ -141,7 +141,7 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
             // Ghost Battle by Region
             case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SEARCH_BY_REGION:
             {
-                console.log('Normal Ghost Mode Found');
+                console.log('Normal Ghost Mode Found - Search by Region');
 
                 ghost_historys = await ghost_history.saveGhostHistory(body);
 
@@ -154,7 +154,7 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
             // Ghost Battle from History
             case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SELECT_FROM_HISTORY:
             {
-                console.log('Normal Ghost Mode Found');
+                console.log('Normal Ghost Mode Found - Select from History');
 
                 ghost_historys = await ghost_history.saveGhostHistory(body);
 
@@ -167,7 +167,7 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
             // Ghost Battle by Shop
             case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SEARCH_BY_SHOP:
             {
-                console.log('Normal Ghost Mode Found');
+                console.log('Normal Ghost Mode Found - Search by Shop');
 
                 ghost_historys = await ghost_history.saveGhostHistory(body);
 
@@ -180,10 +180,12 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
             // Crown Ghost Battle Mode
             case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SELECT_CROWN_MATCH:
             {
+                console.log('Crown Ghost Mode Found');
+
                 // Not losing to the crown ghost battle
                 if (body.rgResult?.acquireCrown !== false && body.rgResult?.acquireCrown)
                 {
-                    console.log('Crown Ghost Mode Found');
+                    console.log('Win the Crown Ghost Battle');
 
                     // Get the ghost crown result
                     let ghostResultCrown = body?.rgResult;
@@ -321,6 +323,8 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                 // Losing to the crown ghost battle
                 else
                 {
+                    console.log('Lose the Crown Ghost Battle');
+
                     updateNewTrail = false;
                 }
 
@@ -337,16 +341,21 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                 OCMModePlay = true;
                 let saveExOCM: any = {};
                 saveExOCM.carId = body.carId;
-                if(body.rgResult?.competitionId){
+
+                if(body.rgResult?.competitionId)
+                {
                     saveExOCM.competitionId = body.rgResult?.competitionId!;
                 }
-                if(body.rgResult?.periodId){
+
+                if(body.rgResult?.periodId)
+                {
                     saveExOCM.periodId = body.rgResult?.periodId!;
                 }
                 else
                 {
                     saveExOCM.periodId = 0;
                 }
+
                 if(body.rgResult?.brakingPoint)
                 {
                     saveExOCM.brakingPoint = body.rgResult?.brakingPoint!;
@@ -355,7 +364,9 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                 {
                     saveExOCM.brakingPoint = 0;
                 }
-                if(body?.playedAt){
+
+                if(body?.playedAt)
+                {
                     saveExOCM.playedAt = body?.playedAt!;
                 }
 
@@ -368,7 +379,8 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                 });
                 
                 // User's OCM Battle data available
-                if(countOCM !== 0){
+                if(countOCM !== 0)
+                {
                     console.log('OCM Play Record found');
                     console.log('Updaing OCM Play Record entry');
 
@@ -381,7 +393,8 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                     });
                 }
                 // First time User playing OCM Battle
-                else{ 
+                else
+                { 
                     console.log('OCM Play Record not found');
                     console.log('Creating new OCM Play Record entry');
 
