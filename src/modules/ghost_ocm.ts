@@ -241,6 +241,7 @@ export default class GhostModule extends Module {
 						if(checkOneParticipant)
 						{
 							let itemId = 0;
+
 							// 16th - C1
 							if(ocmEventDate.competitionId === 1)
 							{
@@ -285,6 +286,66 @@ export default class GhostModule extends Module {
 							else if(ocmEventDate.competitionId === 9) 
 							{
 								itemId = 47;
+							}
+							// 1st - C1
+							else if(ocmEventDate.competitionId === 10) 
+							{
+								itemId = 5;
+							}
+							// 2nd - Osaka
+							else if(ocmEventDate.competitionId === 11) 
+							{
+								itemId = 11;
+							}
+							// 3rd - Fukuoka
+							else if(ocmEventDate.competitionId === 12) 
+							{
+								itemId = 17;
+							}
+							// 4th - Nagoya
+							else if(ocmEventDate.competitionId === 13) 
+							{
+								itemId = 23;
+							}
+							// 5th - Yaesu
+							else if(ocmEventDate.competitionId === 14) 
+							{
+								itemId = 29;
+							}
+							// 9th - Hakone (Mt. Taikan)
+							else if(ocmEventDate.competitionId === 15) 
+							{
+								itemId = 53;
+							}
+							// 10th - Sub-center(Shibuya/Shinjuku)
+							else if(ocmEventDate.competitionId === 16) 
+							{
+								itemId = 93;
+							}
+							// 11th - Sub-center(Ikebukuro)
+							else if(ocmEventDate.competitionId === 17) 
+							{
+								itemId = 99;
+							}
+							// 12th - Kobe
+							else if(ocmEventDate.competitionId === 18) 
+							{
+								itemId = 105;
+							}
+							// 13th - New Belt Line
+							else if(ocmEventDate.competitionId === 19) 
+							{
+								itemId = 141;
+							}
+							// 14th - Yokohama
+							else if(ocmEventDate.competitionId === 20) 
+							{
+								itemId = 147;
+							}
+							// 15th - Hiroshima
+							else if(ocmEventDate.competitionId === 21) 
+							{
+								itemId = 153;
 							}
 
 							let checkNameplate = await prisma.carItem.count({

@@ -536,603 +536,625 @@ export async function ocmGiveNamePlateReward(competitionId: number)
         }
     });
 
-    let participantLength = getCarParticipant.length;
-
     if(getCarParticipant)
     {
         console.log('Giving OCM Rewards');
+
+        let participantLength = getCarParticipant.length;
     
-        // Participant is less than 100
-        if(participantLength < 101)
+        // Participant is more than 100
+        if(participantLength > 100)
         {
-            // 16th - C1
-            if(competitionId === 1)
-            {
-                for(let i=0; i<participantLength; i++)
-                {
-                    // Participation Award (Fantasy)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 204,
-                            amount: 1
-                        }
-                    })
+            participantLength = 100
+        }
 
-                    // Ranking within the top 100 (Unicorn)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 205,
-                            amount: 1
-                        }
-                    })
-                }
+        // 16th - C1
+        if(competitionId === 1)
+        {
+            // Participation Award (Fantasy)
+            for(let i=0; i<getCarParticipant.length; i++)
+            {
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 204,
+                        amount: 1
+                    }
+                })
             }
-            // 17th - Osaka
-            else if(competitionId === 2)
-            {
-                for(let i=0; i<participantLength; i++)
-                {
-                    // Participation Award (Tread Pattern)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 210,
-                            amount: 1
-                        }
-                    })
 
-                    // Ranking within the top 100 (Griffon)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 211,
-                            amount: 1
-                        }
-                    })
-                }
-            }
-            // 18th - Fukuoka
-            else if(competitionId === 3)
+            // Ranking within the top 100 (Unicorn GP)
+            for(let i=0; i<participantLength; i++)
             {
-                for(let i=0; i<participantLength; i++)
-                {
-                    // Participation Award (City)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 216,
-                            amount: 1
-                        }
-                    })
-
-                    // Ranking within the top 100 (Wyvern)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 217,
-                            amount: 1
-                        }
-                    })
-                }
-            }
-            // 19th - Nagoya
-            else if(competitionId === 4)
-            {
-                for(let i=0; i<participantLength; i++)
-                {
-                    // Participation Award (Tribal)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 222,
-                            amount: 1
-                        }
-                    })
-
-                    // Ranking within the top 100 (Gargoyle)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 223,
-                            amount: 1
-                        }
-                    })
-                }
-            }
-            // 6th - C1
-            else if(competitionId === 5)
-            {
-                for(let i=0; i<participantLength; i++)
-                {
-                    // Participation Award (Silver Craft)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 35,
-                            amount: 1
-                        }
-                    })
-
-                    // Ranking within the top 100 (Bear)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 36,
-                            amount: 1
-                        }
-                    })
-                }
-            }
-            // 20th - Kobe
-            else if(competitionId === 6)
-            {
-                for(let i=0; i<participantLength; i++)
-                {
-                    // Participation Award (Gemstone)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 228,
-                            amount: 1
-                        }
-                    })
-
-                    // Ranking within the top 100 (Minotaur)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 229,
-                            amount: 1
-                        }
-                    })
-                }
-            }
-            // 7th - Fukutoshin
-            else if(competitionId === 7)
-            {
-                for(let i=0; i<participantLength; i++)
-                {
-                    // Participation Award (Koi)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 41,
-                            amount: 1
-                        }
-                    })
-
-                    // Ranking within the top 100 (Crocodile)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 42,
-                            amount: 1
-                        }
-                    })
-                }
-            }
-            // 21st - Hiroshima
-            else if(competitionId === 8)
-            {
-                for(let i=0; i<participantLength; i++)
-                {
-                    // Participation Award (Ukiyo-e)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 234,
-                            amount: 1
-                        }
-                    })
-
-                    // Ranking within the top 100 (Cerberus)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 235,
-                            amount: 1
-                        }
-                    })
-                }
-            }
-            // 8th - Hakone
-            else if(competitionId === 9)
-            {
-                for(let i=0; i<participantLength; i++)
-                {
-                    // Participation Award (Studs)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 47,
-                            amount: 1
-                        }
-                    })
-
-                    // Ranking within the top 100 (Elephant)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 48,
-                            amount: 1
-                        }
-                    })
-                }
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 205,
+                        amount: 1
+                    }
+                })
             }
         }
-        // Participant is more than 100
-        else
+        // 17th - Osaka
+        else if(competitionId === 2)
         {
-            // 16th - C1
-            if(competitionId === 1)
+            // Participation Award (Tread Pattern)
+            for(let i=0; i<getCarParticipant.length; i++)
             {
-                for(let i=0; i<101; i++)
-                {
-                    // Participation Award (Fantasy)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 204,
-                            amount: 1
-                        }
-                    })
-
-                    // Ranking within the top 100 (Unicorn)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 205,
-                            amount: 1
-                        }
-                    })
-                }
-
-                for(let i=101; i<participantLength; i++)
-                {
-                    // Participation Award (Fantasy)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 204,
-                            amount: 1
-                        }
-                    })
-                }
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 210,
+                        amount: 1
+                    }
+                })
             }
-            // 17th - Osaka
-            else if(competitionId === 2)
+
+            // Ranking within the top 100 (Griffon GP)
+            for(let i=0; i<participantLength; i++)
             {
-                for(let i=0; i<101; i++)
-                {
-                    // Participation Award (Tread Pattern)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 210,
-                            amount: 1
-                        }
-                    })
-
-                    // Ranking within the top 100 (Griffon)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 211,
-                            amount: 1
-                        }
-                    })
-                }
-
-                for(let i=101; i<participantLength; i++)
-                {
-                    // Participation Award (Tread Pattern)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 210,
-                            amount: 1
-                        }
-                    })
-                }
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 211,
+                        amount: 1
+                    }
+                })
             }
-            // 18th - Fukuoka
-            else if(competitionId === 3)
+        }
+        // 18th - Fukuoka
+        else if(competitionId === 3)
+        {
+            // Participation Award (City)
+            for(let i=0; i<getCarParticipant.length; i++)
             {
-                for(let i=0; i<101; i++)
-                {
-                    // Participation Award (City)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 216,
-                            amount: 1
-                        }
-                    })
-
-                    // Ranking within the top 100 (Wyvern)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 217,
-                            amount: 1
-                        }
-                    })
-                }
-
-                for(let i=101; i<participantLength; i++)
-                {
-                    // Participation Award (City)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 216,
-                            amount: 1
-                        }
-                    })
-                }
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 216,
+                        amount: 1
+                    }
+                }) 
             }
-            // 19th - Nagoya
-            else if(competitionId === 4)
+
+            // Ranking within the top 100 (Wyvern GP)
+            for(let i=0; i<participantLength; i++)
             {
-                for(let i=0; i<101; i++)
-                {
-                    // Participation Award (Tribal)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 222,
-                            amount: 1
-                        }
-                    })
-
-                    // Ranking within the top 100 (Gargoyle)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 223,
-                            amount: 1
-                        }
-                    })
-                }
-
-                for(let i=101; i<participantLength; i++)
-                {
-                    // Participation Award (Tribal)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 222,
-                            amount: 1
-                        }
-                    })
-                }
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 217,
+                        amount: 1
+                    }
+                })
             }
-            // 6th - C1
-            else if(competitionId === 5)
+        }
+        // 19th - Nagoya
+        else if(competitionId === 4)
+        {
+            // Participation Award (Tribal)
+            for(let i=0; i<getCarParticipant.length; i++)
             {
-                for(let i=0; i<101; i++)
-                {
-                    // Participation Award (Silver Craft)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 35,
-                            amount: 1
-                        }
-                    })
-
-                    // Ranking within the top 100 (Bear)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 36,
-                            amount: 1
-                        }
-                    })
-                }
-
-                for(let i=101; i<participantLength; i++)
-                {
-                    // Participation Award (Silver Craft)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 35,
-                            amount: 1
-                        }
-                    })
-                }
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 222,
+                        amount: 1
+                    }
+                })
             }
-            // 20th - Kobe
-            else if(competitionId === 6)
+
+            // Ranking within the top 100 (Gargoyle GP)
+            for(let i=0; i<participantLength; i++)
             {
-                for(let i=0; i<101; i++)
-                {
-                    // Participation Award (Gemstone)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 228,
-                            amount: 1
-                        }
-                    })
-
-                    // Ranking within the top 100 (Minotaur)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 229,
-                            amount: 1
-                        }
-                    })
-                }
-
-                for(let i=101; i<participantLength; i++)
-                {
-                    // Participation Award (Gemstone)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 228,
-                            amount: 1
-                        }
-                    })
-                }
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 223,
+                        amount: 1
+                    }
+                })
             }
-            // 7th - Fukutoshin
-            else if(competitionId === 7)
+        }
+        // 6th - C1
+        else if(competitionId === 5)
+        {
+            // Participation Award (Silver Craft)
+            for(let i=0; i<getCarParticipant.length; i++)
             {
-                for(let i=0; i<101; i++)
-                {
-                    // Participation Award (Koi)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 41,
-                            amount: 1
-                        }
-                    })
-
-                    // Ranking within the top 100 (Crocodile)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 42,
-                            amount: 1
-                        }
-                    })
-                }
-
-                for(let i=101; i<participantLength; i++)
-                {
-                    // Participation Award (Koi)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 41,
-                            amount: 1
-                        }
-                    })
-                }
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 35,
+                        amount: 1
+                    }
+                }) 
             }
-            // 21st - Hiroshima
-            else if(competitionId === 8)
+
+            // Ranking within the top 100 (Bear GP)
+            for(let i=0; i<participantLength; i++)
             {
-                for(let i=0; i<101; i++)
-                {
-                    // Participation Award (Ukiyo-e)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 234,
-                            amount: 1
-                        }
-                    })
-
-                    // Ranking within the top 100 (Cerberus)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 235,
-                            amount: 1
-                        }
-                    })
-                }
-
-                for(let i=101; i<participantLength; i++)
-                {
-                    // Participation Award (Ukiyo-e)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 234,
-                            amount: 1
-                        }
-                    })
-                }
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 36,
+                        amount: 1
+                    }
+                })
             }
-            // 8th - Hakone
-            else if(competitionId === 9)
+        }
+        // 20th - Kobe
+        else if(competitionId === 6)
+        {
+            // Participation Award (Gemstone)
+            for(let i=0; i<getCarParticipant.length; i++)
             {
-                for(let i=0; i<101; i++)
-                {
-                    // Participation Award (Studs)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 47,
-                            amount: 1
-                        }
-                    })
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 228,
+                        amount: 1
+                    }
+                })    
+            }
 
-                    // Ranking within the top 100 (Elephant)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 48,
-                            amount: 1
-                        }
-                    })
-                }
+            // Ranking within the top 100 (Minotaur GP)
+            for(let i=0; i<participantLength; i++)
+            { 
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 229,
+                        amount: 1
+                    }
+                })
+            }
+        }
+        // 7th - Fukutoshin
+        else if(competitionId === 7)
+        {
+            // Participation Award (Koi)
+            for(let i=0; i<getCarParticipant.length; i++)
+            {
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 41,
+                        amount: 1
+                    }
+                }) 
+            }
 
-                for(let i=101; i<participantLength; i++)
-                {
-                    // Participation Award (Studs)
-                    await prisma.carItem.create({
-                        data:{
-                            carId: getCarParticipant[i].carId,
-                            category: 17,
-                            itemId: 47,
-                            amount: 1
-                        }
-                    })
-                }
+            // Ranking within the top 100 (Crocodile GP)
+            for(let i=0; i<participantLength; i++)
+            {
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 42,
+                        amount: 1
+                    }
+                })
+            }
+        }
+        // 21st - Hiroshima
+        else if(competitionId === 8)
+        {
+            // Participation Award (Ukiyo-e)
+            for(let i=0; i<getCarParticipant.length; i++)
+            {
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 234,
+                        amount: 1
+                    }
+                })
+            }
+
+            // Ranking within the top 100 (Cerberus GP)
+            for(let i=0; i<participantLength; i++)
+            {
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 235,
+                        amount: 1
+                    }
+                })
+            }
+        }
+        // 8th - Hakone
+        else if(competitionId === 9)
+        {
+            // Participation Award (Studs)
+            for(let i=0; i<getCarParticipant.length; i++)
+            {
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 47,
+                        amount: 1
+                    }
+                })  
+            }
+
+            // Ranking within the top 100 (Elephant GP)
+            for(let i=0; i<participantLength; i++)
+            {
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 48,
+                        amount: 1
+                    }
+                })
+            }
+        }
+        // 1st - C1
+        else if(competitionId === 10)
+        {
+            // Participation Award (// TODO: name this)
+            for(let i=0; i<getCarParticipant.length; i++)
+            {
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 5,
+                        amount: 1
+                    }
+                }) 
+            }
+
+            // Ranking within the top 100 (// TODO: name this GP)
+            for(let i=0; i<participantLength; i++)
+            {
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 6,
+                        amount: 1
+                    }
+                })
+            }
+        }
+        // 2nd - Osaka
+        else if(competitionId === 11)
+        {
+            // Participation Award (// TODO: name this)
+            for(let i=0; i<getCarParticipant.length; i++)
+            {
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 11,
+                        amount: 1
+                    }
+                }) 
+            }
+
+            // Ranking within the top 100 (// TODO: name this GP)
+            for(let i=0; i<participantLength; i++)
+            {
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 12,
+                        amount: 1
+                    }
+                })
+            }
+        }
+        // 3rd - Fukuoka
+        else if(competitionId === 12)
+        {
+            // Participation Award (// TODO: name this)
+            for(let i=0; i<getCarParticipant.length; i++)
+            {
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 17,
+                        amount: 1
+                    }
+                }) 
+            }
+
+            // Ranking within the top 100 (// TODO: name this GP)
+            for(let i=0; i<participantLength; i++)
+            {
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 18,
+                        amount: 1
+                    }
+                })
+            }
+        }
+        // 4th - Nagoya
+        else if(competitionId === 13)
+        {
+            // Participation Award (// TODO: name this)
+            for(let i=0; i<getCarParticipant.length; i++)
+            {
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 23,
+                        amount: 1
+                    }
+                }) 
+            }
+
+            // Ranking within the top 100 (// TODO: name this GP)
+            for(let i=0; i<participantLength; i++)
+            {
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 24,
+                        amount: 1
+                    }
+                })
+            }
+        }
+        // 5th - Yaesu
+        else if(competitionId === 14)
+        {
+            // Participation Award (// TODO: name this)
+            for(let i=0; i<getCarParticipant.length; i++)
+            {
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 29,
+                        amount: 1
+                    }
+                }) 
+            }
+
+            // Ranking within the top 100 (// TODO: name this GP)
+            for(let i=0; i<participantLength; i++)
+            {
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 30,
+                        amount: 1
+                    }
+                })
+            }
+        }
+        // 9th - Hakone (Mt. Taikan)
+        else if(competitionId === 15)
+        {
+            // Participation Award (// TODO: name this)
+            for(let i=0; i<getCarParticipant.length; i++)
+            {
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 53,
+                        amount: 1
+                    }
+                }) 
+            }
+
+            // Ranking within the top 100 (// TODO: name this GP)
+            for(let i=0; i<participantLength; i++)
+            {
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 54,
+                        amount: 1
+                    }
+                })
+            }
+        }
+        // 10th - Sub-center(Shibuya/Shinjuku)
+        else if(competitionId === 16)
+        {
+            // Participation Award (// TODO: name this)
+            for(let i=0; i<getCarParticipant.length; i++)
+            {
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 93,
+                        amount: 1
+                    }
+                }) 
+            }
+
+            // Ranking within the top 100 (// TODO: name this GP)
+            for(let i=0; i<participantLength; i++)
+            {
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 94,
+                        amount: 1
+                    }
+                })
+            }
+        }
+        // 11th - Sub-center(Ikebukuro)
+        else if(competitionId === 17)
+        {
+            // Participation Award (// TODO: name this)
+            for(let i=0; i<getCarParticipant.length; i++)
+            {
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 99,
+                        amount: 1
+                    }
+                }) 
+            }
+
+            // Ranking within the top 100 (// TODO: name this GP)
+            for(let i=0; i<participantLength; i++)
+            {
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 100,
+                        amount: 1
+                    }
+                })
+            }
+        }
+        // 12th - Kobe
+        else if(competitionId === 18)
+        {
+            // Participation Award (// TODO: name this)
+            for(let i=0; i<getCarParticipant.length; i++)
+            {
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 105,
+                        amount: 1
+                    }
+                }) 
+            }
+
+            // Ranking within the top 100 (// TODO: name this GP)
+            for(let i=0; i<participantLength; i++)
+            {
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 106,
+                        amount: 1
+                    }
+                })
+            }
+        }
+        // 13th - New Belt Line
+        else if(competitionId === 19)
+        {
+            // Participation Award (// TODO: name this)
+            for(let i=0; i<getCarParticipant.length; i++)
+            {
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 141,
+                        amount: 1
+                    }
+                }) 
+            }
+
+            // Ranking within the top 100 (// TODO: name this GP)
+            for(let i=0; i<participantLength; i++)
+            {
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 142,
+                        amount: 1
+                    }
+                })
+            }
+        }
+        // 14th - Yokohama
+        else if(competitionId === 20)
+        {
+            // Participation Award (// TODO: name this)
+            for(let i=0; i<getCarParticipant.length; i++)
+            {
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 147,
+                        amount: 1
+                    }
+                }) 
+            }
+
+            // Ranking within the top 100 (// TODO: name this GP)
+            for(let i=0; i<participantLength; i++)
+            {
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 148,
+                        amount: 1
+                    }
+                })
+            }
+        }
+        // 15th - Hiroshima
+        else if(competitionId === 21)
+        {
+            // Participation Award (// TODO: name this)
+            for(let i=0; i<getCarParticipant.length; i++)
+            {
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 153,
+                        amount: 1
+                    }
+                }) 
+            }
+
+            // Ranking within the top 100 (// TODO: name this GP)
+            for(let i=0; i<participantLength; i++)
+            {
+                await prisma.carItem.create({
+                    data:{
+                        carId: getCarParticipant[i].carId,
+                        category: 17,
+                        itemId: 154,
+                        amount: 1
+                    }
+                })
             }
         }
 
