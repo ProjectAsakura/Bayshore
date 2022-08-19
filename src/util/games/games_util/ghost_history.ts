@@ -9,7 +9,6 @@ export async function saveGhostHistory(body: wm.protobuf.SaveGameResultRequest)
 {
     console.log('Saving Ghost Battle History');
     
-    let updateNewTrail: boolean = true;
     let saveExGhostHistory: any = {};
     
     if (body.car?.carId !== null && body.car?.carId !== undefined) { 
@@ -133,9 +132,6 @@ export async function saveGhostHistory(body: wm.protobuf.SaveGameResultRequest)
     await prisma.ghostBattleRecord.create({
         data: saveExGhostHistory
     });
-
-    // Return the value to 'BASE_PATH/src/util/games/ghost.ts'
-    return { updateNewTrail }
 }
 
 

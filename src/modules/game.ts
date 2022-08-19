@@ -422,10 +422,15 @@ export default class GameModule extends Module {
 					ghostOpponentCar!.manufacturer = 12;
 					ghostOpponentCar!.model = 105;
 					ghostOpponentCar!.visualModel = 130;
+					ghostOpponentCar!.regionId = 18;
+					ghostOpponentCar!.country = 'GLB';
 				}
 
-				let randomRegionId = Math.floor(Math.random() * 47) + 1;
-				ghostOpponentCar!.regionId = randomRegionId;
+				if(ghostOpponentCar!.regionId === 0)
+				{
+					let randomRegionId = Math.floor(Math.random() * 47) + 1;
+					ghostOpponentCar!.regionId = randomRegionId;
+				}
 
 				// Get Opponent 1 tune
 				ghostOpponentCar!.tunePower = ghostHistoryData![i].opponent1TunePower!; 
@@ -460,10 +465,15 @@ export default class GameModule extends Module {
 						ghostOpponentCar2!.manufacturer = 12;
 						ghostOpponentCar2!.model = 105;
 						ghostOpponentCar2!.visualModel = 130;
+						ghostOpponentCar2!.regionId = 18;
+						ghostOpponentCar2!.country = 'GLB';
 					}
 
-					let randomRegionId = Math.floor(Math.random() * 47) + 1;
-					ghostOpponentCar2!.regionId = randomRegionId;
+					if(ghostOpponentCar!.regionId === 0)
+					{
+						let randomRegionId = Math.floor(Math.random() * 47) + 1;
+						ghostOpponentCar2!.regionId = randomRegionId;
+					}
 
 					// Get Opponent 2 tune
 					ghostOpponentCar2!.tunePower = ghostHistoryData![i].opponent2TunePower!;
@@ -495,10 +505,15 @@ export default class GameModule extends Module {
 						ghostOpponentCar3!.manufacturer = 12;
 						ghostOpponentCar3!.model = 105;
 						ghostOpponentCar3!.visualModel = 130;
+						ghostOpponentCar3!.regionId = 18;
+						ghostOpponentCar3!.country = 'GLB';
 					}
 
-					let randomRegionId = Math.floor(Math.random() * 47) + 1;
-					ghostOpponentCar3!.regionId = randomRegionId;
+					if(ghostOpponentCar!.regionId === 0)
+					{
+						let randomRegionId = Math.floor(Math.random() * 47) + 1;
+						ghostOpponentCar3!.regionId = randomRegionId;
+					}
 
 					// Get Opponent 3 tune
 					ghostOpponentCar3!.tunePower = ghostHistoryData![i].opponent3TunePower!;
