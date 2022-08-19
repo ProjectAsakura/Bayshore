@@ -180,7 +180,7 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
             // Crown Ghost Battle Mode
             case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SELECT_CROWN_MATCH:
             {
-                // If not losing to the crown ghost battle
+                // Not losing to the crown ghost battle
                 if (body.rgResult?.acquireCrown !== false && body.rgResult?.acquireCrown)
                 {
                     console.log('Crown Ghost Mode Found');
@@ -315,12 +315,16 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                             });
                         }
                     }
-
-                    ghost_historys = await ghost_history.saveGhostHistory(body);
-
-                    // Update the updateNewTrail value
-                    updateNewTrail = ghost_historys.updateNewTrail;
+                    
+                    updateNewTrail = true;
                 }
+                // Losing to the crown ghost battle
+                else
+                {
+                    updateNewTrail = false;
+                }
+
+                await ghost_history.saveGhostHistory(body);
 
                 break;
             }
