@@ -23,12 +23,12 @@ export async function saveStoryResult(body: wm.protobuf.SaveGameResultRequest, c
         {
             // Story update data
             let data : any = {
-                stClearDivCount: storyResult.stClearDivCount || undefined, 
-                stPlayCount: storyResult.stPlayCount || undefined, 
-                stClearCount: storyResult.stClearCount || undefined, 
-                stConsecutiveWins: storyResult.stConsecutiveWins || undefined, 
-                tuningPoints: storyResult.tuningPoint || 0, 
-                stCompleted100Episodes: storyResult.stCompleted_100Episodes || undefined, 
+                stClearDivCount: common.sanitizeInput(storyResult.stClearDivCount), 
+                stPlayCount: common.sanitizeInput(storyResult.stPlayCount), 
+                stClearCount: common.sanitizeInput(storyResult.stClearCount), 
+                stConsecutiveWins: common.sanitizeInput(storyResult.stConsecutiveWins), 
+                tuningPoints: common.sanitizeInput(storyResult.tuningPoint), 
+                stCompleted100Episodes: common.sanitizeInput(storyResult.stCompleted_100Episodes), 
             }
 
             // If the current consecutive wins is greater than the previous max
@@ -53,8 +53,7 @@ export async function saveStoryResult(body: wm.protobuf.SaveGameResultRequest, c
             }
 
             // Check if clearBits is not null, and not lose the story
-            if (storyResult.stClearBits !== null && storyResult.stClearBits !== undefined 
-                && data.stLoseBits === 0) 
+            if (common.sanitizeInput(storyResult.stClearBits) && data.stLoseBits === 0) 
             {
                 data.stClearBits = storyResult.stClearBits;
             }
