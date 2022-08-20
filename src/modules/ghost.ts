@@ -47,7 +47,7 @@ export default class GhostModule extends Module {
 				if(cars[i].regionId === 0)
 				{ 
 					let randomRegionId = Math.floor(Math.random() * 47) + 1;
-					cars[i].regionId = randomRegionId; // Change car region id to 1 (Hokkaido)
+					cars[i].regionId = randomRegionId;
 				}
 			}
 			// ----------------------
@@ -210,7 +210,7 @@ export default class GhostModule extends Module {
 					if(car[randomNumber]!.regionId === 0)
 					{ 
 						let randomRegionId = Math.floor(Math.random() * 47) + 1;
-						car[randomNumber].regionId = randomRegionId; // Hokkaido
+						car[randomNumber].regionId = randomRegionId;
 					}
 
                     // Push user's car data without ghost trail

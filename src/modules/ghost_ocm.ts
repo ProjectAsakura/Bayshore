@@ -2,6 +2,7 @@ import { Application } from "express";
 import { Module } from "module";
 import { prisma } from "..";
 import { Car, CarGTWing } from "@prisma/client";
+import { Config } from "../config";
 
 // Import Proto
 import * as wm from "../wmmt/wm.proto";
@@ -10,7 +11,6 @@ import * as wm from "../wmmt/wm.proto";
 import * as common from "../util/common";
 import * as ghost_ocm from "../util/games/ghost_ocm";
 import * as ghost_ocm_area from "../util/games/games_util/ghost_ocm_area";
-import { Config } from "../config";
 
 
 export default class GhostModule extends Module {
