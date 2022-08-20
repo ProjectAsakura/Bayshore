@@ -576,7 +576,7 @@ export default class GhostModule extends Module {
 					windowSticker: true,
 					windowStickerString: 'ＢＡＹＳＨＯＲＥ',
 					windowStickerFont: 0,
-					title: 'You don\'t have S660? LMAO',
+					title: 'Don\'t have S660?',
 					level: 65, // SSSSS
 					lastPlayedAt: checkGhostTrail!.playedAt,
 					country: 'GLB'
