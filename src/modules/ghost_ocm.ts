@@ -103,15 +103,17 @@ export default class GhostModule extends Module {
 						competitionPeriodStartTimestamp = competitionPeriodEndTimeStamp + ocmEventDate.lengthOfInterval;
 					}
 
-					if(ocmEventDate.lengthOfInterval !== 0)
+					// Check the gap between quali close and main draw start timestamp
+					let checkQualiMainGap = ocmEventDate.competitionStartAt - ocmEventDate.qualifyingPeriodCloseAt;
+					if(checkQualiMainGap < 3600)
 					{
-						let qualifyingEndTimeStamp = ocmEventDate.qualifyingPeriodCloseAt - ocmEventDate.lengthOfInterval
+						let changeTime = ocmEventDate.competitionStartAt - 3600;
 						await prisma.oCMEvent.update({
 							where:{
 								dbId: ocmEventDate.dbId
 							},
 							data:{
-								qualifyingPeriodCloseAt: qualifyingEndTimeStamp
+								qualifyingPeriodCloseAt: changeTime
 							}
 						})
 					}
@@ -574,7 +576,7 @@ export default class GhostModule extends Module {
 					windowSticker: true,
 					windowStickerString: 'ＢＡＹＳＨＯＲＥ',
 					windowStickerFont: 0,
-					title: 'You don\'t have S660? LMAO',
+					title: 'Don\'t have S660?',
 					level: 65, // SSSSS
 					lastPlayedAt: checkGhostTrail!.playedAt,
 					country: 'GLB'
