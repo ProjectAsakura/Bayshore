@@ -530,24 +530,24 @@ export default class CarModule extends Module {
 			{
 				// Car update data
 				data = {
-					customColor: cars.customColor || undefined, 
-					wheel: cars.wheel || undefined, 
-					wheelColor: cars.wheelColor || undefined, 
-					aero: cars.aero || undefined, 
-					bonnet: cars.bonnet || undefined,
-					wing: cars.wing || undefined,
-					mirror: cars.mirror || undefined,
-					neon: cars.neon || undefined,
-					trunk: cars.trunk || undefined,
-					plate: cars.plate || undefined,
-					plateColor: cars.plateColor || undefined,
-					plateNumber: cars.plateNumber || undefined,
-					windowSticker: cars.windowSticker || undefined,
-					windowDecoration: cars.windowDecoration || undefined,
-					rivalMarker: cars.rivalMarker || undefined,
-					aura: cars.aura || undefined,
-					auraMotif: cars.auraMotif || undefined,
-					rgStamp: body?.rgStamp! || undefined,
+					customColor: common.sanitizeInput(cars.customColor),
+					wheel: common.sanitizeInput(cars.wheel),
+					wheelColor: common.sanitizeInput(cars.wheelColor), 
+					aero: common.sanitizeInput(cars.aero),
+					bonnet: common.sanitizeInput(cars.bonnet),
+					wing: common.sanitizeInput(cars.wing),
+					mirror: common.sanitizeInput(cars.mirror),
+					neon: common.sanitizeInput(cars.neon),
+					trunk: common.sanitizeInput(cars.trunk),
+					plate: common.sanitizeInput(cars.plate),
+					plateColor: common.sanitizeInput(cars.plateColor),
+					plateNumber: common.sanitizeInput(cars.plateNumber),
+					windowSticker: common.sanitizeInput(cars.windowSticker),
+					windowDecoration: common.sanitizeInput(cars.windowDecoration), 
+					rivalMarker: common.sanitizeInput(cars.rivalMarker),
+					aura: common.sanitizeInput(cars.aura),
+					auraMotif: common.sanitizeInput(cars.auraMotif),
+					rgStamp: common.sanitizeInput(body.rgStamp),
 				}
 
 				// Update the car info
@@ -634,12 +634,12 @@ export default class CarModule extends Module {
 			if (gtWing)
 			{
 				let dataGTWing : any = {
-					pillar: gtWing.pillar || undefined, 
-					pillarMaterial: gtWing.pillarMaterial || undefined, 
-					mainWing: gtWing.mainWing || undefined, 
-					mainWingColor: gtWing.mainWingColor || undefined, 
-					wingTip: gtWing.wingTip || undefined, 
-					material: gtWing.material || undefined, 
+					pillar: common.sanitizeInput(gtWing.pillar), 
+					pillarMaterial: common.sanitizeInput(gtWing.pillarMaterial), 
+					mainWing: common.sanitizeInput(gtWing.mainWing), 
+					mainWingColor: common.sanitizeInput(gtWing.mainWingColor), 
+					wingTip: common.sanitizeInput(gtWing.wingTip), 
+					material: common.sanitizeInput(gtWing.material), 
 				}
 
 				await prisma.carGTWing.update({

@@ -356,15 +356,8 @@ export default class UserModule extends Module {
 
 						for(let j=0; j<ocmTallyRecord.length; j++)
 						{
-							if(carStates[i].dbId === ocmTallyRecord[j].carId)
-							{
-								carStates[i].eventJoined = true;
-								carStates[i].competitionState = wm.wm.protobuf.GhostCompetitionParticipantState.COMPETITION_QUALIFIED
-							}
-							if(carStates[i].dbId === ocmTallyRecord[j].carId && j === 0)
-							{
-								carStates[i].competitionState = wm.wm.protobuf.GhostCompetitionParticipantState.COMPETITION_WON
-							}
+							carStates[i].eventJoined = true;
+							carStates[i].competitionState = wm.wm.protobuf.GhostCompetitionParticipantState.COMPETITION_QUALIFIED
 						}
 					}
 					// Current date is OCM qualifying day
@@ -433,15 +426,10 @@ export default class UserModule extends Module {
 						// Get OCM Data
 						let ocmTallyRecord = await prisma.oCMTally.findMany({ 
 							where:{
-								competitionId: ocmEventDate!.competitionId
+								competitionId: ocmEventDate!.competitionId,
+								periodId: 999999999
 							},
 							orderBy: [
-								{
-									competitionId: 'desc',
-								},
-								{
-									periodId: 'desc',
-								},
 								{
 									result: 'desc',
 								},

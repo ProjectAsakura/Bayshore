@@ -3,8 +3,10 @@ import { prisma } from "../..";
 // Import Proto
 import { wm } from "../../wmmt/wm.proto";
 import wmproto  from "../../wmmt/wm.proto";
-import * as ghost_history from "../games/games_util/ghost_history";
 
+// Import Util
+import * as common from "../../util/common";
+import * as ghost_history from "../games/games_util/ghost_history";
 
 // Save ghost battle result
 export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequest, car: any)
@@ -34,10 +36,10 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
         {
             // Ghost update data
             dataGhost = {
-                rgRegionMapScore: ghostResult.rgRegionMapScore || undefined, 
-                rgPlayCount: ghostResult.rgPlayCount || undefined, 
-                dressupLevel: ghostResult.dressupLevel || undefined, 
-                dressupPoint: ghostResult.dressupPoint || undefined,
+                rgRegionMapScore: common.sanitizeInput(ghostResult.rgRegionMapScore), 
+                rgPlayCount: common.sanitizeInput(ghostResult.rgPlayCount), 
+                dressupLevel: common.sanitizeInput(ghostResult.dressupLevel), 
+                dressupPoint: common.sanitizeInput(ghostResult.dressupPoint),
             }
         }
 
@@ -62,18 +64,18 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
 
             // Car update data
             dataCar = {
-                wheel: cars.wheel || undefined, 
-                wheelColor: cars.wheelColor || undefined, 
-                aero: cars.aero || undefined, 
-                bonnet: cars.bonnet || undefined,
-                wing: cars.wing || undefined,
-                mirror: cars.mirror || undefined,
-                neon: cars.neon || undefined,
-                trunk: cars.trunk || undefined,
-                plate: cars.plate || undefined,
-                plateColor: cars.plateColor || undefined,
-                plateNumber: cars.plateNumber || undefined,
-                ghostLevel: cars.ghostLevel || undefined,
+                wheel: common.sanitizeInput(cars.wheel), 
+                wheelColor: common.sanitizeInput(cars.wheelColor), 
+                aero: common.sanitizeInput(cars.aero), 
+                bonnet: common.sanitizeInput(cars.bonnet),
+                wing: common.sanitizeInput(cars.wing),
+                mirror: common.sanitizeInput(cars.mirror),
+                neon: common.sanitizeInput(cars.neon),
+                trunk: common.sanitizeInput(cars.trunk),
+                plate: common.sanitizeInput(cars.plate),
+                plateColor: common.sanitizeInput(cars.plateColor),
+                plateNumber: common.sanitizeInput(cars.plateNumber),
+                ghostLevel: common.sanitizeInput(cars.ghostLevel),
             }
         }
 
@@ -205,9 +207,9 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                         // Ghost Crown update data
                         dataCrown = {
                             carId: carId,
-                            playedAt: body.playedAt || undefined,
-                            tunePower: body.car?.tunePower || undefined,
-                            tuneHandling: body.car?.tuneHandling || undefined,
+                            playedAt: common.sanitizeInput(body.playedAt),
+                            tunePower: common.sanitizeInput(body.car?.tunePower),
+                            tuneHandling: common.sanitizeInput(body.car?.tuneHandling),
                         }
 
                         // Get the area id and ramp id

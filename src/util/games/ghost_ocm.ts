@@ -388,7 +388,10 @@ export async function ocmCompetitionDay(body: wm.protobuf.LoadGhostCompetitionIn
             currentRank = i + 1;
             isQualified = true;
         }
-        topresult.push(ocmTallyRecord[i].carId);
+        else
+        {
+            topresult.push(ocmTallyRecord[i].result);
+        }
     }
 
     // Mini game braking point

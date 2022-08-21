@@ -2,6 +2,7 @@ import { Application } from "express";
 import { Module } from "module";
 import { prisma } from "..";
 import { Car, CarGTWing } from "@prisma/client";
+import { Config } from "../config";
 
 // Import Proto
 import * as wm from "../wmmt/wm.proto";
@@ -10,7 +11,6 @@ import * as wm from "../wmmt/wm.proto";
 import * as common from "../util/common";
 import * as ghost_ocm from "../util/games/ghost_ocm";
 import * as ghost_ocm_area from "../util/games/games_util/ghost_ocm_area";
-import { Config } from "../config";
 
 
 export default class GhostModule extends Module {
@@ -122,7 +122,7 @@ export default class GhostModule extends Module {
 				}
 
 				// Current date is OCM main draw
-				if(ocmEventDate!.competitionStartAt <= date && ocmEventDate!.competitionCloseAt >= date)
+				if(ocmEventDate!.competitionStartAt < date && ocmEventDate!.competitionCloseAt > date)
 				{
 					console.log('Current OCM Day : Competition Day / Main Draw');
 
@@ -452,6 +452,20 @@ export default class GhostModule extends Module {
                 }
             });
 
+			if(!(ocmEventDate))
+			{
+				ocmEventDate = await prisma.oCMEvent.findFirst({
+                    orderBy: [
+                        {
+                            dbId: 'desc'
+                        },
+                        {
+                            competitionEndAt: 'desc',
+                        },
+                    ],
+                });
+			}
+
 			// Declare variable for Top 1 OCM Ghost
 			let ghostCars: wm.wm.protobuf.GhostCar;
 			let ghostTypes;
@@ -468,10 +482,9 @@ export default class GhostModule extends Module {
 
             // Current date is OCM main draw
 			if(ocmEventDate!.competitionStartAt < date && ocmEventDate!.competitionCloseAt > date)
-			{ 
+			{
 				console.log('OCM Competition Day / Main Draw');
 
-				// --- Tally (still not complete) ---
                 // Get Top 1 qualifying car data
 				let ocmTallyRecord = await prisma.oCMTop1Ghost.findFirst({ 
 					where:{
@@ -487,6 +500,8 @@ export default class GhostModule extends Module {
 				let checkGhostTrail = await prisma.oCMTop1GhostTrail.findFirst({ 
 					where:{
 						carId: ocmTallyRecord!.carId,
+						competitionId: ocmEventDate!.competitionId,
+						periodId: period_id,
 						area: areaVal,
 						ramp: rampVal,
 						path: pathVal,
@@ -495,7 +510,6 @@ export default class GhostModule extends Module {
 						playedAt: 'desc'
 					},
 				});
-				// ----------------------------------
 
                 // Top 1 OCM Ghost trail data available
 				if(checkGhostTrail)
@@ -537,11 +551,12 @@ export default class GhostModule extends Module {
                 // Get the default ghost trail
 				let checkGhostTrail = await prisma.oCMTop1GhostTrail.findFirst({ 
 					where:{
+						carId: 999999999,
+						competitionId: ocmEventDate!.competitionId,
+						periodId: 0,
 						area: areaVal,
 						ramp: rampVal,
-						path: pathVal,
-						competitionId: ocmEventDate!.competitionId,
-						periodId: 0
+						path: pathVal
 					},
 					orderBy:{
 						playedAt: 'desc'
@@ -585,6 +600,72 @@ export default class GhostModule extends Module {
 				// Set Ghost stuff Value
 				ghostTrailId = checkGhostTrail!.dbId!;
 				ghostTypes = wm.wm.protobuf.GhostType.GHOST_NORMAL;
+			}
+			else if(ocmEventDate!.competitionCloseAt < date && ocmEventDate!.competitionEndAt > date)
+			{ 
+				// TODO: IDK
+			}
+			else
+			{
+				console.log('OCM has ended');
+
+                // Get Top 1 qualifying car data
+				let ocmTallyRecord = await prisma.oCMTop1Ghost.findFirst({ 
+					where:{
+						competitionId: competition_id,
+						periodId: 999999999
+					},
+					orderBy:{
+						result: 'desc'
+					},
+				});
+
+                // Get Top 1 qualifying ghost trail id
+				let checkGhostTrail = await prisma.oCMTop1GhostTrail.findFirst({ 
+					where:{
+						carId: ocmTallyRecord!.carId,
+						competitionId: ocmEventDate!.competitionId,
+						periodId: 999999999,
+						area: areaVal,
+						ramp: rampVal,
+						path: pathVal,
+					},
+					orderBy:{
+						playedAt: 'desc'
+					},
+				});
+
+                // Top 1 OCM Ghost trail data available
+				if(checkGhostTrail)
+				{ 
+                    // Get the Top 1 OCM car data
+					cars = await prisma.car.findFirst({ 
+						where:{
+							carId: checkGhostTrail!.carId
+						},
+						include:{
+							gtWing: true
+						}
+					});
+
+					// If regionId is 0 or not set, game will crash after defeating the ghost
+					if(cars!.regionId === 0)
+					{
+						let randomRegionId = Math.floor(Math.random() * 47) + 1;
+						cars!.regionId = randomRegionId;
+					}
+
+                    // Set the tunePower used when playing ghost crown
+					cars!.tunePower = ocmTallyRecord!.tunePower; 
+
+                    // Set the tuneHandling used when playing ghost crown
+					cars!.tuneHandling = ocmTallyRecord!.tuneHandling;
+
+					// Set Ghost stuff Value
+					cars!.lastPlayedAt = checkGhostTrail.playedAt
+					ghostTrailId = checkGhostTrail.dbId!;
+					ghostTypes = wm.wm.protobuf.GhostType.GHOST_NORMAL;
+				}
 			}
 
 			// Push the Top 1 OCM ghost car data
