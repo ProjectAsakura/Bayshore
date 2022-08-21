@@ -122,7 +122,7 @@ export default class GhostModule extends Module {
 				}
 
 				// Current date is OCM main draw
-				if(ocmEventDate!.competitionStartAt <= date && ocmEventDate!.competitionCloseAt >= date)
+				if(ocmEventDate!.competitionStartAt < date && ocmEventDate!.competitionCloseAt > date)
 				{
 					console.log('Current OCM Day : Competition Day / Main Draw');
 
