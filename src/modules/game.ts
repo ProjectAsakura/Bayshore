@@ -73,8 +73,9 @@ export default class GameModule extends Module {
 					// Set this to tell the server if user is playing ghost battle mode
 					ghostModePlay = ghostReturn.ghostModePlay;
 
-					// For OCM Ghost Batle Mode
-					// Disable update trail if current advantage distance record is not better than previous advantage distance record 
+					// For OCM : Disable update trail if current advantage distance record is not better than previous advantage distance record
+					// For Crown : Disable update trail if lose
+					// Ghost Battle will return true 
 					updateNewTrail = ghostReturn.updateNewTrail;
 
 					// Check if user playing OCM Ghost Battle Mode

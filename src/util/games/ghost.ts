@@ -341,45 +341,128 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                 console.log('OCM Ghost Mode Found');
                 
                 OCMModePlay = true;
-                let saveExOCM: any = {};
-                saveExOCM.carId = body.carId;
 
-                if(body.rgResult?.competitionId)
-                {
-                    saveExOCM.competitionId = body.rgResult?.competitionId!;
-                }
+                // Get the rg result for the car
+                let rgResult = body?.rgResult;
 
-                if(body.rgResult?.periodId)
+                // rgResult is set
+                if (rgResult)
                 {
-                    saveExOCM.periodId = body.rgResult?.periodId!;
-                }
-                else
-                {
-                    saveExOCM.periodId = 0;
-                }
+                    let data : any = {
+                        carId: body.carId,
+                        competitionId: common.sanitizeInput(rgResult.competitionId),
+                        periodId: common.sanitizeInput(rgResult.periodId) || 0,
+                        brakingPoint: common.sanitizeInput(rgResult.brakingPoint) || 0,
+                        playedAt: common.sanitizeInput(body.playedAt),
+                    }
 
-                if(body.rgResult?.brakingPoint)
-                {
-                    saveExOCM.brakingPoint = body.rgResult?.brakingPoint!;
-                }
-                else
-                {
-                    saveExOCM.brakingPoint = 0;
-                }
+                    // Get the user's available OCM Battle data
+                    let countOCM = await prisma.oCMPlayRecord.count({ 
+                        where: {
+                            competitionId: data.competitionId,
+                            carId: body.carId
+                        }
+                    });
 
-                if(body?.playedAt)
-                {
-                    saveExOCM.playedAt = body?.playedAt!;
+                    // User's OCM Battle data available
+                    if(countOCM !== 0)
+                    {
+                        console.log('OCM Play Record found');
+                        console.log('Updaing OCM Play Record entry');
+
+                        await prisma.oCMPlayRecord.updateMany({
+                            where:{
+                                carId: data.carId,
+                                competitionId: data.competitionId,
+                            },
+                            data: data
+                        });
+                    }
+                    // First time User playing OCM Battle
+                    else
+                    { 
+                        console.log('OCM Play Record not found');
+                        console.log('Creating new OCM Play Record entry');
+
+                        await prisma.oCMPlayRecord.create({
+                            data: data
+                        });
+                    }
+
+                    ghost_historys = await ghost_history.saveOCMGhostHistory(body);
+
+                    // Update the updateNewTrail value
+                    updateNewTrail = ghost_historys.updateNewTrail;
+                }
+                
+                break;
+            }
+        }
+    }
+    // Retiring OCM for mini games
+    else if(body.rgResult!.selectionMethod === wmproto.wm.protobuf.GhostSelectionMethod.GHOST_COMPETITION)
+    {
+        // Get current date
+        let date = Math.floor(new Date().getTime() / 1000);
+
+        // Get currently active OCM event
+        let ocmEventDate = await prisma.oCMEvent.findFirst({ 
+            where: {
+                OR: [
+                    {
+                        // qualifyingPeriodStartAt is less than current date
+                        qualifyingPeriodStartAt: { lte: date },
+
+                        // qualifyingPeriodCloseAt is greater than current date
+                        qualifyingPeriodCloseAt: { gte: date },
+                    },
+                    { 
+                        // competitionStartAt is less than current date
+                        competitionStartAt: { lte: date },
+
+                        // competitionCloseAt is greater than current date
+                        competitionCloseAt: { gte: date },
+                    },
+                    {
+                        // competitionCloseAt is less than current date 
+                        competitionCloseAt: { lte: date },
+
+                        // competitionEndAt is greater than current date
+                        competitionEndAt: {gte: date },
+                    }
+                ],
+            },
+            orderBy:{
+                dbId: 'desc'
+            }
+        });
+
+        if(ocmEventDate!.qualifyingPeriodStartAt < date && ocmEventDate!.qualifyingPeriodCloseAt > date)
+        { 
+            console.log('OCM Ghost Mode Found but Retiring');
+
+            // Get the rg result for the car
+            let rgResult = body?.rgResult;
+
+            // rgResult is set
+            if (rgResult)
+            {
+                let data : any = {
+                    carId: body.carId,
+                    competitionId: common.sanitizeInput(rgResult.competitionId),
+                    periodId: common.sanitizeInput(rgResult.periodId) || 0,
+                    brakingPoint: common.sanitizeInput(rgResult.brakingPoint) || 0,
+                    playedAt: common.sanitizeInput(body.playedAt),
                 }
 
                 // Get the user's available OCM Battle data
                 let countOCM = await prisma.oCMPlayRecord.count({ 
                     where: {
-                        competitionId: saveExOCM.competitionId,
+                        competitionId: data.competitionId,
                         carId: body.carId
                     }
                 });
-                
+
                 // User's OCM Battle data available
                 if(countOCM !== 0)
                 {
@@ -388,10 +471,10 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
 
                     await prisma.oCMPlayRecord.updateMany({
                         where:{
-                            carId: saveExOCM.carId,
-                            competitionId: saveExOCM.competitionId,
+                            carId: data.carId,
+                            competitionId: data.competitionId,
                         },
-                        data: saveExOCM
+                        data: data
                     });
                 }
                 // First time User playing OCM Battle
@@ -401,16 +484,9 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                     console.log('Creating new OCM Play Record entry');
 
                     await prisma.oCMPlayRecord.create({
-                        data: saveExOCM
+                        data: data
                     });
                 }
-
-                ghost_historys = await ghost_history.saveOCMGhostHistory(body);
-
-                // Update the updateNewTrail value
-                updateNewTrail = ghost_historys.updateNewTrail;
-
-                break;
             }
         }
     }

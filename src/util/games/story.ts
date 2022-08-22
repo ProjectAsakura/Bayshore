@@ -32,10 +32,10 @@ export async function saveStoryResult(body: wm.protobuf.SaveGameResultRequest, c
             }
 
             // If the current consecutive wins is greater than the previous max
-            if (body.stResult!.stConsecutiveWins! > car!.stConsecutiveWinsMax) 
+            if (storyResult.stConsecutiveWins! > car!.stConsecutiveWinsMax) 
             {
                 // Update the maximum consecutive wins;
-                data.stConsecutiveWinsMax = body.stResult!.stConsecutiveWins!;
+                data.stConsecutiveWinsMax = storyResult.stConsecutiveWins;
             }
 
             // If the lose bits are set, and are long data
