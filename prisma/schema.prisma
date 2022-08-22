@@ -175,7 +175,7 @@ model CarSettings {
     retire             Boolean @default(false)
     meter              Int     @default(0)
     navigationMap      Boolean @default(true)
-    volume             Int     @default(1)
+    volume             Int     @default(2)
     bgm                Int     @default(0)
     nameplate          Int     @default(0)
     nameplateColor     Int     @default(0)

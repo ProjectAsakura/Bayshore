@@ -279,41 +279,42 @@ export default class UserModule extends Module {
 
 			// Get current date
 			let date = Math.floor(new Date().getTime() / 1000);
+
+			// Get current active OCM Event
+			let ocmEventDate = await prisma.oCMEvent.findFirst({
+				where: {
+                    OR: [
+                        {
+							// qualifyingPeriodStartAt is less than current date
+							qualifyingPeriodStartAt: { lte: date },
+
+							// qualifyingPeriodCloseAt is greater than current date
+							qualifyingPeriodCloseAt: { gte: date },
+						},
+						{ 
+							// competitionStartAt is less than current date
+							competitionStartAt: { lte: date },
+
+							// competitionCloseAt is greater than current date
+							competitionCloseAt: { gte: date },
+						},
+                        {
+							// competitionCloseAt is less than current date 
+							competitionCloseAt: { lte: date },
+
+							// competitionEndAt is greater than current date
+							competitionEndAt: {gte: date },
+						}
+                    ],
+                },
+				orderBy:{
+					dbId: 'desc'
+				}
+			});
 			
 			// Check each car record
 			for(let i=0; i<msg.cars.length; i++)
 			{
-				// Get current active OCM Event
-				let ocmEventDate = await prisma.oCMEvent.findFirst({
-					where: {
-						OR: [
-							{
-								// qualifyingPeriodStartAt is less than current date
-								qualifyingPeriodStartAt: { lte: date },
-	
-								// qualifyingPeriodCloseAt is greater than current date
-								qualifyingPeriodCloseAt: { gte: date },
-							},
-							{ 
-								// competitionStartAt is less than current date
-								competitionStartAt: { lte: date },
-	
-								// competitionCloseAt is greater than current date
-								competitionCloseAt: { gte: date },
-							},
-							{
-								// competitionCloseAt is less than current date 
-								competitionCloseAt: { lte: date },
-	
-								// competitionEndAt is greater than current date
-								competitionEndAt: {gte: date },
-							}
-						],
-					},
-					orderBy:{
-						dbId: 'desc'
-					}
-				});
 				
 				// Check Competition (OCM) Participation, and available OCM event
 				if(user.cars.length > 0 && ocmEventDate)
@@ -333,31 +334,21 @@ export default class UserModule extends Module {
 						if(checkParticipation)
 						{
 							ParticipationMainDrawCounter++
-						}
 
-						// Check Car State
-						// Get OCM Data
-						let ocmTallyRecord = await prisma.oCMTally.findMany({ 
-							where:{
-								competitionId: ocmEventDate!.competitionId
-							},
-							orderBy: [
-								{
-									competitionId: 'desc',
-								},
-								{
-									periodId: 'desc',
-								},
-								{
-									result: 'desc',
-								},
-							],
-						});
+							// Check Car State
+							// Get OCM Data
+							let ocmTallyRecord = await prisma.oCMTally.findFirst({ 
+								where:{
+									carId: user.cars[i].carId,
+									competitionId: ocmEventDate!.competitionId
+								}
+							});
 
-						for(let j=0; j<ocmTallyRecord.length; j++)
-						{
-							carStates[i].eventJoined = true;
-							carStates[i].competitionState = wm.wm.protobuf.GhostCompetitionParticipantState.COMPETITION_QUALIFIED
+							if(ocmTallyRecord)
+							{
+								carStates[i].eventJoined = true;
+								carStates[i].competitionState = wm.wm.protobuf.GhostCompetitionParticipantState.COMPETITION_QUALIFIED
+							}	
 						}
 					}
 					// Current date is OCM qualifying day
@@ -375,30 +366,18 @@ export default class UserModule extends Module {
 						if(checkParticipation)
 						{
 							ParticipationQualifyingCounter++
-						}
 
-						// Check Car State
-						// Get OCM Data
-						let ocmRecord = await prisma.oCMPlayRecord.findMany({ 
-							where:{
-								competitionId: ocmEventDate!.competitionId
-							},
-							orderBy: [
-								{
-									dbId: 'asc',
+							// Check Car State
+							// Get OCM Data
+							let ocmRecord = await prisma.oCMPlayRecord.findFirst({ 
+								where:{
+									carId: user.cars[i].carId,
+									competitionId: ocmEventDate!.competitionId,
+									periodId: 0
 								},
-								{
-									competitionId: 'desc',
-								},
-								{
-									periodId: 'desc',
-								},
-							],
-						});
+							});
 
-						for(let j=0; j<ocmRecord.length; j++)
-						{
-							if(carStates[i].dbId === ocmRecord[j].carId)
+							if(ocmRecord)
 							{
 								carStates[i].eventJoined = true;
 								carStates[i].competitionState = wm.wm.protobuf.GhostCompetitionParticipantState.COMPETITION_PARTICIPATED
@@ -407,7 +386,7 @@ export default class UserModule extends Module {
 					}
 					// Current date is OCM ended
 					else if(ocmEventDate!.competitionCloseAt < date && ocmEventDate!.competitionEndAt > date)
-					{ 
+					{
 						// Check ghost battle record
 						let checkParticipation = await prisma.oCMPlayRecord.findFirst({
 							where:{
@@ -420,32 +399,21 @@ export default class UserModule extends Module {
 						if(checkParticipation)
 						{
 							ParticipationEndedCounter++
-						}
 
-						// Check Car State
-						// Get OCM Data
-						let ocmTallyRecord = await prisma.oCMTally.findMany({ 
-							where:{
-								competitionId: ocmEventDate!.competitionId,
-								periodId: 999999999
-							},
-							orderBy: [
-								{
-									result: 'desc',
+							// Check Car State
+							// Get OCM Data
+							let ocmTallyRecord = await prisma.oCMTally.findFirst({ 
+								where:{
+									carId: user.cars[i].carId,
+									competitionId: ocmEventDate!.competitionId,
+									periodId: 999999999
 								},
-							],
-						});
+							});
 
-						for(let j=0; j<ocmTallyRecord.length; j++)
-						{
-							if(carStates[i].dbId === ocmTallyRecord[j].carId)
+							if(ocmTallyRecord)
 							{
 								carStates[i].eventJoined = true;
 								carStates[i].competitionState = wm.wm.protobuf.GhostCompetitionParticipantState.COMPETITION_QUALIFIED
-							}
-							if(carStates[i].dbId === ocmTallyRecord[j].carId && j === 0)
-							{
-								carStates[i].competitionState = wm.wm.protobuf.GhostCompetitionParticipantState.COMPETITION_WON
 							}
 						}
 					}
@@ -499,9 +467,15 @@ export default class UserModule extends Module {
 			else if(ParticipationEndedCounter > 0)
 			{
 				console.log('OCM Participation : '+ParticipationEndedCounter+' car(s) played OCM Event');
+				msg.competitionUserState = wm.wm.protobuf.GhostCompetitionParticipantState.COMPETITION_QUALIFIED;
 			}
-			else{
+			else if(ocmEventDate)
+			{
 				console.log('OCM Participation : Not Participated / Qualified');
+			}
+			else
+			{
+				console.log('No OCM Event Available');
 			}
 
             // Response data if user is banned
