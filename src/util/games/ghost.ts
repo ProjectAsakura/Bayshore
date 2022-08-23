@@ -399,6 +399,40 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
             }
         }
     }
+    // Retiring Ghost Battle
+    else if(body.rgResult!.selectionMethod === wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SELECT_BY_LEVEL ||
+        body.rgResult!.selectionMethod === wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SEARCH_BY_NAME ||
+        body.rgResult!.selectionMethod === wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SEARCH_BY_REGION ||
+        body.rgResult!.selectionMethod === wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SELECT_FROM_HISTORY ||
+        body.rgResult!.selectionMethod === wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SEARCH_BY_SHOP)
+    {
+        console.log('Normal Ghost Mode Found but Retiring');
+
+        // Get the ghost result for the car
+        let ghostResult = body?.rgResult;
+
+        // Declare data
+        let dataGhost : any;
+
+        // ghostResult is set
+        if (ghostResult)
+        {
+            // Ghost update data
+            dataGhost = {
+                rgPlayCount: common.sanitizeInput(ghostResult.rgPlayCount), 
+            }
+
+            // Update the car properties
+            await prisma.car.update({
+                where: {
+                    carId: body.carId
+                },
+                data: {
+                    ...dataGhost
+                }
+            }); 
+        }
+    }
     // Retiring OCM for mini games
     else if(body.rgResult!.selectionMethod === wmproto.wm.protobuf.GhostSelectionMethod.GHOST_COMPETITION)
     {
