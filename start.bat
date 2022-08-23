@@ -1,2 +1,2 @@
-yarn dev
+node dist
 pause
