@@ -188,7 +188,6 @@ export default class CarModule extends Module {
 				},
 				tuningPoint: car!.tuningPoints,
 				setting: car!.settings,
-				vsStarCountMax: car!.vsStarCount,
 				rgPreviousVersionPlayCount: 0,
 				stCompleted_100Episodes: car!.stCompleted100Episodes,
 				auraMotifAutoChange: false,
@@ -528,6 +527,9 @@ export default class CarModule extends Module {
 			// Car is set
 			if (cars)
 			{
+				// Get current date
+				let date = Math.floor(new Date().getTime() / 1000);
+
 				// Car update data
 				data = {
 					customColor: common.sanitizeInput(cars.customColor),
@@ -548,6 +550,7 @@ export default class CarModule extends Module {
 					aura: common.sanitizeInput(cars.aura),
 					auraMotif: common.sanitizeInput(cars.auraMotif),
 					rgStamp: common.sanitizeInput(body.rgStamp),
+					lastPlayed: date
 				}
 
 				// Update the car info

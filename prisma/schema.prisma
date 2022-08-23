@@ -101,6 +101,7 @@ model Car {
     vsPlayCount            Int         @default(0)
     vsBurstCount           Int         @default(0)
     vsStarCount            Int         @default(0)
+    vsStarCountMax         Int         @default(0)
     vsCoolOrWild           Int         @default(0)
     vsSmoothOrRough        Int         @default(0)
     vsTripleStarMedals     Int         @default(0)

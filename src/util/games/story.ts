@@ -23,9 +23,9 @@ export async function saveStoryResult(body: wm.protobuf.SaveGameResultRequest, c
         {
             // Story update data
             let data : any = {
-                stClearDivCount: common.sanitizeInput(storyResult.stClearDivCount), 
+                stClearDivCount: common.sanitizeInputNotZero(storyResult.stClearDivCount), 
                 stPlayCount: common.sanitizeInput(storyResult.stPlayCount), 
-                stClearCount: common.sanitizeInput(storyResult.stClearCount), 
+                stClearCount: common.sanitizeInputNotZero(storyResult.stClearCount), 
                 stConsecutiveWins: common.sanitizeInput(storyResult.stConsecutiveWins), 
                 tuningPoints: common.sanitizeInput(storyResult.tuningPoint), 
                 stCompleted100Episodes: common.sanitizeInput(storyResult.stCompleted_100Episodes), 

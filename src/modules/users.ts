@@ -37,8 +37,10 @@ export default class UserModule extends Module {
 			});
 
 			// No user returned
-			if (!user) {
+			if (!user) 
+			{
 				console.log('no such user');
+
 				let msg = {
 					error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
 					numOfOwnedCars: 0,
@@ -46,23 +48,25 @@ export default class UserModule extends Module {
 					spappState: wm.wm.protobuf.SmartphoneAppState.SPAPP_UNREGISTERED,
 					transferState: wm.wm.protobuf.TransferState.NOT_REGISTERED,
 				};
-				if (!body.cardChipId || !body.accessCode) {
+
+				if (!body.cardChipId || !body.accessCode) 
+				{
 					let msg = {
 						error: wm.wm.protobuf.ErrorCode.ERR_ID_BANNED,
 						numOfOwnedCars: 0,
 						spappState: wm.wm.protobuf.SmartphoneAppState.SPAPP_UNREGISTERED,
 						transferState: wm.wm.protobuf.TransferState.NOT_REGISTERED
 					}
-					let resp = wm.wm.protobuf.LoadUserResponse.encode(msg);
-					let end = resp.finish();
-					let r = res
-						.header('Server', 'v388 wangan')
-						.header('Content-Type', 'application/x-protobuf; revision=8053')
-						.header('Content-Length', end.length.toString())
-						.status(200);
-					r.send(Buffer.from(end));
+
+					// Encode the response
+					let message = wm.wm.protobuf.LoadUserResponse.encode(msg);
+
+					// Send the response to the client
+					common.sendResponse(message, res);
+
 					return;
 				}
+
 				let user = await prisma.user.create({
 					data: {
 						chipId: body.cardChipId,
@@ -107,14 +111,22 @@ export default class UserModule extends Module {
 						],
 					}
 				});
+
 				console.log('user made')
-				if (!user) {
+
+				if (!user) 
+				{
 					msg.error = wm.wm.protobuf.ErrorCode.ERR_REQUEST;
 				}
+
 				let ftTicketGrant = Config.getConfig().gameOptions.grantFullTuneTicketToNewUsers;
-				if (ftTicketGrant > 0) {
+
+				if (ftTicketGrant > 0) 
+				{
 					console.log(`Granting Full-Tune Ticket x${ftTicketGrant} to new user...`);
-					for (let i=0; i<ftTicketGrant; i++) {
+
+					for (let i=0; i<ftTicketGrant; i++) 
+					{
 						await prisma.userItem.create({
 							data: {
 								userId: user.id,
@@ -124,16 +136,16 @@ export default class UserModule extends Module {
 							}
 						});
 					}
+
 					console.log('Done!');
 				}
-				let resp = wm.wm.protobuf.LoadUserResponse.encode(msg);
-				let end = resp.finish();
-				let r = res
-					.header('Server', 'v388 wangan')
-					.header('Content-Type', 'application/x-protobuf; revision=8053')
-					.header('Content-Length', end.length.toString())
-					.status(200);
-				r.send(Buffer.from(end));
+
+				// Encode the response
+				let message = wm.wm.protobuf.LoadUserResponse.encode(msg);
+
+				// Send the response to the client
+				common.sendResponse(message, res);
+
 				return;
 			}
 
@@ -479,7 +491,8 @@ export default class UserModule extends Module {
 			}
 
             // Response data if user is banned
-			if (user.userBanned) {
+			if (user.userBanned) 
+			{
 				msg.error = wm.wm.protobuf.ErrorCode.ERR_ID_BANNED;
 			}
 

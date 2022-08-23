@@ -8,7 +8,7 @@ import * as common from "../common";
 
 
 // Save versus battle result
-export async function saveVersusBattleResult(body: wm.protobuf.SaveGameResultRequest)
+export async function saveVersusBattleResult(body: wm.protobuf.SaveGameResultRequest, car: any)
 {
     if (!(body.retired)) 
     {
@@ -29,6 +29,13 @@ export async function saveVersusBattleResult(body: wm.protobuf.SaveGameResultReq
                 vsDoubleStarMedals: common.sanitizeInputNotZero(vsResult.vsDoubleStarMedals), 
                 vsSingleStarMedals: common.sanitizeInputNotZero(vsResult.vsSingleStarMedals), 
                 vsPlainMedals: common.sanitizeInputNotZero(vsResult.vsPlainMedals), 
+            }
+
+            // If the current versus star count is greater than the maximum
+            if (data.vsStarCount && (car.vsStarCountMax < data.vsStarCount))
+            {
+                // Update the maximum versus star count
+                data.vsStarCountMax = data.vsStarCount;
             }
 
             await prisma.car.update({

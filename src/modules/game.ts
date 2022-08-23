@@ -89,7 +89,7 @@ export default class GameModule extends Module {
 				case wm.wm.protobuf.GameMode.MODE_VS_BATTLE:
 				{
 					// Calling save vs battle result function (BASE_PATH/src/util/games/versus.ts)
-					await versus.saveVersusBattleResult(body); 
+					await versus.saveVersusBattleResult(body, car); 
 
 					// Break the switch case
 					break;
@@ -270,7 +270,7 @@ export default class GameModule extends Module {
 				msg = {
 					error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS
 
-					// No session for saving ghost trail (not playing Ghost Battle Mode)
+					// No session for saving ghost trail (not playing Ghost Battle Mode / Retiring)
 				}
 			}
 			
