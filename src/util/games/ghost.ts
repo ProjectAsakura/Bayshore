@@ -6,7 +6,7 @@ import wmproto  from "../../wmmt/wm.proto";
 
 // Import Util
 import * as common from "../../util/common";
-import * as ghost_history from "../games/games_util/ghost_history";
+import * as ghost_history from "../ghost/ghost_util/ghost_history";
 
 // Save ghost battle result
 export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequest, car: any)

@@ -2,7 +2,7 @@ import { prisma } from "../..";
 import { OCMTop1GhostTrail } from "@prisma/client";
 
 // Import Proto
-import * as ghost_ocm_area from "../games/games_util/ghost_ocm_area";
+import * as ghost_ocm_area from "../ghost/ghost_util/ghost_ocm_area";
 
 
 // Save ghost battle result

@@ -10,8 +10,8 @@ import * as wmsrv from "../wmmt/service.proto";
 
 // Import Util
 import * as common from "../util/common";
-import * as ghost_save_trail from "../util/games/ghost_save_trail";
-import * as ghost_trail from "../util/games/ghost_trail";
+import * as ghost_save_trail from "../util/ghost/ghost_save_trail";
+import * as ghost_trail from "../util/ghost/ghost_trail";
 
 
 export default class GhostModule extends Module {
@@ -71,7 +71,7 @@ export default class GhostModule extends Module {
 		app.post('/method/load_stamp_target', async (req, res) => {
 
             // Get the request body for the load stamp target request
-			let body = wm.wm.protobuf.LoadStampTargetRequest.encode(req.body); 
+			let body = wm.wm.protobuf.LoadStampTargetRequest.decode(req.body); 
 
             // TODO: Actual stamp stuff here
             // This is literally just bare-bones
