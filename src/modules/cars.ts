@@ -176,8 +176,8 @@ export default class CarModule extends Module {
 					// Get all of the friend cars for the carId provided
 					let challengers = await prisma.carChallenger.findFirst({
 						where: {
-							challengerCarId: body.carId,
-							carId: opponentTarget[0].carId
+							challengerCarId: opponentTarget[0].carId,
+							carId: body.carId
 						},
 						orderBy:{
 							id: 'desc'
@@ -190,7 +190,7 @@ export default class CarModule extends Module {
 
 						let carTarget = await prisma.car.findFirst({
 							where:{
-								carId: challengers.carId
+								carId: challengers.challengerCarId
 							},
 							include:{
 								gtWing: true,

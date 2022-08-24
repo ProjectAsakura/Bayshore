@@ -3,7 +3,6 @@ import { Module } from "module";
 import { prisma } from "..";
 import { CarPathandTuning } from "@prisma/client";
 import Long from "long";
-import { Config } from "../config";
 
 // Import Proto
 import * as wm from "../wmmt/wm.proto";
@@ -94,7 +93,7 @@ export default class GhostModule extends Module {
 			// Get all of the friend cars for the carId provided
             let challengers = await prisma.carChallenger.findMany({
                 where: {
-                    challengerCarId: body.carId
+                    carId: body.carId
                 }
             });
 
@@ -104,7 +103,7 @@ export default class GhostModule extends Module {
 				{
 					let carTarget = await prisma.car.findFirst({
 						where:{
-							carId: challengers[i].carId
+							carId: challengers[i].challengerCarId
 						},
 						include:{
 							gtWing: true,
@@ -126,8 +125,8 @@ export default class GhostModule extends Module {
             // Response data
 			let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
-				stampTargetCars: carsStamp,
-				challengers: carsChallenger,
+				stampTargetCars: carsStamp || null,
+				challengers: carsChallenger || null,
 				stampSheetCount: car!.stampSheetCount,
                 stampSheet: car?.stampSheet || null, 
                 stampReturnStats: car?.stampSheet || null,

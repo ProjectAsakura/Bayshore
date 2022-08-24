@@ -21,6 +21,7 @@ export async function sendStamp(body: wm.protobuf.SaveGameResultRequest)
             rgResult.rgStamp = 1;
         }
 
+        // Get the area
         let area;
         if(rgResult.path)
         {
@@ -47,20 +48,20 @@ export async function sendStamp(body: wm.protobuf.SaveGameResultRequest)
 
             if(checkCar)
             {
-                let returnCounts = 1;
-
+                // Create Challenger data
                 let dataChallenger: any = {
-                    carId: body.carId,
-                    challengerCarId: rgResult.opponents![i].carId,
+                    carId: rgResult.opponents![i].carId,
+                    challengerCarId: body.carId,
                     stamp: rgResult.rgStamp,
                     result: rgResult.opponents![i].result,
                     area: area
                 }
     
+                // Create Stamp Target data
                 let dataStampTarget: any = {
                     carId: body.carId,
                     stampTargetCarId: rgResult.opponents![i].carId,
-                    returnCount: returnCounts,
+                    returnCount: 1,
                     locked: false,
                     recommended: true
                 } 
@@ -73,27 +74,8 @@ export async function sendStamp(body: wm.protobuf.SaveGameResultRequest)
                     }
                 })
 
-                if(stampTarget)
-                {
-                    dataStampTarget.returnCount = stampTarget.returnCount + 1;
-
-                    console.log('Updating stamp entry');
-
-                    await prisma.carChallenger.update({
-                        where:{
-                            id: stampTarget.id
-                        },
-                        data: dataChallenger
-                    })
-
-                    await prisma.carStampTarget.update({
-                        where:{
-                            id: stampTarget.id
-                        },
-                        data: dataStampTarget
-                    })
-                }
-                else
+                // No record found
+                if(!(stampTarget))
                 {
                     console.log('Creating new stamp entry');
 
@@ -125,6 +107,15 @@ export async function shuttleReturnStamp(body: wm.protobuf.SaveGameResultRequest
             rgResult.rgStamp = 1;
         }
 
+        // Get the area
+        let area;
+        if(rgResult.path)
+        {
+            let getArea = await ghost_get_area_from_path.getArea(rgResult.path);
+
+            area = getArea.area;
+        }
+
         // Check how many opponents available
         for(let i=0; i<rgResult.opponents!.length; i++)
         {
@@ -143,23 +134,68 @@ export async function shuttleReturnStamp(body: wm.protobuf.SaveGameResultRequest
 
             if(checkCar)
             {
-                // Check opponents target
-                let opponentTarget = await prisma.carStampTarget.findFirst({
+                // Return the stamp
+                let stampTarget = await prisma.carStampTarget.findFirst({
                     where:{
-                        stampTargetCarId: body.carId,
                         carId: rgResult.opponents![i].carId,
+                        stampTargetCarId: body.carId,
                     }
                 })
 
-                if(opponentTarget)
+                if(stampTarget)
+                {
+                    let returnCount = stampTarget.returnCount + 1;
+
+                    let dataChallenger: any = {
+                        carId: rgResult.opponents![i].carId,
+                        challengerCarId: body.carId,
+                        stamp: rgResult.rgStamp,
+                        result: rgResult.opponents![i].result,
+                        area: area
+                    }
+        
+                    let dataStampTarget: any = {
+                        carId: rgResult.opponents![i].carId,
+                        stampTargetCarId: body.carId,
+                        returnCount: returnCount,
+                        locked: true,
+                        recommended: false
+                    } 
+
+                    console.log('Updating stamp entry');
+
+                    await prisma.carChallenger.update({
+                        where:{
+                            id: stampTarget.id
+                        },
+                        data: dataChallenger
+                    })
+
+                    await prisma.carStampTarget.update({
+                        where:{
+                            id: stampTarget.id
+                        },
+                        data: dataStampTarget
+                    })
+                }
+
+                // Stamp Returned
+                let stampReturned = await prisma.carStampTarget.findFirst({
+                    where:{
+                        carId: body.carId,
+                        stampTargetCarId: rgResult.opponents![i].carId,
+                    }
+                })
+
+                if(stampReturned)
                 {
                     await prisma.carStampTarget.update({
-                        where: {
-                            id: opponentTarget.id
+                        where:{
+                            id: stampReturned.id
                         },
-                        data:{
-                            locked: true,
-                            recommended: false
+                        data: {
+                            locked: false,
+                            recommended: true
                         }
                     })
                 }

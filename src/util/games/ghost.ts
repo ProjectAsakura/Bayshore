@@ -189,6 +189,9 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
 
                 ghost_historys = await ghost_history.saveGhostHistory(body);
 
+                // Return Stamp (Shuttle Match)
+                await ghost_stamp.shuttleReturnStamp(body);
+
                 // Update the updateNewTrail value
                 updateNewTrail = ghost_historys.updateNewTrail;
 
