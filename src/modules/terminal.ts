@@ -121,6 +121,10 @@ export default class TerminalModule extends Module {
 					let car = await prisma.car.findFirst({
 						where: {
 							carId: carId
+						},
+						include:{
+							gtWing: true,
+							lastPlayedPlace: true
 						}
 					});
 
@@ -646,6 +650,10 @@ export default class TerminalModule extends Module {
 							let cars = await prisma.car.findFirst({
 								where:{
 									carId: ocmParticipant[i].carId
+								},
+								include:{
+									gtWing: true,
+									lastPlayedPlace: true
 								}
 							});
 
@@ -722,6 +730,10 @@ export default class TerminalModule extends Module {
 							let cars = await prisma.car.findFirst({
 								where:{
 									carId: ocmParticipant[i].carId
+								},
+								include:{
+									gtWing: true,
+									lastPlayedPlace: true
 								}
 							})
 
@@ -792,6 +804,10 @@ export default class TerminalModule extends Module {
 							let cars = await prisma.car.findFirst({
 								where:{
 									carId: ocmParticipant[i].carId
+								},
+								include:{
+									gtWing: true,
+									lastPlayedPlace: true
 								}
 							});
 

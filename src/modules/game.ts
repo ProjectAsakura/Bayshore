@@ -28,6 +28,10 @@ export default class GameModule extends Module {
 			let car = await prisma.car.findFirst({
 				where: {
 					carId: body.carId
+				},
+				include:{
+					gtWing: true,
+					lastPlayedPlace: true
 				}
 			});
 
@@ -296,6 +300,10 @@ export default class GameModule extends Module {
 			let car = await prisma.car.findFirst({
 				where: {
 					carId: body.carId
+				},
+				include:{
+					gtWing: true,
+					lastPlayedPlace: true
 				}
 			});
 

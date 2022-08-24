@@ -27,6 +27,10 @@ export default class GhostModule extends Module {
 			let car = await prisma.car.findFirst({
 				where:{
 					carId: body.carId
+				},
+				include:{
+					gtWing: true,
+					lastPlayedPlace: true
 				}
 			})
 
@@ -69,6 +73,10 @@ export default class GhostModule extends Module {
 					let carTarget = await prisma.car.findFirst({
 						where:{
 							carId: stampTargets[i].carId
+						},
+						include:{
+							gtWing: true,
+							lastPlayedPlace: true
 						}
 					})
 
@@ -97,6 +105,10 @@ export default class GhostModule extends Module {
 					let carTarget = await prisma.car.findFirst({
 						where:{
 							carId: challengers[i].carId
+						},
+						include:{
+							gtWing: true,
+							lastPlayedPlace: true
 						}
 					})
 
@@ -153,6 +165,10 @@ export default class GhostModule extends Module {
 					let carTarget = await prisma.car.findFirst({
 						where:{
 							carId: stampTargets[i].stampTargetCarId
+						},
+						include:{
+							gtWing: true,
+							lastPlayedPlace: true
 						}
 					})
 
@@ -181,6 +197,10 @@ export default class GhostModule extends Module {
 					let carTarget = await prisma.car.findFirst({
 						where:{
 							carId: challengers[i].challengerCarId
+						},
+						include:{
+							gtWing: true,
+							lastPlayedPlace: true
 						}
 					})
 

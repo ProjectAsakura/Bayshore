@@ -38,6 +38,10 @@ export async function sendStamp(body: wm.protobuf.SaveGameResultRequest)
                     NOT:{
                         userId: body.car!.userId!
                     }
+                },
+                include:{
+                    gtWing: true,
+                    lastPlayedPlace: true
                 }
             })
 
@@ -130,6 +134,10 @@ export async function shuttleReturnStamp(body: wm.protobuf.SaveGameResultRequest
                     NOT:{
                         userId: body.car!.userId!
                     }
+                },
+                include:{
+                    gtWing: true,
+                    lastPlayedPlace: true
                 }
             })
 
