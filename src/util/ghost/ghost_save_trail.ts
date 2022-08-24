@@ -15,29 +15,11 @@ export async function saveOCMGhostTrail(body: wm.protobuf.RegisterGhostTrailRequ
     // Get current active OCM Event
     let ocmEventDate = await prisma.oCMEvent.findFirst({
         where: {
-            OR: [
-                {
-                    // qualifyingPeriodStartAt is less than current date
-                    qualifyingPeriodStartAt: { lte: date },
+            // qualifyingPeriodStartAt is less than current date
+            qualifyingPeriodStartAt: { lte: date },
 
-                    // qualifyingPeriodCloseAt is greater than current date
-                    qualifyingPeriodCloseAt: { gte: date },
-                },
-                { 
-                    // competitionStartAt is less than current date
-                    competitionStartAt: { lte: date },
-
-                    // competitionCloseAt is greater than current date
-                    competitionCloseAt: { gte: date },
-                },
-                {
-                    // competitionCloseAt is less than current date 
-                    competitionCloseAt: { lte: date },
-
-                    // competitionEndAt is greater than current date
-                    competitionEndAt: {gte: date },
-                }
-            ],
+            // competitionEndAt is greater than current date
+            competitionEndAt: { gte: date },
         },
         orderBy:{
             dbId: 'desc'
@@ -49,21 +31,20 @@ export async function saveOCMGhostTrail(body: wm.protobuf.RegisterGhostTrailRequ
         // Get OCM Period ID
         let OCM_periodId = await prisma.oCMPeriod.findFirst({ 
             where:{
-                competitionDbId: ocmEventDate!.dbId,
-                competitionId: ocmEventDate!.competitionId,
-                startAt: 
-                {
-                    lte: date, // competitionStartAt is less than current date
-                },
-                closeAt:
-                {
-                    gte: date, // competitionCloseAt is greater than current date
-                }
+                competitionDbId: ocmEventDate.dbId,
+                competitionId: ocmEventDate.competitionId,
+
+                // StartAt is less than current date
+                startAt: { lte: date },
+
+                // CloseAt is greater than current date
+                closeAt: { gte: date }
             },
             select:{
                 periodId: true
             }
         });
+
         let ocmMainDraws: boolean = false;
         let periodId = 0;
 
@@ -92,6 +73,7 @@ export async function saveOCMGhostTrail(body: wm.protobuf.RegisterGhostTrailRequ
             let grArea: number = 0;
             let grRamp: number = 0;
             let grPath: number = 0;
+
             if(ghostResult.area)
             {
                 grArea = ghostResult.area;
@@ -184,6 +166,7 @@ export async function saveCrownGhostTrail(body: wm.protobuf.RegisterGhostTrailRe
         let grArea: number = 0;
         let grRamp: number = 0;
         let grPath: number = 0;
+        
         if(ghostResult.area)
         {
             grArea = ghostResult.area;

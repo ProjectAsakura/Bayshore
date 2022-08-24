@@ -9,8 +9,8 @@ import * as wm from "../wmmt/wm.proto";
 
 // Import Util
 import * as common from "../util/common";
-import * as ghost_ocm from "../util/games/ghost_ocm";
-import * as ghost_ocm_area from "../util/games/games_util/ghost_ocm_area";
+import * as ghost_ocm from "../util/ghost/ghost_ocm";
+import * as ghost_ocm_area from "../util/ghost/ghost_ocm_area";
 
 
 export default class GhostModule extends Module {
@@ -28,30 +28,12 @@ export default class GhostModule extends Module {
             // Get currently active OCM event (query still not complete)
 			let ocmEventDate = await prisma.oCMEvent.findFirst({ 
 				where: {
-                    OR: [
-                        {
-							// qualifyingPeriodStartAt is less than current date
-							qualifyingPeriodStartAt: { lte: date },
-
-							// qualifyingPeriodCloseAt is greater than current date
-							qualifyingPeriodCloseAt: { gte: date },
-						},
-						{ 
-							// competitionStartAt is less than current date
-							competitionStartAt: { lte: date },
-
-							// competitionCloseAt is greater than current date
-							competitionCloseAt: { gte: date },
-						},
-                        {
-							// competitionCloseAt is less than current date 
-							competitionCloseAt: { lte: date },
-
-							// competitionEndAt is greater than current date
-							competitionEndAt: {gte: date },
-						}
-                    ],
-                },
+					// qualifyingPeriodStartAt is less than current date
+					qualifyingPeriodStartAt: { lte: date },
+		
+					// competitionEndAt is greater than current date
+					competitionEndAt: { gte: date },
+				},
                 orderBy:{
                     dbId: 'desc'
                 }
@@ -417,36 +399,14 @@ export default class GhostModule extends Module {
             // Get currently active OCM event
 			let ocmEventDate = await prisma.oCMEvent.findFirst({ 
                 where: {
-                    OR: [
-                        {
-							competitionId: competition_id,
-
-							// qualifyingPeriodStartAt is less than current date
-							qualifyingPeriodStartAt: { lte: date },
-
-							// qualifyingPeriodCloseAt is greater than current date
-							qualifyingPeriodCloseAt: { gte: date },
-						},
-						{ 
-							competitionId: competition_id,
-
-							// competitionStartAt is less than current date
-							competitionStartAt: { lte: date },
-
-							// competitionCloseAt is greater than current date
-							competitionCloseAt: { gte: date },
-						},
-                        {
-							competitionId: competition_id,
-							
-							// competitionCloseAt is less than current date 
-							competitionCloseAt: { lte: date },
-
-							// competitionEndAt is greater than current date
-							competitionEndAt: {gte: date },
-						}
-                    ],
-                },
+					competitionId: competition_id,
+					
+					// qualifyingPeriodStartAt is less than current date
+					qualifyingPeriodStartAt: { lte: date },
+		
+					// competitionEndAt is greater than current date
+					competitionEndAt: { gte: date },
+				},
                 orderBy:{
                     dbId: 'desc'
                 }
@@ -471,10 +431,10 @@ export default class GhostModule extends Module {
 			let ghostTypes;
 			let cars: wm.wm.protobuf.ICar | (Car & { gtWing: CarGTWing; }) | null;
 			let playedPlace = wm.wm.protobuf.Place.create({ 
-				placeId: 'JPN0123',
-				shopName: Config.getConfig().shopName,
-				regionId: 18,
-				country: 'JPN'
+				placeId: Config.getConfig().placeId,
+                regionId: Config.getConfig().regionId,
+                shopName: Config.getConfig().shopName,
+                country: Config.getConfig().country
 			});
 
 			// Get default trail id
@@ -520,7 +480,8 @@ export default class GhostModule extends Module {
 							carId: checkGhostTrail!.carId
 						},
 						include:{
-							gtWing: true
+							gtWing: true,
+							lastPlayedPlace: true
 						}
 					});
 
@@ -594,7 +555,8 @@ export default class GhostModule extends Module {
 					title: 'Don\'t have S660?',
 					level: 65, // SSSSS
 					lastPlayedAt: checkGhostTrail!.playedAt,
-					country: 'GLB'
+					country: 'IDN',
+					lastPlayedPlace: playedPlace
 				});
 				
 				// Set Ghost stuff Value
@@ -603,7 +565,8 @@ export default class GhostModule extends Module {
 			}
 			else if(ocmEventDate!.competitionCloseAt < date && ocmEventDate!.competitionEndAt > date)
 			{ 
-				// TODO: IDK
+				// TODO: Actual stuff here
+            	// This is literally just bare-bones so the shit boots
 			}
 			else
 			{
@@ -644,7 +607,8 @@ export default class GhostModule extends Module {
 							carId: checkGhostTrail!.carId
 						},
 						include:{
-							gtWing: true
+							gtWing: true,
+							lastPlayedPlace: true
 						}
 					});
 
@@ -670,10 +634,7 @@ export default class GhostModule extends Module {
 
 			// Push the Top 1 OCM ghost car data
 			ghostCars = wm.wm.protobuf.GhostCar.create({ 
-				car: {
-					...cars!,
-					lastPlayedPlace: playedPlace
-				},
+				car: cars!,
 				area: areaVal,
 				ramp: rampVal,
 				path: pathVal,

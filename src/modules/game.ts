@@ -8,7 +8,7 @@ import * as wm from "../wmmt/wm.proto";
 
 // Import Util
 import * as common from "../util/common";
-import * as meter_reward from "../util/meter_reward";
+import * as meter_reward from "../util/games/meter_reward";
 import * as story from "../util/games/story";
 import * as time_attack from "../util/games/time_attack";
 import * as ghost from "../util/games/ghost";
@@ -68,13 +68,14 @@ export default class GameModule extends Module {
 				case wm.wm.protobuf.GameMode.MODE_GHOST_BATTLE:
 				{
 					// Calling save ghost battle result function (BASE_PATH/src/util/games/ghost.ts)
-					let ghostReturn = await ghost.saveGhostBattleResult(body, car); 
+					let ghostReturn = await ghost.saveGhostBattleResult(body, car);
 
 					// Set this to tell the server if user is playing ghost battle mode
 					ghostModePlay = ghostReturn.ghostModePlay;
 
-					// For OCM Ghost Batle Mode
-					// Disable update trail if current advantage distance record is not better than previous advantage distance record 
+					// For OCM : Disable update trail if current advantage distance record is not better than previous advantage distance record
+					// For Crown : Disable update trail if lose
+					// Ghost Battle will return true 
 					updateNewTrail = ghostReturn.updateNewTrail;
 
 					// Check if user playing OCM Ghost Battle Mode
@@ -88,7 +89,7 @@ export default class GameModule extends Module {
 				case wm.wm.protobuf.GameMode.MODE_VS_BATTLE:
 				{
 					// Calling save vs battle result function (BASE_PATH/src/util/games/versus.ts)
-					await versus.saveVersusBattleResult(body); 
+					await versus.saveVersusBattleResult(body, car); 
 
 					// Break the switch case
 					break;
@@ -167,7 +168,8 @@ export default class GameModule extends Module {
 					tuneHandling: body.car!.tuneHandling!,
 					windowSticker: body.car!.windowSticker!,
 					lastPlayedAt: timestamps,
-					regionId: body.car!.regionId!
+					regionId: body.car!.regionId!,
+					rgStamp: common.sanitizeInputNotZero(body.rgResult?.rgStamp)
 				}
 			})
 
@@ -269,7 +271,7 @@ export default class GameModule extends Module {
 				msg = {
 					error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS
 
-					// No session for saving ghost trail (not playing Ghost Battle Mode)
+					// No session for saving ghost trail (not playing Ghost Battle Mode / Retiring)
 				}
 			}
 			
@@ -539,16 +541,20 @@ export default class GameModule extends Module {
 					playedShopName: ghostHistoryData![i].playedShopName
 				}));
 			}
+
+			// Get current date
+            let date = Math.floor(new Date().getTime() / 1000);
 			
 			// Response data
 			let msg = {
                 error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
 				taRecords: ta_records,
-				taRankingUpdatedAt: 1,
+				taRankingUpdatedAt: date,
 				ghostHistory: list_ghostHistoryData,
 				ghostBattleCount: car!.rgPlayCount,
 				ghostBattleWinCount: car!.rgWinCount,
-				stampSheetCount: 0,
+				stampSheetCount: car!.stampSheetCount, 
+				stampSheet: car!.stampSheet
             }
 
 			// Encode the response

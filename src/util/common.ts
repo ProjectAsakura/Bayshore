@@ -43,7 +43,8 @@ export function getBigIntFromLong(n: Long)
     return Number(bigInt);
 }
 
-export function sanitizeInput(value: any){
+export function sanitizeInput(value: any)
+{
     return (value == null || value == undefined) ? undefined : value;
 }
 
