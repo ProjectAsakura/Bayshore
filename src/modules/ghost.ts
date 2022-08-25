@@ -235,16 +235,34 @@ export default class GhostModule extends Module {
             // Get the request body for the search cars by level request
             let body = wm.wm.protobuf.SearchCarsByLevelRequest.decode(req.body);
 
-            // Find ghost car by selected level
-			let car = await prisma.car.findMany({
-				where: {
-					ghostLevel: body.ghostLevel
-				},
-				include:{
-					gtWing: true,
-					lastPlayedPlace: true,
-				}
-			});
+			let car;
+			if(body.regionId !== null && body.regionId !== undefined && body.regionId !== 0)
+			{
+				// Find ghost car by selected level and region ID
+				car = await prisma.car.findMany({
+					where: {
+						ghostLevel: body.ghostLevel,
+						regionId: body.regionId
+					},
+					include:{
+						gtWing: true,
+						lastPlayedPlace: true,
+					}
+				});
+			}
+			else
+			{
+				// Find ghost car by selected level
+				car = await prisma.car.findMany({
+					where: {
+						ghostLevel: body.ghostLevel,
+					},
+					include:{
+						gtWing: true,
+						lastPlayedPlace: true,
+					}
+				});
+			}
 
 			// Randomizing the starting ramp and path based on selected area
 			let rampVal = 0;
