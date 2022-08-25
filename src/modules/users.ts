@@ -279,7 +279,7 @@ export default class UserModule extends Module {
 			// Change Ghost Stamp tutorial to true
 			if(user.tutorials[20] === false)
 			{
-				console.log(`Change Ghost Stamp tutorial to true`)
+				console.log('Change Ghost Stamp tutorial to true')
 				for(let i=20; i<25; i++)
 				{
 					user.tutorials[i] = true
@@ -347,15 +347,14 @@ export default class UserModule extends Module {
 			
 			// Check each car record
 			for(let i=0; i<msg.cars.length; i++)
-			{
-				
+			{	
 				// Check Competition (OCM) Participation, and available OCM event
 				if(user.cars.length > 0 && ocmEventDate)
 				{
 					// Current date is OCM main draw
 					if(ocmEventDate!.competitionStartAt < date && ocmEventDate!.competitionCloseAt > date)
 					{ 
-						// Check ghost battle record
+						// Check ocm play record
 						let checkParticipation = await prisma.oCMPlayRecord.findFirst({
 							where:{
 								carId: user.cars[i].carId,
@@ -382,12 +381,17 @@ export default class UserModule extends Module {
 								carStates[i].eventJoined = true;
 								carStates[i].competitionState = wm.wm.protobuf.GhostCompetitionParticipantState.COMPETITION_QUALIFIED
 							}	
+							else
+							{
+								carStates[i].eventJoined = false;
+								carStates[i].competitionState = wm.wm.protobuf.GhostCompetitionParticipantState.COMPETITION_NOT_PARTICIPATED
+							}
 						}
 					}
 					// Current date is OCM qualifying day
 					else if(ocmEventDate!.qualifyingPeriodStartAt < date && ocmEventDate!.qualifyingPeriodCloseAt > date)
 					{ 
-						// Check ghost battle record
+						// Check ocm play record
 						let checkParticipation = await prisma.oCMPlayRecord.findFirst({
 							where:{
 								carId: user.cars[i].carId,
@@ -415,12 +419,17 @@ export default class UserModule extends Module {
 								carStates[i].eventJoined = true;
 								carStates[i].competitionState = wm.wm.protobuf.GhostCompetitionParticipantState.COMPETITION_PARTICIPATED
 							}
+							else
+							{
+								carStates[i].eventJoined = false;
+								carStates[i].competitionState = wm.wm.protobuf.GhostCompetitionParticipantState.COMPETITION_NOT_PARTICIPATED
+							}
 						}
 					}
 					// Current date is OCM ended
 					else if(ocmEventDate!.competitionCloseAt < date && ocmEventDate!.competitionEndAt > date)
 					{
-						// Check ghost battle record
+						// Check ocm play record
 						let checkParticipation = await prisma.oCMPlayRecord.findFirst({
 							where:{
 								carId: user.cars[i].carId,
@@ -447,6 +456,11 @@ export default class UserModule extends Module {
 							{
 								carStates[i].eventJoined = true;
 								carStates[i].competitionState = wm.wm.protobuf.GhostCompetitionParticipantState.COMPETITION_QUALIFIED
+							}
+							else
+							{
+								carStates[i].eventJoined = false;
+								carStates[i].competitionState = wm.wm.protobuf.GhostCompetitionParticipantState.COMPETITION_NOT_PARTICIPATED
 							}
 						}
 					}
@@ -490,17 +504,17 @@ export default class UserModule extends Module {
 			if(ParticipationMainDrawCounter > 0)
 			{
 				console.log('OCM Participation : '+ParticipationMainDrawCounter+' car(s) Qualified');
-				msg.competitionUserState = wm.wm.protobuf.GhostCompetitionParticipantState.COMPETITION_QUALIFIED;
+				msg.competitionUserState = wm.wm.protobuf.GhostCompetitionParticipantState.COMPETITION_QUALIFIED
 			}
 			else if(ParticipationQualifyingCounter > 0)
 			{
 				console.log('OCM Participation : '+ParticipationQualifyingCounter+' car(s) Participated');
-				msg.competitionUserState = wm.wm.protobuf.GhostCompetitionParticipantState.COMPETITION_PARTICIPATED;
+				msg.competitionUserState = wm.wm.protobuf.GhostCompetitionParticipantState.COMPETITION_PARTICIPATED
 			}
 			else if(ParticipationEndedCounter > 0)
 			{
 				console.log('OCM Participation : '+ParticipationEndedCounter+' car(s) played OCM Event');
-				msg.competitionUserState = wm.wm.protobuf.GhostCompetitionParticipantState.COMPETITION_QUALIFIED;
+				msg.competitionUserState = wm.wm.protobuf.GhostCompetitionParticipantState.COMPETITION_QUALIFIED
 			}
 			else if(ocmEventDate)
 			{
