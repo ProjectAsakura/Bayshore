@@ -2,7 +2,7 @@ import { prisma } from "../..";
 import { OCMTop1GhostTrail } from "@prisma/client";
 
 // Import Proto
-import * as ghost_ocm_area from "../games/games_util/ghost_ocm_area";
+import * as ghost_ocm_area from "./ghost_ocm_area";
 
 
 // Save ghost battle result
@@ -14,29 +14,11 @@ export async function getOCMGhostTrail(carId: number, trailId: number)
     // Get current / previous active OCM Event
     let ocmEventDate = await prisma.oCMEvent.findFirst({
         where: {
-            OR: [
-                {
-                    // qualifyingPeriodStartAt is less than current date
-                    qualifyingPeriodStartAt: { lte: date },
+            // qualifyingPeriodStartAt is less than current date
+            qualifyingPeriodStartAt: { lte: date },
 
-                    // qualifyingPeriodCloseAt is greater than current date
-                    qualifyingPeriodCloseAt: { gte: date },
-                },
-                { 
-                    // competitionStartAt is less than current date
-                    competitionStartAt: { lte: date },
-
-                    // competitionCloseAt is greater than current date
-                    competitionCloseAt: { gte: date },
-                },
-                {
-                    // competitionCloseAt is less than current date 
-                    competitionCloseAt: { lte: date },
-
-                    // competitionEndAt is greater than current date
-                    competitionEndAt: {gte: date },
-                }
-            ],
+            // competitionEndAt is greater than current date
+            competitionEndAt: { gte: date },
         },
         orderBy: [
             {

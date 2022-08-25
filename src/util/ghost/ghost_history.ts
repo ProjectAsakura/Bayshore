@@ -1,7 +1,12 @@
 // Import Proto
-import { prisma } from "../../..";
-import { Config } from "../../../config";
-import { wm } from "../../../wmmt/wm.proto";
+import { prisma } from "../..";
+import { Config } from "../../config";
+import { wm } from "../../wmmt/wm.proto";
+
+// Import Util
+import * as common from "../../util/common";
+import * as ghost_stamp from "../ghost/ghost_stamp";
+import * as ghost_get_area_from_path from "../ghost/ghost_util/ghost_get_area_from_path";
 
 
 // Save ghost history battle
@@ -11,128 +16,96 @@ export async function saveGhostHistory(body: wm.protobuf.SaveGameResultRequest)
     
     let updateNewTrail: boolean = true;
     let saveExGhostHistory: any = {};
-    
-    if (body.car?.carId !== null && body.car?.carId !== undefined) { 
-        saveExGhostHistory.carId = body.car?.carId!;
-    }
-    if (body.car?.tunePower !== null && body.car?.tunePower !== undefined) { 
-        saveExGhostHistory.tunePower = body.car?.tunePower!;
-    }
-    if (body.car?.tuneHandling !== null && body.car?.tuneHandling !== undefined) {
-        saveExGhostHistory.tuneHandling = body.car?.tuneHandling!;
-    }
-    if (body.playedAt !== null && body.playedAt !== undefined){
-        saveExGhostHistory.playedAt = body.playedAt!;
-    }
 
-    // Get shop name
-    saveExGhostHistory.playedShopName = Config.getConfig().shopName; 
+    // Get the car result for the car
+    let car = body?.car;
 
-    // Get how many opponents available
-    for(let i=0; i<body.rgResult!.opponents!.length; i++)
-    { 
-        // First opponent data
-        if(i == 0)
-        { 
-            // Get first opponent carId
-            saveExGhostHistory.opponent1CarId = body.rgResult!.opponents![0].carId; 
-
-            // Get first opponent tunePower
-            saveExGhostHistory.opponent1TunePower = body.rgResult!.opponents![0].tunePower; 
-
-            // Get first opponent tunePower
-            saveExGhostHistory.opponent1TuneHandling = body.rgResult!.opponents![0].tuneHandling; 
-
-            // Get the advantage distance between first opponent and user
-            saveExGhostHistory.opponent1Result = body.rgResult!.opponents![0].result; 
-        }
-
-        // Second opponent data
-        else if(i == 1)
-        { 
-            // Get second opponent carId
-            saveExGhostHistory.opponent2CarId = body.rgResult!.opponents![1].carId; 
-
-            // Get second opponent tunePower
-            saveExGhostHistory.opponent2TunePower = body.rgResult!.opponents![1].tunePower; 
-
-            // Get second opponent tuneHandling
-            saveExGhostHistory.opponent2TuneHandling = body.rgResult!.opponents![1].tuneHandling; 
-
-            // Get the advantage distance between second opponent and user
-            saveExGhostHistory.opponent2Result = body.rgResult!.opponents![1].result; 
-        }
-
-        // Third opponent data
-        else if(i == 2)
-        { 
-            // Get third opponent carId
-            saveExGhostHistory.opponent3CarId = body.rgResult!.opponents![2].carId;  
-
-            // Get third opponent tunePower
-            saveExGhostHistory.opponent3TunePower = body.rgResult!.opponents![2].tunePower; 
-
-            // Get third opponent tuneHandling
-            saveExGhostHistory.opponent3TuneHandling = body.rgResult!.opponents![2].tuneHandling; 
-
-            // Get the advantage distance between third opponent and user
-            saveExGhostHistory.opponent3Result = body.rgResult!.opponents![2].result; 
-        }
-    }
-
-    // Get played Area
-    if(body.rgResult?.path !== null && body.rgResult?.path !== undefined)
+    if(car)
     {
-        if(body.rgResult?.path >= 0 && body.rgResult?.path <= 9){ // GID_PATH_C1
-            saveExGhostHistory.area = Number(0);
-        }
-        else if(body.rgResult?.path >= 10 && body.rgResult?.path <= 15){ // GID_PATH_N9
-            saveExGhostHistory.area = Number(1);
-        }
-        else if(body.rgResult?.path >= 16 && body.rgResult?.path <= 17){ // GID_PATH_WTEAST
-            saveExGhostHistory.area = Number(2);
-        }
-        else if(body.rgResult?.path >= 18 && body.rgResult?.path <= 19){ // GID_PATH_WT_UP_DOWN
-            saveExGhostHistory.area = Number(3);
-        }
-        else if(body.rgResult?.path >= 20 && body.rgResult?.path <= 26){ // GID_PATH_WG
-            saveExGhostHistory.area = Number(4);
-        }
-        else if(body.rgResult?.path >= 27 && body.rgResult?.path <= 33){ // GID_PATH_KG
-            saveExGhostHistory.area = Number(5);
-        }
-        else if(body.rgResult?.path >= 34 && body.rgResult?.path <= 37){ // GID_PATH_YS
-            saveExGhostHistory.area = Number(6);
-        }
-        else if(body.rgResult?.path >= 38 && body.rgResult?.path <= 48){ // GID_PATH_KG_SHINYAMASHITA_MINATOMIRAI
-            saveExGhostHistory.area = Number(7);
-        }
-        else if(body.rgResult?.path === 49){ // GID_PATH_NGR
-            saveExGhostHistory.area = Number(8);
-        }
-        else if(body.rgResult?.path >= 50 && body.rgResult?.path <= 53){ // GID_PATH_OS
-            saveExGhostHistory.area = Number(9);
-        }
-        else if(body.rgResult?.path >= 54 && body.rgResult?.path <= 55){ // GID_PATH_KB
-            saveExGhostHistory.area = Number(10);
-        }
-        else if(body.rgResult?.path >= 58 && body.rgResult?.path <= 61){ // GID_PATH_FK
-            saveExGhostHistory.area = Number(11);
-        }
-        else if(body.rgResult?.path >= 62 && body.rgResult?.path <= 63){ // GID_PATH_HK
-            saveExGhostHistory.area = Number(12);
-        }
-        else if(body.rgResult?.path >= 64 && body.rgResult?.path <= 65){ // GID_PATH_TP
-            saveExGhostHistory.area = Number(13);
-        }
-        else if(body.rgResult?.path >= 56 && body.rgResult?.path <= 57){ // GID_PATH_HS
-            saveExGhostHistory.area = Number(18);
+        saveExGhostHistory = {
+            carId: common.sanitizeInput(car.carId),
+            tunePower: common.sanitizeInput(car.tunePower),
+            tuneHandling: common.sanitizeInput(car.tuneHandling),
+            playedAt: common.sanitizeInputNotZero(body.playedAt),
+            playedShopName: Config.getConfig().shopName
         }
     }
-    
+
+    // Get the rg result for the car
+    let rgResult = body?.rgResult;
+
+    if(rgResult)
+    {
+        if(rgResult.opponents)
+        {
+            // Get how many opponents available
+            for(let i=0; i<rgResult.opponents.length; i++)
+            { 
+                // First opponent data
+                if(i == 0)
+                { 
+                    // Get first opponent carId
+                    saveExGhostHistory.opponent1CarId = rgResult.opponents[0].carId; 
+
+                    // Get first opponent tunePower
+                    saveExGhostHistory.opponent1TunePower = rgResult.opponents[0].tunePower; 
+
+                    // Get first opponent tunePower
+                    saveExGhostHistory.opponent1TuneHandling = rgResult.opponents[0].tuneHandling; 
+
+                    // Get the advantage distance between first opponent and user
+                    saveExGhostHistory.opponent1Result = rgResult.opponents[0].result; 
+                }
+
+                // Second opponent data
+                else if(i == 1)
+                { 
+                    // Get second opponent carId
+                    saveExGhostHistory.opponent2CarId = rgResult.opponents[1].carId; 
+
+                    // Get second opponent tunePower
+                    saveExGhostHistory.opponent2TunePower = rgResult.opponents[1].tunePower; 
+
+                    // Get second opponent tuneHandling
+                    saveExGhostHistory.opponent2TuneHandling = rgResult.opponents[1].tuneHandling; 
+
+                    // Get the advantage distance between second opponent and user
+                    saveExGhostHistory.opponent2Result = rgResult.opponents[1].result; 
+                }
+
+                // Third opponent data
+                else if(i == 2)
+                { 
+                    // Get third opponent carId
+                    saveExGhostHistory.opponent3CarId = rgResult.opponents[2].carId;  
+
+                    // Get third opponent tunePower
+                    saveExGhostHistory.opponent3TunePower = rgResult.opponents[2].tunePower; 
+
+                    // Get third opponent tuneHandling
+                    saveExGhostHistory.opponent3TuneHandling = rgResult.opponents[2].tuneHandling; 
+
+                    // Get the advantage distance between third opponent and user
+                    saveExGhostHistory.opponent3Result = rgResult.opponents[2].result; 
+                }
+            }
+        }
+
+        // Get played Area
+        if(common.sanitizeInput(rgResult.path))
+        {
+            let getArea = await ghost_get_area_from_path.getArea(rgResult.path);
+
+            saveExGhostHistory.area = getArea.area
+        }
+    }
+
     await prisma.ghostBattleRecord.create({
         data: saveExGhostHistory
     });
+
+    // Sending stamp to opponents
+    await ghost_stamp.sendStamp(body);
 
     // Return the value to 'BASE_PATH/src/util/games/ghost.ts'
     return { updateNewTrail }
@@ -144,72 +117,37 @@ export async function saveOCMGhostHistory(body: wm.protobuf.SaveGameResultReques
     let updateNewTrail: boolean = true;
     let saveExGhostHistory: any = {};
 
-    if (body.car?.carId !== null && body.car?.carId !== undefined) { 
-        saveExGhostHistory.carId = body.car?.carId!;
-    }
-    if (body.car?.tunePower !== null && body.car?.tunePower !== undefined) { 
-        saveExGhostHistory.tunePower = body.car?.tunePower!;
-    }
-    if (body.car?.tuneHandling !== null && body.car?.tuneHandling !== undefined) {
-        saveExGhostHistory.tuneHandling = body.car?.tuneHandling!;
-    }
-    if (body.playedAt !== null && body.playedAt !== undefined){
-        saveExGhostHistory.playedAt = body.playedAt!;
-    }
+    // Get the car result for the car
+    let car = body?.car;
 
-    // Get shop name
-    saveExGhostHistory.playedShopName = Config.getConfig().shopName; 
-
-    // Get the advantage distance between first opponent and user
-    saveExGhostHistory.result = body.rgResult!.opponents![0].result;
-
-    // Get played Area
-    if(body.rgResult?.path !== null && body.rgResult?.path !== undefined)
+    if(car)
     {
-        if(body.rgResult?.path >= 0 && body.rgResult?.path <= 9){ // GID_PATH_C1
-            saveExGhostHistory.area = Number(0);
+        saveExGhostHistory = {
+            carId: common.sanitizeInput(car.carId),
+            tunePower: common.sanitizeInput(car.tunePower),
+            tuneHandling: common.sanitizeInput(car.tuneHandling),
+            playedAt: common.sanitizeInputNotZero(body.playedAt),
+            playedShopName: Config.getConfig().shopName
         }
-        else if(body.rgResult?.path >= 10 && body.rgResult?.path <= 15){ // GID_PATH_N9
-            saveExGhostHistory.area = Number(1);
+    }
+
+    // Get the rg result for the car
+    let rgResult = body?.rgResult;
+
+    if(rgResult)
+    {
+        if(rgResult.opponents)
+        {
+            // Get the advantage distance between first opponent and user
+            saveExGhostHistory.result = rgResult.opponents[0].result;
         }
-        else if(body.rgResult?.path >= 16 && body.rgResult?.path <= 17){ // GID_PATH_WTEAST
-            saveExGhostHistory.area = Number(2);
-        }
-        else if(body.rgResult?.path >= 18 && body.rgResult?.path <= 19){ // GID_PATH_WT_UP_DOWN
-            saveExGhostHistory.area = Number(3);
-        }
-        else if(body.rgResult?.path >= 20 && body.rgResult?.path <= 26){ // GID_PATH_WG
-            saveExGhostHistory.area = Number(4);
-        }
-        else if(body.rgResult?.path >= 27 && body.rgResult?.path <= 33){ // GID_PATH_KG
-            saveExGhostHistory.area = Number(5);
-        }
-        else if(body.rgResult?.path >= 34 && body.rgResult?.path <= 37){ // GID_PATH_YS
-            saveExGhostHistory.area = Number(6);
-        }
-        else if(body.rgResult?.path >= 38 && body.rgResult?.path <= 48){ // GID_PATH_KG_SHINYAMASHITA_MINATOMIRAI
-            saveExGhostHistory.area = Number(7);
-        }
-        else if(body.rgResult?.path === 49){ // GID_PATH_NGR
-            saveExGhostHistory.area = Number(8);
-        }
-        else if(body.rgResult?.path >= 50 && body.rgResult?.path <= 53){ // GID_PATH_OS
-            saveExGhostHistory.area = Number(9);
-        }
-        else if(body.rgResult?.path >= 54 && body.rgResult?.path <= 55){ // GID_PATH_KB
-            saveExGhostHistory.area = Number(10);
-        }
-        else if(body.rgResult?.path >= 58 && body.rgResult?.path <= 61){ // GID_PATH_FK
-            saveExGhostHistory.area = Number(11);
-        }
-        else if(body.rgResult?.path >= 62 && body.rgResult?.path <= 63){ // GID_PATH_HK
-            saveExGhostHistory.area = Number(12);
-        }
-        else if(body.rgResult?.path >= 64 && body.rgResult?.path <= 65){ // GID_PATH_TP
-            saveExGhostHistory.area = Number(13);
-        }
-        else if(body.rgResult?.path >= 56 && body.rgResult?.path <= 57){ // GID_PATH_HS
-            saveExGhostHistory.area = Number(18);
+
+        // Get played Area
+        if(common.sanitizeInput(rgResult.path))
+        {
+            let getArea = await ghost_get_area_from_path.getArea(rgResult.path);
+
+            saveExGhostHistory.area = getArea.area
         }
     }
 
@@ -219,29 +157,11 @@ export async function saveOCMGhostHistory(body: wm.protobuf.SaveGameResultReques
     // Get currently active OCM event
     let ocmEventDate = await prisma.oCMEvent.findFirst({ 
         where: {
-            OR: [
-                {
-                    // qualifyingPeriodStartAt is less than current date
-                    qualifyingPeriodStartAt: { lte: date },
+            // qualifyingPeriodStartAt is less than current date
+            qualifyingPeriodStartAt: { lte: date },
 
-                    // qualifyingPeriodCloseAt is greater than current date
-                    qualifyingPeriodCloseAt: { gte: date },
-                },
-                { 
-                    // competitionStartAt is less than current date
-                    competitionStartAt: { lte: date },
-
-                    // competitionCloseAt is greater than current date
-                    competitionCloseAt: { gte: date },
-                },
-                {
-                    // competitionCloseAt is less than current date 
-                    competitionCloseAt: { lte: date },
-
-                    // competitionEndAt is greater than current date
-                    competitionEndAt: {gte: date },
-                }
-            ],
+            // competitionEndAt is greater than current date
+            competitionEndAt: { gte: date },
         },
         orderBy:{
             dbId: 'desc'

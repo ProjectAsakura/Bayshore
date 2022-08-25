@@ -1,5 +1,4 @@
-
-// Save ghost battle result
+// OCM Area
 export async function OCMArea(competition_id: number)
 {
     let areaVal = 0;

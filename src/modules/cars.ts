@@ -30,7 +30,8 @@ export default class CarModule extends Module {
 				include: {
 					settings: true,
 					items: true,
-					gtWing: true
+					gtWing: true,
+					lastPlayedPlace: true,
 				}
 			});
 
@@ -51,30 +52,12 @@ export default class CarModule extends Module {
 			// Get current / previous active OCM Event
             let ocmEventDate = await prisma.oCMEvent.findFirst({
                 where: {
-                    OR: [
-                        {
-							// qualifyingPeriodStartAt is less than current date
-							qualifyingPeriodStartAt: { lte: date },
-
-							// qualifyingPeriodCloseAt is greater than current date
-							qualifyingPeriodCloseAt: { gte: date },
-						},
-						{ 
-							// competitionStartAt is less than current date
-							competitionStartAt: { lte: date },
-
-							// competitionCloseAt is greater than current date
-							competitionCloseAt: { gte: date },
-						},
-                        {
-							// competitionCloseAt is less than current date 
-							competitionCloseAt: { lte: date },
-
-							// competitionEndAt is greater than current date
-							competitionEndAt: {gte: date },
-						}
-                    ],
-                },
+					// qualifyingPeriodStartAt is less than current date
+					qualifyingPeriodStartAt: { lte: date },
+		
+					// competitionEndAt is greater than current date
+					competitionEndAt: { gte: date },
+				},
                 orderBy: [
                     {
                         dbId: 'desc'
@@ -140,16 +123,9 @@ export default class CarModule extends Module {
 									carId: carId
 								},
 								include:{
-									gtWing: true
+									gtWing: true,
+									lastPlayedPlace: true
 								}
-							});
-
-							// Get Place
-							let playedPlace = wm.wm.protobuf.Place.create({ 
-								placeId: 'JPN0123',
-								shopName: Config.getConfig().shopName,
-								regionId: 18,
-								country: 'JPN'
 							});
 
 							// Get Ghost Trail
@@ -166,7 +142,6 @@ export default class CarModule extends Module {
 							ghostCarsNo1 = wm.wm.protobuf.GhostCar.create({ 
 								car: {
 									...cars!,
-									lastPlayedPlace: playedPlace
 								},
 								area: ghostTrailNo1!.area,
 								ramp: ghostTrailNo1!.ramp,
@@ -180,15 +155,70 @@ export default class CarModule extends Module {
 				}
 			}
 
+			// Check opponents target
+			let opponentTarget = await prisma.carStampTarget.findMany({
+				where:{
+					stampTargetCarId: body.carId,
+					locked: false,
+					recommended: true,
+				}
+			})
+
+			let carsChallengers: wm.wm.protobuf.ChallengerCar[] = [];	
+			
+			let returnCount = 1;
+			if(opponentTarget.length > 0)
+			{
+				console.log('Challengers Available');
+
+				for(let i=0; i<opponentTarget.length; i++)
+				{
+					// Get all of the friend cars for the carId provided
+					let challengers = await prisma.carChallenger.findFirst({
+						where: {
+							challengerCarId: opponentTarget[0].carId,
+							carId: body.carId
+						},
+						orderBy:{
+							id: 'desc'
+						}
+					});
+				
+					if(challengers)
+					{
+						returnCount = opponentTarget[0].returnCount;
+
+						let carTarget = await prisma.car.findFirst({
+							where:{
+								carId: challengers.challengerCarId
+							},
+							include:{
+								gtWing: true,
+								lastPlayedPlace: true
+							}
+						})
+	
+						carsChallengers.push(
+							wm.wm.protobuf.ChallengerCar.create({
+								car: carTarget!,
+								stamp: challengers.stamp,
+								result: challengers.result, 
+								area: challengers.area
+							})
+						);
+					}
+				}
+			}
+			
+
             // Response data
 			let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
 				car: {
-					...car!
+					...car!,
 				},
 				tuningPoint: car!.tuningPoints,
 				setting: car!.settings,
-				vsStarCountMax: car!.vsStarCount,
 				rgPreviousVersionPlayCount: 0,
 				stCompleted_100Episodes: car!.stCompleted100Episodes,
 				auraMotifAutoChange: false,
@@ -199,6 +229,13 @@ export default class CarModule extends Module {
 				ownedItems: car!.items,
 				lastPlayedAt: car!.lastPlayedAt,
 				announceEventModePrize: true,
+
+				// Stamp or Challenger
+				challenger: carsChallengers[0] || null,
+				challengerReturnCount: returnCount || null,
+				numOfChallengers: carsChallengers.length || null,
+
+				// OCM Challenge Top 1
 				opponentGhost: ghostCarsNo1 || null,
 				opponentTrailId: trailIdNo1 || null,
 				opponentCompetitionId: ocmEventDate?.competitionId || null
@@ -396,6 +433,7 @@ export default class CarModule extends Module {
 				carGTWingDbId: gtWing.dbId,
 				regionId: randomRegionId,
 				lastPlayedAt: date,
+				lastPlayedPlaceId: 1, // Server Default
 			};
 
 			// Check if user have more than one cars
@@ -528,6 +566,9 @@ export default class CarModule extends Module {
 			// Car is set
 			if (cars)
 			{
+				// Get current date
+				let date = Math.floor(new Date().getTime() / 1000);
+
 				// Car update data
 				data = {
 					customColor: common.sanitizeInput(cars.customColor),
@@ -548,6 +589,7 @@ export default class CarModule extends Module {
 					aura: common.sanitizeInput(cars.aura),
 					auraMotif: common.sanitizeInput(cars.auraMotif),
 					rgStamp: common.sanitizeInput(body.rgStamp),
+					lastPlayed: date
 				}
 
 				// Update the car info
@@ -566,7 +608,8 @@ export default class CarModule extends Module {
 				},
 				include: {
 					settings: true,
-					gtWing: true
+					gtWing: true,
+					lastPlayedPlace: true
 				}
 			});
 			

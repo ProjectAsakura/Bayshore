@@ -1,8 +1,11 @@
 import fs from 'fs';
 
 export interface ConfigFile {
+    placeId: string;
     shopName: string;
     shopNickname: string;
+    regionId: number;
+    country: string;
     regionName: string;
     serverIp?: string;
     gameOptions: GameOptions;

@@ -30,15 +30,18 @@ export default class UserModule extends Module {
 					cars: {
 						include: {
 							state: true,
-							gtWing: true
+							gtWing: true,
+							lastPlayedPlace: true
 						}
 					}
 				}
 			});
 
 			// No user returned
-			if (!user) {
+			if (!user) 
+			{
 				console.log('no such user');
+
 				let msg = {
 					error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
 					numOfOwnedCars: 0,
@@ -46,75 +49,86 @@ export default class UserModule extends Module {
 					spappState: wm.wm.protobuf.SmartphoneAppState.SPAPP_UNREGISTERED,
 					transferState: wm.wm.protobuf.TransferState.NOT_REGISTERED,
 				};
-				if (!body.cardChipId || !body.accessCode) {
+
+				if (!body.cardChipId || !body.accessCode) 
+				{
 					let msg = {
 						error: wm.wm.protobuf.ErrorCode.ERR_ID_BANNED,
 						numOfOwnedCars: 0,
 						spappState: wm.wm.protobuf.SmartphoneAppState.SPAPP_UNREGISTERED,
 						transferState: wm.wm.protobuf.TransferState.NOT_REGISTERED
 					}
-					let resp = wm.wm.protobuf.LoadUserResponse.encode(msg);
-					let end = resp.finish();
-					let r = res
-						.header('Server', 'v388 wangan')
-						.header('Content-Type', 'application/x-protobuf; revision=8053')
-						.header('Content-Length', end.length.toString())
-						.status(200);
-					r.send(Buffer.from(end));
+
+					// Encode the response
+					let message = wm.wm.protobuf.LoadUserResponse.encode(msg);
+
+					// Send the response to the client
+					common.sendResponse(message, res);
+
 					return;
 				}
+
 				let user = await prisma.user.create({
 					data: {
 						chipId: body.cardChipId,
 						accessCode: body.accessCode,
 						tutorials: [
-							false, //TUTORIAL_ID_STORY
-							false, //TUTORIAL_ID_TIME_ATTACK
-							false, //TUTORIAL_ID_GHOST
-							false, //TUTORIAL_ID_GHOST_CHALLENGE
-							false, //TUTORIAL_ID_GHOST_LEVEL
-							false, //TUTORIAL_ID_UNUSED_5
-							false, //TUTORIAL_ID_GHOST_SEARCH
-							false, //TUTORIAL_ID_GHOST_COMPETITION
-							false, //TUTORIAL_ID_HP600_CARD
-							false, //TUTORIAL_ID_UNUSED_9
-							false, //TUTORIAL_ID_COMPETITION_QUALIFIED
-							false, //TUTORIAL_ID_COMPETITION_TERMINAL
-							false, //TUTORIAL_ID_COMPETITION_NOTICE
-							false, //TUTORIAL_ID_COMPETITION_FINISHED
-							false, //TUTORIAL_ID_UNUSED_14
-							false, //TUTORIAL_ID_UNUSED_15
-							false, //TUTORIAL_ID_UNUSED_16
-							false, //TUTORIAL_ID_UNUSED_17
-							false, //TUTORIAL_ID_UNUSED_18
-							false, //TUTORIAL_ID_UNUSED_19
-							false, //TUTORIAL_ID_GHOST_STAMP
-							false, //TUTORIAL_ID_GHOST_STAMP_DECLINED
-							false, //TUTORIAL_ID_GHOST_STAMP_FRIENDS
-							true, //TUTORIAL_ID_TERMINAL_SCRATCH
-							true, //TUTORIAL_ID_TURN_SCRATCH_SHEET
-							false, //TUTORIAL_ID_INVITE_FRIEND_CAMPAIGN
-							false, //TUTORIAL_ID_CAR_COUPON_FULL_TUNED_RECEIVABLE
-							false, //TUTORIAL_ID_VS_CONTINUE_TICKET
-							false, //TUTORIAL_ID_UNUSED_28
-							false, //TUTORIAL_ID_UNUSED_29
-							false, //TUTORIAL_ID_UNUSED_30
-							false, //TUTORIAL_ID_DRESS_UP
-							true, //TUTORIAL_ID_MULTI_GHOST
-							true, //TUTORIAL_ID_STORY_NEW_FEATURE
-							true, //TUTORIAL_ID_GHOST_NEW_FEATURE
-							true, //TUTORIAL_ID_GHOST_REGION_MAP
+							false, //TUTORIAL_ID_STORY = 0,
+							false, //TUTORIAL_ID_TIME_ATTACK = 1,
+							false, //TUTORIAL_ID_GHOST = 2,
+							false, //TUTORIAL_ID_GHOST_CHALLENGE = 3,
+							false, //TUTORIAL_ID_GHOST_LEVEL = 4,
+							false, //TUTORIAL_ID_UNUSED_5 = 5,
+							false, //TUTORIAL_ID_GHOST_SEARCH = 6,
+							false, //TUTORIAL_ID_GHOST_COMPETITION = 7,
+							false, //TUTORIAL_ID_HP600_CARD = 8,
+							false, //TUTORIAL_ID_UNUSED_9 = 9,
+							false, //TUTORIAL_ID_COMPETITION_QUALIFIED = 10,
+							false, //TUTORIAL_ID_COMPETITION_TERMINAL = 11,
+							false, //TUTORIAL_ID_COMPETITION_NOTICE = 12,
+							false, //TUTORIAL_ID_COMPETITION_FINISHED = 13,
+							false, //TUTORIAL_ID_UNUSED_14 = 14,
+							false, //TUTORIAL_ID_UNUSED_15 = 15,
+							false, //TUTORIAL_ID_UNUSED_16 = 16,
+							false, //TUTORIAL_ID_UNUSED_17 = 17,
+							false, //TUTORIAL_ID_UNUSED_18 = 18,
+							false, //TUTORIAL_ID_UNUSED_19 = 19,
+							true, //TUTORIAL_ID_GHOST_STAMP = 20,
+							true, //TUTORIAL_ID_GHOST_STAMP_DECLINED = 21,
+							true, //TUTORIAL_ID_GHOST_STAMP_FRIENDS = 22,
+							true, //TUTORIAL_ID_TERMINAL_SCRATCH = 23,
+							true, //TUTORIAL_ID_TURN_SCRATCH_SHEET = 24,
+							false, //TUTORIAL_ID_INVITE_FRIEND_CAMPAIGN = 25,
+							false, //TUTORIAL_ID_CAR_COUPON_FULL_TUNED_RECEIVABLE = 26,
+							false, //TUTORIAL_ID_VS_CONTINUE_TICKET = 27,
+							false, //TUTORIAL_ID_UNUSED_28 = 28,
+							false, //TUTORIAL_ID_UNUSED_29 = 29,
+							false, //TUTORIAL_ID_UNUSED_30 = 30,
+							false, //TUTORIAL_ID_DRESS_UP = 31,
+							true, //TUTORIAL_ID_MULTI_GHOST = 32,
+							true, //TUTORIAL_ID_STORY_NEW_FEATURE = 33,
+							true, //TUTORIAL_ID_GHOST_NEW_FEATURE = 34,
+							true, //TUTORIAL_ID_GHOST_REGION_MAP = 35
+
 						],
 					}
 				});
+
 				console.log('user made')
-				if (!user) {
+
+				if (!user) 
+				{
 					msg.error = wm.wm.protobuf.ErrorCode.ERR_REQUEST;
 				}
+
 				let ftTicketGrant = Config.getConfig().gameOptions.grantFullTuneTicketToNewUsers;
-				if (ftTicketGrant > 0) {
+
+				if (ftTicketGrant > 0) 
+				{
 					console.log(`Granting Full-Tune Ticket x${ftTicketGrant} to new user...`);
-					for (let i=0; i<ftTicketGrant; i++) {
+
+					for (let i=0; i<ftTicketGrant; i++) 
+					{
 						await prisma.userItem.create({
 							data: {
 								userId: user.id,
@@ -124,16 +138,16 @@ export default class UserModule extends Module {
 							}
 						});
 					}
+
 					console.log('Done!');
 				}
-				let resp = wm.wm.protobuf.LoadUserResponse.encode(msg);
-				let end = resp.finish();
-				let r = res
-					.header('Server', 'v388 wangan')
-					.header('Content-Type', 'application/x-protobuf; revision=8053')
-					.header('Content-Length', end.length.toString())
-					.status(200);
-				r.send(Buffer.from(end));
+
+				// Encode the response
+				let message = wm.wm.protobuf.LoadUserResponse.encode(msg);
+
+				// Send the response to the client
+				common.sendResponse(message, res);
+
 				return;
 			}
 
@@ -233,7 +247,7 @@ export default class UserModule extends Module {
 			let wsFont = 0;
 
 			// user.cars found
-			if(user.cars)
+			if(user.cars.length > 0)
 			{
 				// User atleast have 1 car
 				if(user.cars[0]?.windowStickerString !== null && user.cars[0]?.windowStickerString !== undefined && 
@@ -243,7 +257,44 @@ export default class UserModule extends Module {
 					wsFont = user.cars[0].windowStickerFont;
 				}
 				// else{} User don't have a car... returning default windowStickerString and windowStickerFont value
+
+				if(user.cars[0].lastPlayedPlaceId === null || user.cars[0].lastPlayedPlaceId === undefined)
+				{
+					for(let i=0; i<user.cars.length; i++)
+					{
+						user.cars[0].lastPlayedPlaceId = 1;
+					}
+					
+					await prisma.car.updateMany({
+						where:{
+							userId: user.id
+						},
+						data:{
+							lastPlayedPlaceId: 1
+						}
+					})
+				}
 			}
+
+			// Change Ghost Stamp tutorial to true
+			if(user.tutorials[20] === false)
+			{
+				console.log(`Change Ghost Stamp tutorial to true`)
+				for(let i=20; i<25; i++)
+				{
+					user.tutorials[i] = true
+				}
+
+				await prisma.user.update({
+					where:{
+						chipId: body.cardChipId
+					},
+					data:{
+						tutorials: user.tutorials
+					}
+				})
+			}
+			
 
             // Response data
 			let msg = {
@@ -279,41 +330,24 @@ export default class UserModule extends Module {
 
 			// Get current date
 			let date = Math.floor(new Date().getTime() / 1000);
+
+			// Get current active OCM Event
+			let ocmEventDate = await prisma.oCMEvent.findFirst({
+				where: {
+					// qualifyingPeriodStartAt is less than current date
+					qualifyingPeriodStartAt: { lte: date },
+		
+					// competitionEndAt is greater than current date
+					competitionEndAt: { gte: date },
+				},
+				orderBy:{
+					dbId: 'desc'
+				}
+			});
 			
 			// Check each car record
 			for(let i=0; i<msg.cars.length; i++)
 			{
-				// Get current active OCM Event
-				let ocmEventDate = await prisma.oCMEvent.findFirst({
-					where: {
-						OR: [
-							{
-								// qualifyingPeriodStartAt is less than current date
-								qualifyingPeriodStartAt: { lte: date },
-	
-								// qualifyingPeriodCloseAt is greater than current date
-								qualifyingPeriodCloseAt: { gte: date },
-							},
-							{ 
-								// competitionStartAt is less than current date
-								competitionStartAt: { lte: date },
-	
-								// competitionCloseAt is greater than current date
-								competitionCloseAt: { gte: date },
-							},
-							{
-								// competitionCloseAt is less than current date 
-								competitionCloseAt: { lte: date },
-	
-								// competitionEndAt is greater than current date
-								competitionEndAt: {gte: date },
-							}
-						],
-					},
-					orderBy:{
-						dbId: 'desc'
-					}
-				});
 				
 				// Check Competition (OCM) Participation, and available OCM event
 				if(user.cars.length > 0 && ocmEventDate)
@@ -333,31 +367,21 @@ export default class UserModule extends Module {
 						if(checkParticipation)
 						{
 							ParticipationMainDrawCounter++
-						}
 
-						// Check Car State
-						// Get OCM Data
-						let ocmTallyRecord = await prisma.oCMTally.findMany({ 
-							where:{
-								competitionId: ocmEventDate!.competitionId
-							},
-							orderBy: [
-								{
-									competitionId: 'desc',
-								},
-								{
-									periodId: 'desc',
-								},
-								{
-									result: 'desc',
-								},
-							],
-						});
+							// Check Car State
+							// Get OCM Data
+							let ocmTallyRecord = await prisma.oCMTally.findFirst({ 
+								where:{
+									carId: user.cars[i].carId,
+									competitionId: ocmEventDate!.competitionId
+								}
+							});
 
-						for(let j=0; j<ocmTallyRecord.length; j++)
-						{
-							carStates[i].eventJoined = true;
-							carStates[i].competitionState = wm.wm.protobuf.GhostCompetitionParticipantState.COMPETITION_QUALIFIED
+							if(ocmTallyRecord)
+							{
+								carStates[i].eventJoined = true;
+								carStates[i].competitionState = wm.wm.protobuf.GhostCompetitionParticipantState.COMPETITION_QUALIFIED
+							}	
 						}
 					}
 					// Current date is OCM qualifying day
@@ -375,30 +399,18 @@ export default class UserModule extends Module {
 						if(checkParticipation)
 						{
 							ParticipationQualifyingCounter++
-						}
 
-						// Check Car State
-						// Get OCM Data
-						let ocmRecord = await prisma.oCMPlayRecord.findMany({ 
-							where:{
-								competitionId: ocmEventDate!.competitionId
-							},
-							orderBy: [
-								{
-									dbId: 'asc',
+							// Check Car State
+							// Get OCM Data
+							let ocmRecord = await prisma.oCMPlayRecord.findFirst({ 
+								where:{
+									carId: user.cars[i].carId,
+									competitionId: ocmEventDate!.competitionId,
+									periodId: 0
 								},
-								{
-									competitionId: 'desc',
-								},
-								{
-									periodId: 'desc',
-								},
-							],
-						});
+							});
 
-						for(let j=0; j<ocmRecord.length; j++)
-						{
-							if(carStates[i].dbId === ocmRecord[j].carId)
+							if(ocmRecord)
 							{
 								carStates[i].eventJoined = true;
 								carStates[i].competitionState = wm.wm.protobuf.GhostCompetitionParticipantState.COMPETITION_PARTICIPATED
@@ -407,7 +419,7 @@ export default class UserModule extends Module {
 					}
 					// Current date is OCM ended
 					else if(ocmEventDate!.competitionCloseAt < date && ocmEventDate!.competitionEndAt > date)
-					{ 
+					{
 						// Check ghost battle record
 						let checkParticipation = await prisma.oCMPlayRecord.findFirst({
 							where:{
@@ -420,32 +432,21 @@ export default class UserModule extends Module {
 						if(checkParticipation)
 						{
 							ParticipationEndedCounter++
-						}
 
-						// Check Car State
-						// Get OCM Data
-						let ocmTallyRecord = await prisma.oCMTally.findMany({ 
-							where:{
-								competitionId: ocmEventDate!.competitionId,
-								periodId: 999999999
-							},
-							orderBy: [
-								{
-									result: 'desc',
+							// Check Car State
+							// Get OCM Data
+							let ocmTallyRecord = await prisma.oCMTally.findFirst({ 
+								where:{
+									carId: user.cars[i].carId,
+									competitionId: ocmEventDate!.competitionId,
+									periodId: 999999999
 								},
-							],
-						});
+							});
 
-						for(let j=0; j<ocmTallyRecord.length; j++)
-						{
-							if(carStates[i].dbId === ocmTallyRecord[j].carId)
+							if(ocmTallyRecord)
 							{
 								carStates[i].eventJoined = true;
 								carStates[i].competitionState = wm.wm.protobuf.GhostCompetitionParticipantState.COMPETITION_QUALIFIED
-							}
-							if(carStates[i].dbId === ocmTallyRecord[j].carId && j === 0)
-							{
-								carStates[i].competitionState = wm.wm.protobuf.GhostCompetitionParticipantState.COMPETITION_WON
 							}
 						}
 					}
@@ -499,13 +500,20 @@ export default class UserModule extends Module {
 			else if(ParticipationEndedCounter > 0)
 			{
 				console.log('OCM Participation : '+ParticipationEndedCounter+' car(s) played OCM Event');
+				msg.competitionUserState = wm.wm.protobuf.GhostCompetitionParticipantState.COMPETITION_QUALIFIED;
 			}
-			else{
+			else if(ocmEventDate)
+			{
 				console.log('OCM Participation : Not Participated / Qualified');
+			}
+			else
+			{
+				console.log('No OCM Event Available');
 			}
 
             // Response data if user is banned
-			if (user.userBanned) {
+			if (user.userBanned) 
+			{
 				msg.error = wm.wm.protobuf.ErrorCode.ERR_ID_BANNED;
 			}
 

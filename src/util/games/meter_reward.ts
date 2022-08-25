@@ -1,7 +1,7 @@
-import { prisma } from "..";
+import { prisma } from "../..";
 
 // Import Proto
-import { wm } from "../wmmt/wm.proto";
+import { wm } from "../../wmmt/wm.proto";
 
 
 // Save story result

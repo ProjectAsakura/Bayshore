@@ -1,6 +1,9 @@
 {
+    "placeId": "JPN0123",
     "shopName": "Bayshore",
     "shopNickname": "Bayshore",
+    "regionId": "1",
+    "country": "JPN",
     "regionName": "JPN0123",
     "serverIp": "127.0.0.1",
     "gameOptions": {

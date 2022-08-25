@@ -121,6 +121,10 @@ export default class TerminalModule extends Module {
 					let car = await prisma.car.findFirst({
 						where: {
 							carId: carId
+						},
+						include:{
+							gtWing: true,
+							lastPlayedPlace: true
 						}
 					});
 
@@ -185,16 +189,47 @@ export default class TerminalModule extends Module {
 			// Get the query from the request
 			let query = req.query;
 
+			// Check the query limit
+			let queryLimit = 10
+			if(query.limit)
+			{
+				queryLimit = Number(query.limit);
+			}
+
+			// Check the last played place id
+			let queryLastPlayedPlaceId = 1;
+			if(query.limit)
+			{
+				let getLastPlayedPlaceId = await prisma.placeList.findFirst({
+					where:{
+						placeId: String(query.last_played_place_id)
+					}
+				})
+
+				if(getLastPlayedPlaceId)
+				{
+					queryLastPlayedPlaceId = getLastPlayedPlaceId.id
+				}
+			}
+
 			// Get all of the cars matching the query
 			let cars = await prisma.car.findMany({
-				take: Number(query.limit), 
+				take: queryLimit, 
 				where: {
-					name: {
-						startsWith: String(query.name)
-					}
+					OR:[
+						{
+							name: {
+								startsWith: String(query.name)
+							}
+						},
+						{
+							lastPlayedPlaceId: queryLastPlayedPlaceId
+						}
+					]
 				},
 				include:{
-					gtWing: true
+					gtWing: true,
+					lastPlayedPlace: true
 				}
 			});
 
@@ -532,36 +567,12 @@ export default class TerminalModule extends Module {
             // Get current active OCM Event
             let ocmEventDate = await prisma.oCMEvent.findFirst({
                 where: {
-                    OR: [
-                        {
-							competitionId: body.competitionId,
-							
-							// qualifyingPeriodStartAt is less than current date
-							qualifyingPeriodStartAt: { lte: date },
-
-							// qualifyingPeriodCloseAt is greater than current date
-							qualifyingPeriodCloseAt: { gte: date },
-						},
-						{ 
-							competitionId: body.competitionId,
-							
-							// competitionStartAt is less than current date
-							competitionStartAt: { lte: date },
-
-							// competitionCloseAt is greater than current date
-							competitionCloseAt: { gte: date },
-						},
-                        {
-							competitionId: body.competitionId,
-							
-							// competitionCloseAt is less than current date 
-							competitionCloseAt: { lte: date },
-
-							// competitionEndAt is greater than current date
-							competitionEndAt: {gte: date },
-						}
-                    ],
-                },
+					// qualifyingPeriodStartAt is less than current date
+					qualifyingPeriodStartAt: { lte: date },
+		
+					// competitionEndAt is greater than current date
+					competitionEndAt: { gte: date },
+				},
                 orderBy:{
                     dbId: 'desc'
                 }
@@ -669,6 +680,10 @@ export default class TerminalModule extends Module {
 							let cars = await prisma.car.findFirst({
 								where:{
 									carId: ocmParticipant[i].carId
+								},
+								include:{
+									gtWing: true,
+									lastPlayedPlace: true
 								}
 							});
 
@@ -745,6 +760,10 @@ export default class TerminalModule extends Module {
 							let cars = await prisma.car.findFirst({
 								where:{
 									carId: ocmParticipant[i].carId
+								},
+								include:{
+									gtWing: true,
+									lastPlayedPlace: true
 								}
 							})
 
@@ -815,6 +834,10 @@ export default class TerminalModule extends Module {
 							let cars = await prisma.car.findFirst({
 								where:{
 									carId: ocmParticipant[i].carId
+								},
+								include:{
+									gtWing: true,
+									lastPlayedPlace: true
 								}
 							});
 

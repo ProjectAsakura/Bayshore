@@ -72,6 +72,9 @@ export default class AllnetModule extends Module {
             let shopName = Config.getConfig().shopName;
             let shopNick = Config.getConfig().shopNickname;
             let regionName = Config.getConfig().regionName;
+            let placeId = Config.getConfig().placeId;
+            let country = Config.getConfig().country;
+            let regionId = Config.getConfig().regionId;
 
             // TODO: Implement board authentication here.
         
@@ -79,15 +82,15 @@ export default class AllnetModule extends Module {
                 stat: 1,
                 uri: STARTUP_URI,
                 host: STARTUP_HOST,
-                place_id: "JPN0123",
+                place_id: placeId,
                 name: shopName,
                 nickname: shopNick,
-                region0: "1",
+                region0: regionId,
                 region_name0: regionName,
                 region_name1: "X",
                 region_name2: "Y",
                 region_name3: "Z",
-                country: "JPN",
+                country: country,
                 allnet_id: "456",
                 timezone: "002:00",
                 setting: "",
