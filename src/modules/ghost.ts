@@ -144,7 +144,7 @@ export default class GhostModule extends Module {
 				stampSheetCount: car!.stampSheetCount,
                 stampSheet: car?.stampSheet || null, 
                 stampReturnStats: car?.stampSheet || null,
-				history: carsHistory,
+				history: carsHistory || null,
 			};
 
             // Encode the response
