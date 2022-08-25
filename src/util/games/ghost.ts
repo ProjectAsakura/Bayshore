@@ -124,6 +124,9 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
 
                 ghost_historys = await ghost_history.saveGhostHistory(body);
 
+                // Return Stamp (Shuttle Match)
+                await ghost_stamp.shuttleReturnStamp(body);
+
                 // Update the updateNewTrail value
                 updateNewTrail = ghost_historys.updateNewTrail;
 
@@ -136,6 +139,9 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                 console.log('Normal Ghost Mode Found - Select by Level');
 
                 ghost_historys = await ghost_history.saveGhostHistory(body);
+
+                // Return Stamp (Shuttle Match)
+                await ghost_stamp.shuttleReturnStamp(body);
 
                 // Update the updateNewTrail value
                 updateNewTrail = ghost_historys.updateNewTrail;
@@ -322,6 +328,9 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
 
                 ghost_historys = await ghost_history.saveGhostHistory(body);
 
+                // Return Stamp (Shuttle Match)
+                await ghost_stamp.shuttleReturnStamp(body);
+
                 // Update the updateNewTrail value
                 updateNewTrail = ghost_historys.updateNewTrail;
 
@@ -335,6 +344,9 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
 
                 ghost_historys = await ghost_history.saveGhostHistory(body);
 
+                // Return Stamp (Shuttle Match)
+                await ghost_stamp.shuttleReturnStamp(body);
+
                 // Update the updateNewTrail value
                 updateNewTrail = ghost_historys.updateNewTrail;
 
@@ -347,6 +359,9 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                 console.log('Normal Ghost Mode Found - Search by Name');
 
                 ghost_historys = await ghost_history.saveGhostHistory(body);
+
+                // Return Stamp (Shuttle Match)
+                await ghost_stamp.shuttleReturnStamp(body);
 
                 // Update the updateNewTrail value
                 updateNewTrail = ghost_historys.updateNewTrail;
@@ -439,6 +454,9 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                 console.log('Normal Ghost Mode Found - Select from Bookmars');
 
                 ghost_historys = await ghost_history.saveGhostHistory(body);
+
+                // Return Stamp (Shuttle Match)
+                await ghost_stamp.shuttleReturnStamp(body);
 
                 // Update the updateNewTrail value
                 updateNewTrail = ghost_historys.updateNewTrail;

@@ -11,7 +11,10 @@ export async function sendStamp(body: wm.protobuf.SaveGameResultRequest)
 {
     console.log('Sending Stamp');
 
-    let rgResult = body.rgResult
+    let rgResult = body.rgResult;
+
+    // Get current date
+    let date = Math.floor(new Date().getTime() / 1000);
 
     if(rgResult)
     {
@@ -54,7 +57,8 @@ export async function sendStamp(body: wm.protobuf.SaveGameResultRequest)
                     challengerCarId: body.carId,
                     stamp: rgResult.rgStamp,
                     result: rgResult.opponents![i].result,
-                    area: area
+                    area: area,
+                    lastPlayedAt: date
                 }
     
                 // Create Stamp Target data
@@ -97,7 +101,10 @@ export async function shuttleReturnStamp(body: wm.protobuf.SaveGameResultRequest
 {
     console.log('Returning Stamp');
 
-    let rgResult = body.rgResult
+    let rgResult = body.rgResult;
+    
+    // Get current date
+    let date = Math.floor(new Date().getTime() / 1000);
 
     if(rgResult)
     {
@@ -179,7 +186,8 @@ export async function shuttleReturnStamp(body: wm.protobuf.SaveGameResultRequest
                         challengerCarId: body.carId,
                         stamp: rgResult.rgStamp,
                         result: rgResult.opponents![i].result,
-                        area: area
+                        area: area,
+                        lastPlayedAt: date
                     }
     
                     console.log('Updating challenger entry');

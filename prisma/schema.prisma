@@ -415,6 +415,7 @@ model CarChallenger {
   stamp           Int
   result          Int
   area            Int
+  lastPlayedAt    Int        @default(0)
 }
 
 model CarStampTarget {

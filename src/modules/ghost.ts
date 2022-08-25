@@ -33,27 +33,37 @@ export default class GhostModule extends Module {
 				}
 			})
 
-			// ---For testing only---
-			let cars = await prisma.car.findMany({
+			// Car History
+			let findChallenger = await prisma.carChallenger.findMany({
 				where: {
-                    OR: [
-						{ 
-							name: { startsWith: 'ＫＩＴＳＵ' }
+					challengerCarId: body.carId
+				}
+			})
+
+			let carsHistory: wm.wm.protobuf.Car[] = [];
+			if(findChallenger.length > 0)
+			{
+				for(let i=0; i<findChallenger.length; i++)
+				{
+					let car = await prisma.car.findFirst({
+						where: {
+							carId: findChallenger[i].carId
 						},
-                        { 
-							name: { startsWith: 'きつ' }
+						include:{
+							gtWing: true,
+							lastPlayedPlace: true
 						},
-                    ],
-                },
-				include:{
-					gtWing: true,
-					lastPlayedPlace: true
-				},
-				orderBy: {
-					carId: 'asc'
-				},
-				take: 10
-			});
+						orderBy: {
+							carId: 'asc'
+						},
+						take: 10
+					});
+
+					carsHistory.push(wm.wm.protobuf.Car.create({
+						...car!
+					}))
+				}
+			}
 
 			let carsStamp: wm.wm.protobuf.StampTargetCar[] = [];
 			let carsChallenger: wm.wm.protobuf.ChallengerCar[] = [];
@@ -130,7 +140,7 @@ export default class GhostModule extends Module {
 				stampSheetCount: car!.stampSheetCount,
                 stampSheet: car?.stampSheet || null, 
                 stampReturnStats: car?.stampSheet || null,
-				history: cars || null,
+				history: carsHistory,
 			};
 
             // Encode the response
