@@ -188,14 +188,45 @@ export default class TerminalModule extends Module {
 
 			// Get the query from the request
 			let query = req.query;
+			console.log(query);
+
+			// Check the query limit
+			let queryLimit = 10
+			if(query.limit)
+			{
+				queryLimit = Number(query.limit);
+			}
+
+			// Check the last played place id
+			let queryLastPlayedPlaceId = 1;
+			if(query.limit)
+			{
+				let getLastPlayedPlaceId = await prisma.placeList.findFirst({
+					where:{
+						placeId: String(query.last_played_place_id)
+					}
+				})
+
+				if(getLastPlayedPlaceId)
+				{
+					queryLastPlayedPlaceId = getLastPlayedPlaceId.id
+				}
+			}
 
 			// Get all of the cars matching the query
 			let cars = await prisma.car.findMany({
-				take: Number(query.limit), 
+				take: queryLimit, 
 				where: {
-					name: {
-						startsWith: String(query.name)
-					}
+					OR:[
+						{
+							name: {
+								startsWith: String(query.name)
+							}
+						},
+						{
+							lastPlayedPlaceId: queryLastPlayedPlaceId
+						}
+					]
 				},
 				include:{
 					gtWing: true,
