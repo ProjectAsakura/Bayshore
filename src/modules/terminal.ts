@@ -188,7 +188,6 @@ export default class TerminalModule extends Module {
 
 			// Get the query from the request
 			let query = req.query;
-			console.log(query);
 
 			// Check the query limit
 			let queryLimit = 10
