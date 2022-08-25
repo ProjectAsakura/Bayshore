@@ -117,33 +117,7 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
 
         switch (body.rgResult!.selectionMethod) 
         {
-            // Ghost Battle Select by Level
-            case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SELECT_BY_LEVEL:
-            {
-                console.log('Normal Ghost Mode Found - Select by Level');
-
-                ghost_historys = await ghost_history.saveGhostHistory(body);
-
-                // Update the updateNewTrail value
-                updateNewTrail = ghost_historys.updateNewTrail;
-
-                break;
-            }
-
-            // Ghost Battle Search by Name
-            case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SEARCH_BY_NAME:
-            {
-                console.log('Normal Ghost Mode Found - Search by Name');
-
-                ghost_historys = await ghost_history.saveGhostHistory(body);
-
-                // Update the updateNewTrail value
-                updateNewTrail = ghost_historys.updateNewTrail;
-
-                break;
-            }
-
-            // Ghost Battle Search by Region
+            // Ghost Battle Search by Region (1)
             case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SEARCH_BY_REGION:
             {
                 console.log('Normal Ghost Mode Found - Search by Region');
@@ -156,10 +130,10 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                 break;
             }
 
-            // Ghost Battle Select from History
-            case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SELECT_FROM_HISTORY:
+            // Ghost Battle Select by Level (2)
+            case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SELECT_BY_LEVEL:
             {
-                console.log('Normal Ghost Mode Found - Select from History');
+                console.log('Normal Ghost Mode Found - Select by Level');
 
                 ghost_historys = await ghost_history.saveGhostHistory(body);
 
@@ -169,52 +143,7 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                 break;
             }
 
-            // Ghost Battle Search by Shop
-            case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SEARCH_BY_SHOP:
-            {
-                console.log('Normal Ghost Mode Found - Search by Shop');
-
-                ghost_historys = await ghost_history.saveGhostHistory(body);
-
-                // Update the updateNewTrail value
-                updateNewTrail = ghost_historys.updateNewTrail;
-
-                break;
-            }
-
-            // Ghost Battle Select Stamp Match
-            case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SELECT_STAMP_MATCH:
-            {
-                console.log('Normal Ghost Mode Found - Select Stamp Match');
-
-                ghost_historys = await ghost_history.saveGhostHistory(body);
-
-                // Return Stamp (Shuttle Match)
-                await ghost_stamp.shuttleReturnStamp(body);
-
-                // Update the updateNewTrail value
-                updateNewTrail = ghost_historys.updateNewTrail;
-
-                break;
-            }
-
-            // Ghost Battle Challenger
-            case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_ACCEPT_CHALLENGER:
-            {
-                console.log('Normal Ghost Mode Found - Challenger');
-
-                ghost_historys = await ghost_history.saveGhostHistory(body);
-
-                // Return Stamp (Shuttle Match)
-                await ghost_stamp.shuttleReturnStamp(body);
-
-                // Update the updateNewTrail value
-                updateNewTrail = ghost_historys.updateNewTrail;
-
-                break;
-            }
-
-            // Crown Ghost Battle Mode
+            // Crown Ghost Battle Mode (3)
             case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SELECT_CROWN_MATCH:
             {
                 console.log('Crown Ghost Mode Found');
@@ -370,7 +299,78 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                 break;
             }
 
-            // OCM Ghost Battle Mode
+            // Ghost Battle Select Stamp Match (4)
+            case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SELECT_STAMP_MATCH:
+            {
+                console.log('Normal Ghost Mode Found - Select Stamp Match');
+
+                ghost_historys = await ghost_history.saveGhostHistory(body);
+
+                // Return Stamp (Shuttle Match)
+                await ghost_stamp.shuttleReturnStamp(body);
+
+                // Update the updateNewTrail value
+                updateNewTrail = ghost_historys.updateNewTrail;
+
+                break;
+            }
+
+            // Ghost Battle Select from History (5)
+            case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SELECT_FROM_HISTORY:
+            {
+                console.log('Normal Ghost Mode Found - Select from History');
+
+                ghost_historys = await ghost_history.saveGhostHistory(body);
+
+                // Update the updateNewTrail value
+                updateNewTrail = ghost_historys.updateNewTrail;
+
+                break;
+            }
+
+            // Ghost Battle Search by Shop (6)
+            case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SEARCH_BY_SHOP:
+            {
+                console.log('Normal Ghost Mode Found - Search by Shop');
+
+                ghost_historys = await ghost_history.saveGhostHistory(body);
+
+                // Update the updateNewTrail value
+                updateNewTrail = ghost_historys.updateNewTrail;
+
+                break;
+            }
+
+            // Ghost Battle Search by Name (7)
+            case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SEARCH_BY_NAME:
+            {
+                console.log('Normal Ghost Mode Found - Search by Name');
+
+                ghost_historys = await ghost_history.saveGhostHistory(body);
+
+                // Update the updateNewTrail value
+                updateNewTrail = ghost_historys.updateNewTrail;
+
+                break;
+            }
+
+            // Ghost Battle Challenger (8)
+            case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_ACCEPT_CHALLENGER:
+            {
+                console.log('Normal Ghost Mode Found - Challenger');
+
+                ghost_historys = await ghost_history.saveGhostHistory(body);
+
+                // Return Stamp (Shuttle Match)
+                await ghost_stamp.shuttleReturnStamp(body);
+
+                // Update the updateNewTrail value
+                updateNewTrail = ghost_historys.updateNewTrail;
+
+                break;
+            }
+
+            // OCM Ghost Battle Mode (11)
             case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_COMPETITION:
             {
                 console.log('OCM Ghost Mode Found');
@@ -432,16 +432,31 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                 
                 break;
             }
+
+            // Ghost Battle Select from Bookmars (12)
+            case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SELECT_FROM_BOOKMARKS:
+            {
+                console.log('Normal Ghost Mode Found - Select from Bookmars');
+
+                ghost_historys = await ghost_history.saveGhostHistory(body);
+
+                // Update the updateNewTrail value
+                updateNewTrail = ghost_historys.updateNewTrail;
+
+                break;
+            }
         }
     }
     // Retiring Ghost Battle
-    else if(body.rgResult!.selectionMethod === wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SELECT_BY_LEVEL ||
-        body.rgResult!.selectionMethod === wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SEARCH_BY_NAME ||
-        body.rgResult!.selectionMethod === wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SEARCH_BY_REGION ||
+    else if(body.rgResult!.selectionMethod === wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SEARCH_BY_REGION ||
+        body.rgResult!.selectionMethod === wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SELECT_BY_LEVEL ||
+        body.rgResult!.selectionMethod === wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SELECT_CROWN_MATCH ||
+        body.rgResult!.selectionMethod === wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SELECT_STAMP_MATCH || 
         body.rgResult!.selectionMethod === wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SELECT_FROM_HISTORY ||
         body.rgResult!.selectionMethod === wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SEARCH_BY_SHOP || 
-        body.rgResult!.selectionMethod === wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SELECT_STAMP_MATCH || 
-        body.rgResult!.selectionMethod === wmproto.wm.protobuf.GhostSelectionMethod.GHOST_ACCEPT_CHALLENGER)
+        body.rgResult!.selectionMethod === wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SEARCH_BY_NAME ||
+        body.rgResult!.selectionMethod === wmproto.wm.protobuf.GhostSelectionMethod.GHOST_ACCEPT_CHALLENGER ||
+        body.rgResult!.selectionMethod === wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SELECT_FROM_BOOKMARKS)
     {
         console.log('Normal Ghost Mode Found but Retiring');
 
