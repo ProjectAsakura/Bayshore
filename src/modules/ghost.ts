@@ -3,6 +3,7 @@ import { Module } from "module";
 import { prisma } from "..";
 import { CarPathandTuning } from "@prisma/client";
 import Long from "long";
+import { Config } from "../config";
 
 // Import Proto
 import * as wm from "../wmmt/wm.proto";
@@ -155,7 +156,7 @@ export default class GhostModule extends Module {
         })
 
 
-        // Load Stamp Target (Still not working)
+        // Load Stamp Target
 		app.post('/method/load_stamp_target', async (req, res) => {
 
             // Get the request body for the load stamp target request
@@ -243,13 +244,14 @@ export default class GhostModule extends Module {
 		})
 
 
-        // Ghost Mode - Search ghost car by level
+        // Ghost Mode
         app.post('/method/search_cars_by_level', async (req, res) => {
 
             // Get the request body for the search cars by level request
             let body = wm.wm.protobuf.SearchCarsByLevelRequest.decode(req.body);
 
 			let car;
+
 			if(body.regionId !== null && body.regionId !== undefined && body.regionId !== 0)
 			{
 				// Find ghost car by selected level and region ID
@@ -349,11 +351,13 @@ export default class GhostModule extends Module {
 			let maxNumber = 0;
 
             // If all user car data available is more than 10 for certain level
-			if(car.length > 10){ 
+			if(car.length > 10)
+			{ 
 				maxNumber = 10 // Limit to 10 (game default)
 			}
             // If no more than 10
-			else{
+			else
+			{
 				maxNumber = car.length;
 			}
 
@@ -387,14 +391,15 @@ export default class GhostModule extends Module {
 					}
 
                     // Push user's car data without ghost trail
-					if(!(ghost_trails)){ 
+					if(!(ghost_trails))
+					{ 
 						lists_ghostcar.push(wm.wm.protobuf.GhostCar.create({
 							car: car[randomNumber]
 						}));
 					}
                     // Push user's car data with ghost trail
-					else{
-
+					else
+					{
                         // Set the tunePower used when playing certain area
 						car[randomNumber].tunePower = ghost_trails!.tunePower;
 
@@ -410,6 +415,124 @@ export default class GhostModule extends Module {
 						}));
 					}
 				}
+			}
+
+			// Check again if car list for that selected region is available of not
+			if(body.regionId !== null && body.regionId !== undefined && body.regionId !== 0)
+			{
+				if(car.length < 1)
+				{
+					// Get current date
+					let date = Math.floor(new Date().getTime() / 1000);
+					let playedPlace = wm.wm.protobuf.Place.create({ 
+						placeId: Config.getConfig().placeId,
+						regionId: Config.getConfig().regionId,
+						shopName: Config.getConfig().shopName,
+						country: Config.getConfig().country
+					});
+
+					let tunePowerDefault = 0
+					let tuneHandlingDefault = 0;
+					if(body.ghostLevel === 1)
+					{
+						tunePowerDefault = 1;
+						tuneHandlingDefault = 4;
+					}
+					else if(body.ghostLevel === 2)
+					{
+						tunePowerDefault = 5;
+						tuneHandlingDefault = 5;
+					}
+					else if(body.ghostLevel === 3)
+					{
+						tunePowerDefault = 8;
+						tuneHandlingDefault = 7;
+					}
+					else if(body.ghostLevel === 4)
+					{
+						tunePowerDefault = 10;
+						tuneHandlingDefault = 10;
+					}
+					else if(body.ghostLevel === 5)
+					{
+						tunePowerDefault = 15;
+						tuneHandlingDefault = 10;
+					}
+					else if(body.ghostLevel === 6)
+					{
+						tunePowerDefault = 18;
+						tuneHandlingDefault = 10;
+					}
+					else if(body.ghostLevel === 7)
+					{
+						tunePowerDefault = 20;
+						tuneHandlingDefault = 10;
+					}
+					else if(body.ghostLevel === 8)
+					{
+						tunePowerDefault = 21;
+						tuneHandlingDefault = 10;
+					}
+					else if(body.ghostLevel === 9)
+					{
+						tunePowerDefault = 22;
+						tuneHandlingDefault = 10;
+					}
+					else if(body.ghostLevel === 10)
+					{
+						tunePowerDefault = 23;
+						tuneHandlingDefault = 10;
+					}
+					else if(body.ghostLevel === 11)
+					{
+						tunePowerDefault = 24;
+						tuneHandlingDefault = 24;
+					}
+
+					// Generate default S660 car data
+					car = wm.wm.protobuf.Car.create({ 
+						carId: 999999999, // Don't change this
+						name: 'Ｓ６６０',
+						regionId: body.regionId, // IDN (福井)
+						manufacturer: 12, // HONDA
+						model: 105, // S660 [JW5]
+						visualModel: 130, // S660 [JW5]
+						defaultColor: 0,
+						customColor: 0,
+						wheel: 20,
+						wheelColor: 0,
+						aero: 0,
+						bonnet: 0,
+						wing: 0,
+						mirror: 0,
+						neon: 0,
+						trunk: 0,
+						plate: 0,
+						plateColor: 0,
+						plateNumber: 0,
+						tunePower: tunePowerDefault,
+						tuneHandling: tuneHandlingDefault,
+						rivalMarker: 32,
+						aura: 551,
+						windowSticker: true,
+						windowStickerString: 'ＢＡＹＳＨＯＲＥ',
+						windowStickerFont: 0,
+						title: 'No Ghost for this Region',
+						level: 65, // SSSSS
+						lastPlayedAt: date,
+						country: 'JPN',
+						lastPlayedPlace: playedPlace
+					});
+
+					// Push data to Ghost car proto
+					lists_ghostcar.push(wm.wm.protobuf.GhostCar.create({
+						car: car,
+						nonhuman: true,
+						type: wm.wm.protobuf.GhostType.GHOST_DEFAULT,
+					}));
+				}
+
+				// else{} have car list
 			}
 
             // Response data
