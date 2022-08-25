@@ -480,7 +480,7 @@ export default class GhostModule extends Module {
 					}
 					else if(body.ghostLevel === 10)
 					{
-						tunePowerDefault = 23;
+						tunePowerDefault = 24;
 						tuneHandlingDefault = 10;
 					}
 					else if(body.ghostLevel === 11)
