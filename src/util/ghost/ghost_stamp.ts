@@ -9,7 +9,7 @@ import * as ghost_get_area_from_path from "../ghost/ghost_util/ghost_get_area_fr
 
 export async function sendStamp(body: wm.protobuf.SaveGameResultRequest)
 {
-    console.log('Sending Stamp');
+    let consoleLog = 0; // stupid stuff for console log notice
 
     let rgResult = body.rgResult;
 
@@ -51,6 +51,12 @@ export async function sendStamp(body: wm.protobuf.SaveGameResultRequest)
 
             if(checkCar)
             {
+                if(consoleLog === 0)
+                {
+                    console.log('Sending Stamp');
+                    consoleLog = 1;
+                }
+
                 // Create Challenger data
                 let dataChallenger: any = {
                     carId: rgResult.opponents![i].carId,
@@ -99,7 +105,7 @@ export async function sendStamp(body: wm.protobuf.SaveGameResultRequest)
 
 export async function shuttleReturnStamp(body: wm.protobuf.SaveGameResultRequest)
 {
-    console.log('Returning Stamp');
+    let consoleLog = 0; // stupid stuff for console log notice
 
     let rgResult = body.rgResult;
     
@@ -141,6 +147,12 @@ export async function shuttleReturnStamp(body: wm.protobuf.SaveGameResultRequest
 
             if(checkCar)
             {
+                if(consoleLog === 0)
+                {
+                    console.log('Returning Stamp');
+                    consoleLog = 1;
+                }
+
                 // Return the stamp
                 let stampTarget = await prisma.carStampTarget.findFirst({
                     where:{
