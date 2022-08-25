@@ -381,11 +381,11 @@ export default class UserModule extends Module {
 								carStates[i].eventJoined = true;
 								carStates[i].competitionState = wm.wm.protobuf.GhostCompetitionParticipantState.COMPETITION_QUALIFIED
 							}	
-							else
-							{
-								carStates[i].eventJoined = false;
-								carStates[i].competitionState = wm.wm.protobuf.GhostCompetitionParticipantState.COMPETITION_NOT_PARTICIPATED
-							}
+						}
+						else
+						{
+							carStates[i].eventJoined = false;
+							carStates[i].competitionState = wm.wm.protobuf.GhostCompetitionParticipantState.COMPETITION_NOT_PARTICIPATED
 						}
 					}
 					// Current date is OCM qualifying day
@@ -419,11 +419,11 @@ export default class UserModule extends Module {
 								carStates[i].eventJoined = true;
 								carStates[i].competitionState = wm.wm.protobuf.GhostCompetitionParticipantState.COMPETITION_PARTICIPATED
 							}
-							else
-							{
-								carStates[i].eventJoined = false;
-								carStates[i].competitionState = wm.wm.protobuf.GhostCompetitionParticipantState.COMPETITION_NOT_PARTICIPATED
-							}
+						}
+						else
+						{
+							carStates[i].eventJoined = false;
+							carStates[i].competitionState = wm.wm.protobuf.GhostCompetitionParticipantState.COMPETITION_NOT_PARTICIPATED
 						}
 					}
 					// Current date is OCM ended
@@ -457,11 +457,11 @@ export default class UserModule extends Module {
 								carStates[i].eventJoined = true;
 								carStates[i].competitionState = wm.wm.protobuf.GhostCompetitionParticipantState.COMPETITION_QUALIFIED
 							}
-							else
-							{
-								carStates[i].eventJoined = false;
-								carStates[i].competitionState = wm.wm.protobuf.GhostCompetitionParticipantState.COMPETITION_NOT_PARTICIPATED
-							}
+						}
+						else
+						{
+							carStates[i].eventJoined = false;
+							carStates[i].competitionState = wm.wm.protobuf.GhostCompetitionParticipantState.COMPETITION_NOT_PARTICIPATED
 						}
 					}
 				}

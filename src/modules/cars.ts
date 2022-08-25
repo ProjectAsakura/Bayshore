@@ -589,7 +589,7 @@ export default class CarModule extends Module {
 					aura: common.sanitizeInput(cars.aura),
 					auraMotif: common.sanitizeInput(cars.auraMotif),
 					rgStamp: common.sanitizeInput(body.rgStamp),
-					lastPlayed: date
+					lastPlayedAt: date
 				}
 
 				// Update the car info
