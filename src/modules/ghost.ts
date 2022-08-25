@@ -37,7 +37,11 @@ export default class GhostModule extends Module {
 			let findChallenger = await prisma.carChallenger.findMany({
 				where: {
 					challengerCarId: body.carId
-				}
+				},
+				orderBy:{
+					lastPlayedAt: 'desc'
+				},
+				take: 10
 			})
 
 			let carsHistory: wm.wm.protobuf.Car[] = [];
