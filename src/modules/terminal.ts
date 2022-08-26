@@ -998,13 +998,16 @@ export default class TerminalModule extends Module {
 		/*
 		app.post('/method/load_unreceived_user_items', async (req, res) => {
 
+			// Get the information from the request
+			let body = wm.wm.protobuf.LoadUnreceivedUserItemsRequest.decode(req.body);
+
 			// Response data
             let msg = {
 				error: wmsrv.wm.protobuf.ErrorCode.ERR_SUCCESS,
 			};
 
             // Encode the response
-			let message = wmsrv.wm.protobuf.LockStampTargetResponse.encode(msg);
+			let message = wmsrv.wm.protobuf.LoadUnreceivedUserItemsResponse.encode(msg);
 
 			// Send the response to the client
             common.sendResponse(message, res);
@@ -1012,6 +1015,9 @@ export default class TerminalModule extends Module {
 
 
 		app.post('/method/save_screenshot', async (req, res) => {
+
+			// Get the information from the request
+			let body = wm.wm.protobuf.SaveScreenshotRequest.decode(req.body);
 
 			// Response data
             let msg = {
@@ -1027,6 +1033,9 @@ export default class TerminalModule extends Module {
 
 
 		app.post('/method/check_item_receivable_cars', async (req, res) => {
+
+			// Get the information from the request
+			let body = wm.wm.protobuf.CheckItemReceivableCarsRequest.decode(req.body);
 
 			// Response data
             let msg = {

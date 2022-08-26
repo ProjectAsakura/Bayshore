@@ -197,12 +197,21 @@ export default class CarModule extends Module {
 								lastPlayedPlace: true
 							}
 						})
+
+						let result = 0;
+						if(challengers.result > 0)
+						{
+							result = -Math.abs(challengers.result);
+						}
+						else{
+							result = Math.abs(challengers.result);
+						}
 	
 						carsChallengers.push(
 							wm.wm.protobuf.ChallengerCar.create({
 								car: carTarget!,
 								stamp: challengers.stamp,
-								result: challengers.result, 
+								result: result, 
 								area: challengers.area
 							})
 						);
@@ -588,8 +597,8 @@ export default class CarModule extends Module {
 					rivalMarker: common.sanitizeInput(cars.rivalMarker),
 					aura: common.sanitizeInput(cars.aura),
 					auraMotif: common.sanitizeInput(cars.auraMotif),
-					rgStamp: common.sanitizeInput(body.rgStamp),
-					lastPlayed: date
+					rgStamp: common.sanitizeInputNotZero(body.rgStamp),
+					lastPlayedAt: date
 				}
 
 				// Update the car info
@@ -672,11 +681,12 @@ export default class CarModule extends Module {
 			// Update the GT Wing (custom wing) info
 			// Get the GT Wing data for the car
 			let gtWing = body.car?.gtWing;
+			let dataGTWing: any;
 
 			// GT Wing is set
 			if (gtWing)
 			{
-				let dataGTWing : any = {
+				dataGTWing = {
 					pillar: common.sanitizeInput(gtWing.pillar), 
 					pillarMaterial: common.sanitizeInput(gtWing.pillarMaterial), 
 					mainWing: common.sanitizeInput(gtWing.mainWing), 
@@ -684,14 +694,25 @@ export default class CarModule extends Module {
 					wingTip: common.sanitizeInput(gtWing.wingTip), 
 					material: common.sanitizeInput(gtWing.material), 
 				}
-
-				await prisma.carGTWing.update({
-					where: {
-						dbId: body.carId
-					}, 
-					data: dataGTWing
-				})
 			}
+			else
+			{
+				dataGTWing = {
+					pillar: 0, 
+					pillarMaterial: 0, 
+					mainWing: 0, 
+					mainWingColor: 0, 
+					wingTip: 0, 
+					material: 0, 
+				}
+			}
+
+			await prisma.carGTWing.update({
+				where: {
+					dbId: body.carId
+				}, 
+				data: dataGTWing
+			})
 			
 			// Response data
             let msg = {
