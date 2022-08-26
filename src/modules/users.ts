@@ -666,6 +666,9 @@ export default class UserModule extends Module {
         // Start Transfer
         app.post('/method/start_transfer', (req, res) => {
 
+			// Get the information from the request
+			let body = wm.wm.protobuf.StartTransferRequest.decode(req.body);
+
 			// Response data
             let msg = {
 				error: wmsrv.wm.protobuf.ErrorCode.ERR_SUCCESS,
@@ -681,6 +684,9 @@ export default class UserModule extends Module {
 
         // Grant Car Right
         app.post('/method/grant_car_right', (req, res) => {
+
+			// Get the information from the request
+			let body = wm.wm.protobuf.GrantCarRightRequest.decode(req.body);
 
 			// Response data
             let msg = {
@@ -698,6 +704,9 @@ export default class UserModule extends Module {
         // Ask Access Code
         app.post('/method/ask_access_code', (req, res) => {
 
+			// Get the information from the request
+			let body = wm.wm.protobuf.AskAccessCodeRequest.decode(req.body);
+
 			// Response data
             let msg = {
 				error: wmsrv.wm.protobuf.ErrorCode.ERR_SUCCESS,
@@ -714,6 +723,9 @@ export default class UserModule extends Module {
         // Participate In Invite Friend Campaign
         app.post('/method/participate_in_invite_friend_campaign', (req, res) => {
 
+			// Get the information from the request
+			let body = wm.wm.protobuf.ParticipateInInviteFriendCampaignRequest.decode(req.body);
+
 			// Response data
             let msg = {
 				error: wmsrv.wm.protobuf.ErrorCode.ERR_SUCCESS,
@@ -728,6 +740,9 @@ export default class UserModule extends Module {
 
 
 		app.post('/method/consume_user_item', async (req, res) => {
+
+			// Get the information from the request
+			let body = wm.wm.protobuf.ConsumeUserItemRequest.decode(req.body);
 
 			// Response data
             let msg = {

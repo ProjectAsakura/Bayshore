@@ -918,8 +918,11 @@ export default class GhostModule extends Module {
 		})
 
 
-        // idk what this is this for
+        // Lock Crown
         app.post('/method/lock_crown', (req, res) => {
+
+			// Get the information from the request
+			let body = wmsrv.wm.protobuf.LockCrownRequest.decode(req.body);
 
             // Response data
             let msg = {

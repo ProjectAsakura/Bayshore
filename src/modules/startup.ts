@@ -157,8 +157,6 @@ export default class StartupModule extends Module {
         // Ping
         app.post('/method/ping', (req, res) => {
 
-            console.log('ping');
-
             let body = wm.wm.protobuf.PingRequest.decode(req.body);
 
             // Response data
