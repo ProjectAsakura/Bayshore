@@ -588,7 +588,7 @@ export default class CarModule extends Module {
 					rivalMarker: common.sanitizeInput(cars.rivalMarker),
 					aura: common.sanitizeInput(cars.aura),
 					auraMotif: common.sanitizeInput(cars.auraMotif),
-					rgStamp: common.sanitizeInput(body.rgStamp),
+					rgStamp: common.sanitizeInputNotZero(body.rgStamp),
 					lastPlayedAt: date
 				}
 
