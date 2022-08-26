@@ -556,7 +556,6 @@ export default class CarModule extends Module {
 
 			// Get the request body for the update car request
 			let body = wm.wm.protobuf.UpdateCarRequest.decode(req.body);
-			console.log(body);
 
 			// Get the ghost result for the car
 			let cars = body?.car;
