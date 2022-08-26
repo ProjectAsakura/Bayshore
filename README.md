@@ -1,6 +1,10 @@
 # Bayshore
 Wangan Midnight Maximum Tune 6 server reimplementation written in TypeScript
 
+<p align="center">
+    <img src="https://repository-images.githubusercontent.com/523956269/9a72b45d-7b27-4237-8aeb-476865a6d6d6" width="640" title="hover text">
+</p>
+
 ## Credits
 This software is part of [Project Asakura](https://github.com/ProjectAsakura).
 
