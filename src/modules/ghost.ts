@@ -126,11 +126,20 @@ export default class GhostModule extends Module {
 						}
 					})
 
+					let result = 0;
+					if(challengers[i].result > 0)
+					{
+						result = -Math.abs(challengers[i].result);
+					}
+					else{
+						result = Math.abs(challengers[i].result);
+					}
+
 					carsChallenger.push(
 						wm.wm.protobuf.ChallengerCar.create({
 							car: carTarget!,
 							stamp: challengers[i].stamp,
-                            result: challengers[i].result, 
+                            result: result, 
                             area: challengers[i].area
 						})
 					);
@@ -218,11 +227,20 @@ export default class GhostModule extends Module {
 						}
 					})
 
+					let result = 0;
+					if(challengers[i].result > 0)
+					{
+						result = -Math.abs(challengers[i].result);
+					}
+					else{
+						result = Math.abs(challengers[i].result);
+					}
+
 					carsChallenger.push(
 						wm.wm.protobuf.ChallengerCar.create({
 							car: carTarget!,
 							stamp: challengers[i].stamp,
-                            result: challengers[i].result, 
+                            result: result, 
                             area: challengers[i].area
 						})
 					);

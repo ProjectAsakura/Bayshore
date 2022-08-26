@@ -197,12 +197,21 @@ export default class CarModule extends Module {
 								lastPlayedPlace: true
 							}
 						})
+
+						let result = 0;
+						if(challengers.result > 0)
+						{
+							result = -Math.abs(challengers.result);
+						}
+						else{
+							result = Math.abs(challengers.result);
+						}
 	
 						carsChallengers.push(
 							wm.wm.protobuf.ChallengerCar.create({
 								car: carTarget!,
 								stamp: challengers.stamp,
-								result: challengers.result, 
+								result: result, 
 								area: challengers.area
 							})
 						);
