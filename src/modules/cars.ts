@@ -556,6 +556,7 @@ export default class CarModule extends Module {
 
 			// Get the request body for the update car request
 			let body = wm.wm.protobuf.UpdateCarRequest.decode(req.body);
+			console.log(body);
 
 			// Get the ghost result for the car
 			let cars = body?.car;
@@ -672,11 +673,12 @@ export default class CarModule extends Module {
 			// Update the GT Wing (custom wing) info
 			// Get the GT Wing data for the car
 			let gtWing = body.car?.gtWing;
+			let dataGTWing: any;
 
 			// GT Wing is set
 			if (gtWing)
 			{
-				let dataGTWing : any = {
+				dataGTWing = {
 					pillar: common.sanitizeInput(gtWing.pillar), 
 					pillarMaterial: common.sanitizeInput(gtWing.pillarMaterial), 
 					mainWing: common.sanitizeInput(gtWing.mainWing), 
@@ -684,14 +686,25 @@ export default class CarModule extends Module {
 					wingTip: common.sanitizeInput(gtWing.wingTip), 
 					material: common.sanitizeInput(gtWing.material), 
 				}
-
-				await prisma.carGTWing.update({
-					where: {
-						dbId: body.carId
-					}, 
-					data: dataGTWing
-				})
 			}
+			else
+			{
+				dataGTWing = {
+					pillar: 0, 
+					pillarMaterial: 0, 
+					mainWing: 0, 
+					mainWingColor: 0, 
+					wingTip: 0, 
+					material: 0, 
+				}
+			}
+
+			await prisma.carGTWing.update({
+				where: {
+					dbId: body.carId
+				}, 
+				data: dataGTWing
+			})
 			
 			// Response data
             let msg = {

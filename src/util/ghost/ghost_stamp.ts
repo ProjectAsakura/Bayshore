@@ -9,8 +9,6 @@ import * as ghost_get_area_from_path from "../ghost/ghost_util/ghost_get_area_fr
 
 export async function sendStamp(body: wm.protobuf.SaveGameResultRequest)
 {
-    let consoleLog = 0; // stupid stuff for console log notice
-
     let rgResult = body.rgResult;
 
     // Get current date
@@ -51,10 +49,9 @@ export async function sendStamp(body: wm.protobuf.SaveGameResultRequest)
 
             if(checkCar)
             {
-                if(consoleLog === 0)
+                if(i === 0)
                 {
                     console.log('Sending Stamp');
-                    consoleLog = 1;
                 }
 
                 // Create Challenger data
@@ -71,7 +68,7 @@ export async function sendStamp(body: wm.protobuf.SaveGameResultRequest)
                 let dataStampTarget: any = {
                     carId: body.carId,
                     stampTargetCarId: rgResult.opponents![i].carId,
-                    returnCount: 1,
+                    returnCount: 0,
                     locked: false,
                     recommended: true
                 } 
@@ -105,8 +102,6 @@ export async function sendStamp(body: wm.protobuf.SaveGameResultRequest)
 
 export async function shuttleReturnStamp(body: wm.protobuf.SaveGameResultRequest)
 {
-    let consoleLog = 0; // stupid stuff for console log notice
-
     let rgResult = body.rgResult;
     
     // Get current date
@@ -147,10 +142,9 @@ export async function shuttleReturnStamp(body: wm.protobuf.SaveGameResultRequest
 
             if(checkCar)
             {
-                if(consoleLog === 0)
+                if(i === 0)
                 {
                     console.log('Returning Stamp');
-                    consoleLog = 1;
                 }
 
                 // Return the stamp
