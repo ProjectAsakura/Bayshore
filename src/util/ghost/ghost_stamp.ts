@@ -17,9 +17,10 @@ export async function sendStamp(body: wm.protobuf.SaveGameResultRequest)
     if(rgResult)
     {
         // Stamp must bigger than 0
-        if(rgResult.rgStamp === 0)
+        let rgStamp = rgResult.rgStamp;
+        if(rgStamp === 0)
         {
-            rgResult.rgStamp = 1;
+            rgStamp = 1;
         }
 
         // Get the area
@@ -58,7 +59,7 @@ export async function sendStamp(body: wm.protobuf.SaveGameResultRequest)
                 let dataChallenger: any = {
                     carId: rgResult.opponents![i].carId,
                     challengerCarId: body.carId,
-                    stamp: rgResult.rgStamp,
+                    stamp: rgStamp,
                     result: rgResult.opponents![i].result,
                     area: area,
                     lastPlayedAt: date
@@ -110,9 +111,10 @@ export async function shuttleReturnStamp(body: wm.protobuf.SaveGameResultRequest
     if(rgResult)
     {
         // Stamp must bigger than 0
-        if(rgResult.rgStamp === 0)
+        let rgStamp = rgResult.rgStamp;
+        if(rgStamp === 0)
         {
-            rgResult.rgStamp = 1;
+            rgStamp = 1;
         }
 
         // Get the area
@@ -190,7 +192,7 @@ export async function shuttleReturnStamp(body: wm.protobuf.SaveGameResultRequest
                     let dataChallenger: any = {
                         carId: rgResult.opponents![i].carId,
                         challengerCarId: body.carId,
-                        stamp: rgResult.rgStamp,
+                        stamp: rgStamp,
                         result: rgResult.opponents![i].result,
                         area: area,
                         lastPlayedAt: date

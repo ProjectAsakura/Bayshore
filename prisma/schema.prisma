@@ -60,8 +60,6 @@ model Car {
     carId               Int     @id @default(autoincrement())
     name                String
     manufacturer        Int
-    regionId            Int     @default(0)
-    country             String  @default("JPN")
     model               Int
     visualModel         Int
     customColor         Int     @default(0)
@@ -88,6 +86,8 @@ model Car {
     rivalMarker         Int     @default(0)
     lastPlayedAt        Int     @default(0)
     aura                Int     @default(0)
+    regionId            Int     @default(0)
+    country             String  @default("JPN")
 
     // This is more data about the car
     tuningPoints           Int         @default(0)
