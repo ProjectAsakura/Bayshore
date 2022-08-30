@@ -103,6 +103,8 @@ export default class CarModule extends Module {
 
 					if(checkRegisteredGhost)
 					{
+						console.log('OCM Ghost Registered From Terminal');
+
 						let getNo1OCM = await prisma.oCMTally.findFirst({
 							where:{
 								competitionId: ocmEventDate.competitionId,
@@ -115,12 +117,10 @@ export default class CarModule extends Module {
 
 						if(getNo1OCM)
 						{
-							let carId = getNo1OCM.carId
-
 							// Get Car Data
 							let cars = await prisma.car.findFirst({
 								where:{
-									carId: carId
+									carId: getNo1OCM.carId
 								},
 								include:{
 									gtWing: true,
@@ -131,25 +131,33 @@ export default class CarModule extends Module {
 							// Get Ghost Trail
 							let ghostTrailNo1 = await prisma.oCMTop1GhostTrail.findFirst({
 								where:{
-									carId: carId,
-									competitionId: ocmEventDate.competitionId,
-									periodId: 999999999
+									carId: getNo1OCM.carId,
+									competitionId: ocmEventDate.competitionId
+								},
+								orderBy:{
+									dbId: 'asc'
 								}
 							});
 
-							trailIdNo1 = ghostTrailNo1!.dbId;
+							if(ghostTrailNo1)
+							{
+								console.log('Getting registered ghost trail');
 
-							ghostCarsNo1 = wm.wm.protobuf.GhostCar.create({ 
-								car: {
-									...cars!,
-								},
-								area: ghostTrailNo1!.area,
-								ramp: ghostTrailNo1!.ramp,
-								path: ghostTrailNo1!.path,
-								nonhuman: false,
-								type: wm.wm.protobuf.GhostType.GHOST_NORMAL,
-								trailId: trailIdNo1
-							});
+								trailIdNo1 = ghostTrailNo1.dbId;
+
+								ghostCarsNo1 = wm.wm.protobuf.GhostCar.create({ 
+									car: {
+										...cars!,
+									},
+									area: ghostTrailNo1.area,
+									ramp: ghostTrailNo1.ramp,
+									path: ghostTrailNo1.path,
+									nonhuman: false,
+									type: wm.wm.protobuf.GhostType.GHOST_NORMAL,
+									trailId: trailIdNo1
+								});
+							}
+							
 						}
 					}
 				}
