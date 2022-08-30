@@ -76,7 +76,8 @@ export default class GhostModule extends Module {
             // Get all of the friend cars for the carId provided
             let stampTargets = await prisma.carStampTarget.findMany({
                 where: {
-                    stampTargetCarId: body.carId
+                    stampTargetCarId: body.carId,
+					locked: false
                 }
             });
 
@@ -177,7 +178,8 @@ export default class GhostModule extends Module {
             // Get all of the friend cars for the carId provided
             let stampTargets = await prisma.carStampTarget.findMany({
                 where: {
-                    carId: body.carId
+                    stampTargetCarId: body.carId,
+					locked: false
                 }
             });
 
@@ -187,7 +189,7 @@ export default class GhostModule extends Module {
 				{
 					let carTarget = await prisma.car.findFirst({
 						where:{
-							carId: stampTargets[i].stampTargetCarId
+							carId: stampTargets[i].carId
 						},
 						include:{
 							gtWing: true,
