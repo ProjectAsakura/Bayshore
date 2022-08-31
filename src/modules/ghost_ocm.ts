@@ -601,7 +601,7 @@ export default class GhostModule extends Module {
                 // Top 1 OCM Ghost trail data available
 				if(checkGhostTrail)
 				{ 
-					console.log('go here');
+
                     // Get the Top 1 OCM car data
 					cars = await prisma.car.findFirst({ 
 						where:{
