@@ -165,11 +165,11 @@ export async function shuttleReturnStamp(body: wm.protobuf.SaveGameResultRequest
                         carId: rgResult.opponents![i].carId,
                         stampTargetCarId: body.carId,
                         returnCount: returnCount,
-                        locked: true,
+                        locked: false,
                         recommended: false
                     } 
 
-                    console.log(`Updating car ${rgResult.opponents![i].carId} vs ${body.carId} stamp entry and locking it`);
+                    console.log(`Updating car ${rgResult.opponents![i].carId} vs ${body.carId} stamp entry and remove it from your recommendation`);
 
                     await prisma.carStampTarget.update({
                         where:{
@@ -217,7 +217,7 @@ export async function shuttleReturnStamp(body: wm.protobuf.SaveGameResultRequest
 
                 if(stampReturned)
                 {
-                    console.log(`Stamp returned to ${rgResult.opponents![i].carId}, unlocking it so opponents can fight your ghost`);
+                    console.log(`Stamp returned to ${rgResult.opponents![i].carId}, recommend it so opponents can fight your ghost`);
 
                     await prisma.carStampTarget.update({
                         where:{

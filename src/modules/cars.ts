@@ -169,8 +169,10 @@ export default class CarModule extends Module {
 			let opponentTarget = await prisma.carStampTarget.findMany({
 				where:{
 					stampTargetCarId: body.carId,
-					locked: false,
 					recommended: true,
+				},
+				orderBy:{
+					locked: 'desc'
 				}
 			})
 
@@ -252,7 +254,7 @@ export default class CarModule extends Module {
 				// Stamp or Challenger
 				challenger: carsChallengers[0] || null,
 				challengerReturnCount: returnCount || null,
-				numOfChallengers: carsChallengers.length || null,
+				numOfChallengers: carsChallengers.length + 1 || null,
 
 				// OCM Challenge Top 1
 				opponentGhost: ghostCarsNo1 || null,

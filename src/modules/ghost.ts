@@ -78,8 +78,11 @@ export default class GhostModule extends Module {
             let stampTargets = await prisma.carStampTarget.findMany({
                 where: {
                     stampTargetCarId: body.carId,
-					locked: false
-                }
+					recommended: true
+                },
+				orderBy:{
+					locked: 'desc'
+				}
             });
 
 			if(stampTargets)
@@ -180,8 +183,11 @@ export default class GhostModule extends Module {
             let stampTargets = await prisma.carStampTarget.findMany({
                 where: {
                     stampTargetCarId: body.carId,
-					locked: false
-                }
+					recommended: true
+                },
+				orderBy:{
+					locked: 'asc'
+				}
             });
 
 			if(stampTargets)
