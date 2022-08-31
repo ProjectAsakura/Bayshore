@@ -117,6 +117,8 @@ export default class CarModule extends Module {
 
 						if(getNo1OCM)
 						{
+							console.log('Getting registered car data');
+							
 							// Get Car Data
 							let cars = await prisma.car.findFirst({
 								where:{

@@ -581,8 +581,8 @@ export default class TerminalModule extends Module {
 			if(!(ocmEventDate))
 			{
 				ocmEventDate = await prisma.oCMEvent.findFirst({
-					orderBy:{
-						dbId: 'desc'
+					where:{
+						competitionId: body.competitionId
 					}
 				});
 
