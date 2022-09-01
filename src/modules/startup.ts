@@ -44,14 +44,9 @@ export default class StartupModule extends Module {
             if(!(ocmEventDate))
             {
                 ocmEventDate = await prisma.oCMEvent.findFirst({
-                    orderBy: [
-                        {
-                            dbId: 'desc'
-                        },
-                        {
-                            competitionEndAt: 'desc',
-                        },
-                    ],
+                    orderBy:{
+                        dbId: 'desc'
+                    }
                 });
 
                 pastEvent = 1;

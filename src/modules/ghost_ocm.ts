@@ -359,6 +359,14 @@ export default class GhostModule extends Module {
 						closed: true
 					};
 				}
+				else
+				{
+					// Response data
+					msg = {
+						error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+						closed: true
+					};
+				}
 			}
 			// No OCM Event
 			else{
@@ -399,8 +407,6 @@ export default class GhostModule extends Module {
             // Get currently active OCM event
 			let ocmEventDate = await prisma.oCMEvent.findFirst({ 
                 where: {
-					competitionId: competition_id,
-					
 					// qualifyingPeriodStartAt is less than current date
 					qualifyingPeriodStartAt: { lte: date },
 		
@@ -419,9 +425,6 @@ export default class GhostModule extends Module {
                         {
                             dbId: 'desc'
                         },
-                        {
-                            competitionEndAt: 'desc',
-                        },
                     ],
                 });
 			}
@@ -436,6 +439,7 @@ export default class GhostModule extends Module {
                 shopName: Config.getConfig().shopName,
                 country: Config.getConfig().country
 			});
+			let competitionSchedule;
 
 			// Get default trail id
 			let ghostTrailId = 0;
@@ -586,12 +590,8 @@ export default class GhostModule extends Module {
                 // Get Top 1 qualifying ghost trail id
 				let checkGhostTrail = await prisma.oCMTop1GhostTrail.findFirst({ 
 					where:{
-						carId: ocmTallyRecord!.carId,
-						competitionId: ocmEventDate!.competitionId,
+						competitionId: competition_id,
 						periodId: 999999999,
-						area: areaVal,
-						ramp: rampVal,
-						path: pathVal,
 					},
 					orderBy:{
 						playedAt: 'desc'
@@ -629,6 +629,49 @@ export default class GhostModule extends Module {
 					cars!.lastPlayedAt = checkGhostTrail.playedAt
 					ghostTrailId = checkGhostTrail.dbId!;
 					ghostTypes = wm.wm.protobuf.GhostType.GHOST_NORMAL;
+
+					let ocmEventDate = await prisma.oCMEvent.findFirst({
+						where: {
+							competitionId: competition_id
+						}
+					});
+
+					if(ocmEventDate)
+					{
+						// Creating GhostCompetitionSchedule
+						competitionSchedule = wm.wm.protobuf.GhostCompetitionSchedule.create({ 
+
+							// OCM Competition ID (1 = C1 (Round 16), 4 = Nagoya (Round 19), 8 = Hiroshima (Round 21))
+							competitionId: ocmEventDate.competitionId,
+	
+							// OCM Qualifying Start Timestamp
+							qualifyingPeriodStartAt: ocmEventDate.qualifyingPeriodStartAt, 
+	
+							// OCM Qualifying Close Timestamp
+							qualifyingPeriodCloseAt: ocmEventDate.qualifyingPeriodCloseAt,
+	
+							// OCM Competition (Main Draw) Start Timestamp
+							competitionStartAt: ocmEventDate.competitionStartAt, 
+	
+							// OCM Competition (Main Draw) Close Timestamp
+							competitionCloseAt: ocmEventDate.competitionCloseAt, 
+	
+							// OCM Competition (Main Draw) End Timestamp
+							competitionEndAt: ocmEventDate.competitionEndAt, 
+	
+							// idk what this is
+							lengthOfPeriod: ocmEventDate.lengthOfPeriod, 
+	
+							// idk what this is
+							lengthOfInterval: ocmEventDate.lengthOfInterval, 
+	
+							// Area for the event (GID_RUNAREA_*, 8 is GID_RUNAREA_NAGOYA)
+							area: ocmEventDate.area, 
+	
+							// idk what this is
+							minigamePatternId: ocmEventDate.minigamePatternId 
+						});
+					}
 				}
 			}
 
@@ -640,7 +683,7 @@ export default class GhostModule extends Module {
 				path: pathVal,
 				nonhuman: false,
 				type: ghostTypes,
-				trailId: ghostTrailId
+				trailId: ghostTrailId,
 			});
 
             // Response data
@@ -649,7 +692,8 @@ export default class GhostModule extends Module {
 				competitionId: competition_id,
 				ghostCar: ghostCars!,
 				trailId: ghostTrailId,
-				updatedAt: date
+				updatedAt: date,
+				competitionSchedule: competitionSchedule || null
 			};
 
             // Encode the response

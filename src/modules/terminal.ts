@@ -188,6 +188,7 @@ export default class TerminalModule extends Module {
 
 			// Get the query from the request
 			let query = req.query;
+			let cars;
 
 			// Check the query limit
 			let queryLimit = 10
@@ -197,9 +198,9 @@ export default class TerminalModule extends Module {
 			}
 
 			// Check the last played place id
-			let queryLastPlayedPlaceId = 1;
-			if(query.limit)
+			if(query.last_played_place_id)
 			{
+				let queryLastPlayedPlaceId = 1;
 				let getLastPlayedPlaceId = await prisma.placeList.findFirst({
 					where:{
 						placeId: String(query.last_played_place_id)
@@ -208,30 +209,46 @@ export default class TerminalModule extends Module {
 
 				if(getLastPlayedPlaceId)
 				{
-					queryLastPlayedPlaceId = getLastPlayedPlaceId.id
+					queryLastPlayedPlaceId = getLastPlayedPlaceId.id;
 				}
-			}
 
-			// Get all of the cars matching the query
-			let cars = await prisma.car.findMany({
-				take: queryLimit, 
-				where: {
-					OR:[
-						{
-							name: {
-								startsWith: String(query.name)
+				cars = await prisma.car.findMany({
+					take: queryLimit, 
+					where: {
+						lastPlayedPlaceId: queryLastPlayedPlaceId
+					},
+					include:{
+						gtWing: true,
+						lastPlayedPlace: true
+					}
+				});
+			}
+			else
+			{
+				// Get all of the cars matching the query
+				cars = await prisma.car.findMany({
+					take: queryLimit, 
+					where: {
+						OR:[
+							{
+								name: {
+									startsWith: String(query.name)
+								}
+							},
+							{
+								name: {
+									endsWith: String(query.name)
+								}
 							}
-						},
-						{
-							lastPlayedPlaceId: queryLastPlayedPlaceId
-						}
-					]
-				},
-				include:{
-					gtWing: true,
-					lastPlayedPlace: true
-				}
-			});
+						]
+						
+					},
+					include:{
+						gtWing: true,
+						lastPlayedPlace: true
+					}
+				});
+			}
 
 			for(let i=0; i<cars.length; i++)
 			{
@@ -581,8 +598,8 @@ export default class TerminalModule extends Module {
 			if(!(ocmEventDate))
 			{
 				ocmEventDate = await prisma.oCMEvent.findFirst({
-					orderBy:{
-						dbId: 'desc'
+					where:{
+						competitionId: body.competitionId
 					}
 				});
 
@@ -993,6 +1010,50 @@ export default class TerminalModule extends Module {
 			// Send the response to the client
             common.sendResponse(message, res);
 		})
+
+
+		// Lock Stamp Target
+        app.post('/method/lock_stamp_target', async (req, res) => {
+
+            // car_id, target_cars[]
+            let body = wm.wm.protobuf.LockStampTargetRequest.decode(req.body);           
+
+			// Unlock all of the stamp targets for the car
+			await prisma.carStampTarget.updateMany({
+				where: {
+					stampTargetCarId: body.carId
+				}, 
+				data: {
+					locked: false
+				}
+			});
+
+			// Loop over all of the locked stamp targets
+			for(let targetCar of body.targetCars)
+			{
+				// Lock the stamp target for the given car
+				
+				// This should only occur once, however
+				// the relationship is not strictly 1:1
+				await prisma.carStampTarget.updateMany({
+					where: {
+						carId: targetCar, 
+						stampTargetCarId: body.carId
+					}, 
+					data: {
+						locked: true
+					}
+				});
+			}
+
+			// Encode the response
+            let message = wm.wm.protobuf.LoadStampTargetResponse.encode({
+                error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+            });
+
+            // Send the response to the client
+            common.sendResponse(message, res);
+        });
 
 
 		/*

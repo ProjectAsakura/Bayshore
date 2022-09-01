@@ -13,6 +13,7 @@ import * as wmsrv from "../wmmt/service.proto";
 import * as common from "../util/common";
 import * as ghost_save_trail from "../util/ghost/ghost_save_trail";
 import * as ghost_trail from "../util/ghost/ghost_trail";
+import * as ghost_area from "../util/ghost/ghost_area";
 
 
 export default class GhostModule extends Module {
@@ -77,8 +78,11 @@ export default class GhostModule extends Module {
             let stampTargets = await prisma.carStampTarget.findMany({
                 where: {
                     stampTargetCarId: body.carId,
-					locked: false
-                }
+					recommended: true
+                },
+				orderBy:{
+					locked: 'desc'
+				}
             });
 
 			if(stampTargets)
@@ -179,8 +183,11 @@ export default class GhostModule extends Module {
             let stampTargets = await prisma.carStampTarget.findMany({
                 where: {
                     stampTargetCarId: body.carId,
-					locked: false
-                }
+					recommended: true
+                },
+				orderBy:{
+					locked: 'asc'
+				}
             });
 
 			if(stampTargets)
@@ -303,67 +310,13 @@ export default class GhostModule extends Module {
 			// Randomizing the starting ramp and path based on selected area
 			let rampVal = 0;
 			let pathVal = 0;
-			if(body.area === 0){ // GID_RUNAREA_C1
-				rampVal = Math.floor(Math.random() * 4);
-				pathVal = Math.floor(Math.random() * 10);
-			}
-			else if(body.area === 1){ // GID_RUNAREA_RING
-				rampVal = Math.floor(Math.random() * 2) + 4;
-				pathVal = Math.floor(Math.random() * 6) + 10;
-			}
-			else if(body.area === 2){ // GID_RUNAREA_SUBTOKYO_3_4
-				rampVal = Math.floor(Math.random() * 2) + 6;
-				pathVal = Math.floor(Math.random() * 2) + 16;
-			}
-			else if(body.area === 3){ // GID_RUNAREA_SUBTOKYO_5
-				rampVal = Math.floor(Math.random() * 2) + 8;
-				pathVal = Math.floor(Math.random() * 2) + 18;
-			}
-			else if(body.area === 4){ // GID_RUNAREA_WANGAN
-				rampVal = Math.floor(Math.random() * 4) + 10;
-				pathVal = Math.floor(Math.random() * 7) + 20;
-			}
-			else if(body.area === 5){ // GID_RUNAREA_K1
-				rampVal = Math.floor(Math.random() * 4) + 14;
-				pathVal = Math.floor(Math.random() * 7) + 27;
-			}
-			else if(body.area === 6){ // GID_RUNAREA_YAESU
-				rampVal = Math.floor(Math.random() * 3) + 18;
-				pathVal = Math.floor(Math.random() * 4) + 34;
-			}
-			else if(body.area === 7){ // GID_RUNAREA_YOKOHAMA
-				rampVal = Math.floor(Math.random() * 4) + 21;
-				pathVal = Math.floor(Math.random() * 11) + 38;
-			}
-			else if(body.area === 8){ // GID_RUNAREA_NAGOYA
-				rampVal = 25;
-				pathVal = 49;
-			}
-			else if(body.area === 9){ // GID_RUNAREA_OSAKA
-				rampVal = 26;
-				pathVal = Math.floor(Math.random() * 4) + 50;
-			}
-			else if(body.area === 10){ // GID_RUNAREA_KOBE
-				rampVal = Math.floor(Math.random() * 2) + 27;
-				pathVal = Math.floor(Math.random() * 2) + 54;
-			}
-			else if(body.area === 11){ // GID_RUNAREA_FUKUOKA
-				rampVal = Math.floor(Math.random() * 4) + 29;
-				pathVal = Math.floor(Math.random() * 4) + 58;
-			}
-			else if(body.area === 12){ // GID_RUNAREA_HAKONE
-				rampVal = Math.floor(Math.random() * 2) + 33;
-				pathVal = Math.floor(Math.random() * 2) + 62;
-			}
-			else if(body.area === 13){ // GID_RUNAREA_TURNPIKE
-				rampVal = Math.floor(Math.random() * 2) + 35;
-				pathVal = Math.floor(Math.random() * 2) + 64;
-			}
-			//14 - 16 are dummy area, 17 is GID_RUNAREA_C1_CLOSED
-			else if(body.area === 18){ // GID_RUNAREA_HIROSHIMA
-				rampVal = Math.floor(Math.random() * 2) + 37;
-				pathVal = Math.floor(Math.random() * 2) + 56;
-			}
+
+			// Get the ramp and path id
+			let ghost_areas = await ghost_area.GhostArea(body.area);
+
+			// Set the value
+			rampVal = ghost_areas.rampVal;
+			pathVal = ghost_areas.pathVal;
 
 			// Empty list of ghost car records
 			let lists_ghostcar: wm.wm.protobuf.GhostCar[] = [];
@@ -796,67 +749,13 @@ export default class GhostModule extends Module {
 				}
 				let rampVal = 0;
 				let pathVal = 0;
-				if(j === 0){ // GID_RUNAREA_C1
-					rampVal = Math.floor(Math.random() * 4);
-					pathVal = Math.floor(Math.random() * 10);
-				}
-				else if(j === 1){ // GID_RUNAREA_RING
-					rampVal = Math.floor(Math.random() * 2) + 4;
-					pathVal = Math.floor(Math.random() * 6) + 10;
-				}
-				else if(j === 2){ // GID_RUNAREA_SUBTOKYO_3_4
-					rampVal = Math.floor(Math.random() * 2) + 6;
-					pathVal = Math.floor(Math.random() * 2) + 16;
-				}
-				else if(j === 3){ // GID_RUNAREA_SUBTOKYO_5
-					rampVal = Math.floor(Math.random() * 2) + 8;
-					pathVal = Math.floor(Math.random() * 2) + 18;
-				}
-				else if(j === 4){ // GID_RUNAREA_WANGAN
-					rampVal = Math.floor(Math.random() * 4) + 10;
-					pathVal = Math.floor(Math.random() * 7) + 20;
-				}
-				else if(j === 5){ // GID_RUNAREA_K1
-					rampVal = Math.floor(Math.random() * 4) + 14;
-					pathVal = Math.floor(Math.random() * 7) + 27;
-				}
-				else if(j === 6){ // GID_RUNAREA_YAESU
-					rampVal = Math.floor(Math.random() * 3) + 18;
-					pathVal = Math.floor(Math.random() * 4) + 34;
-				}
-				else if(j === 7){ // GID_RUNAREA_YOKOHAMA
-					rampVal = Math.floor(Math.random() * 4) + 21;
-					pathVal = Math.floor(Math.random() * 11) + 38;
-				}
-				else if(j === 8){ // GID_RUNAREA_NAGOYA
-					rampVal = 25;
-					pathVal = 49;
-				}
-				else if(j === 9){ // GID_RUNAREA_OSAKA
-					rampVal = 26;
-					pathVal = Math.floor(Math.random() * 4) + 50;
-				}
-				else if(j === 10){ // GID_RUNAREA_KOBE
-					rampVal = Math.floor(Math.random() * 2) + 27;
-					pathVal = Math.floor(Math.random() * 2) + 54;
-				}
-				else if(j === 11){ // GID_RUNAREA_FUKUOKA
-					rampVal = Math.floor(Math.random() * 4) + 29;
-					pathVal = Math.floor(Math.random() * 4) + 58;
-				}
-				else if(j === 12){ // GID_RUNAREA_HAKONE
-					rampVal = Math.floor(Math.random() * 2) + 33;
-					pathVal = Math.floor(Math.random() * 2) + 62;
-				}
-				else if(j === 13){ // GID_RUNAREA_TURNPIKE
-					rampVal = Math.floor(Math.random() * 2) + 35;
-					pathVal = Math.floor(Math.random() * 2) + 64;
-				}
-				//14 - 16 are dummy area, 17 is GID_RUNAREA_C1_CLOSED
-				else if(j === 18){ // GID_RUNAREA_HIROSHIMA
-					rampVal = Math.floor(Math.random() * 2) + 37;
-					pathVal = Math.floor(Math.random() * 2) + 56;
-				}
+
+				// Get the ramp and path id
+				let ghost_areas = await ghost_area.GhostArea(j);
+
+				// Set the value
+				rampVal = ghost_areas.rampVal;
+				pathVal = ghost_areas.pathVal;
 
 				// Empty list of car tuning records
 				let carTuning: wm.wm.protobuf.CarTuning[] = [];

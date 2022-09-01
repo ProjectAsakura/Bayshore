@@ -117,6 +117,8 @@ export default class CarModule extends Module {
 
 						if(getNo1OCM)
 						{
+							console.log('Getting registered car data');
+							
 							// Get Car Data
 							let cars = await prisma.car.findFirst({
 								where:{
@@ -167,8 +169,10 @@ export default class CarModule extends Module {
 			let opponentTarget = await prisma.carStampTarget.findMany({
 				where:{
 					stampTargetCarId: body.carId,
-					locked: false,
 					recommended: true,
+				},
+				orderBy:{
+					locked: 'desc'
 				}
 			})
 
@@ -250,7 +254,7 @@ export default class CarModule extends Module {
 				// Stamp or Challenger
 				challenger: carsChallengers[0] || null,
 				challengerReturnCount: returnCount || null,
-				numOfChallengers: carsChallengers.length || null,
+				numOfChallengers: carsChallengers.length + 1 || null,
 
 				// OCM Challenge Top 1
 				opponentGhost: ghostCarsNo1 || null,
@@ -573,6 +577,7 @@ export default class CarModule extends Module {
 
 			// Get the request body for the update car request
 			let body = wm.wm.protobuf.UpdateCarRequest.decode(req.body);
+			console.log(body);
 
 			// Get the ghost result for the car
 			let cars = body?.car;
@@ -702,26 +707,38 @@ export default class CarModule extends Module {
 					wingTip: common.sanitizeInput(gtWing.wingTip), 
 					material: common.sanitizeInput(gtWing.material), 
 				}
+
+				await prisma.carGTWing.update({
+					where: {
+						dbId: body.carId
+					}, 
+					data: dataGTWing
+				})
 			}
-			else
+			// Check if this is in getting new custom color screen or not
+			else if(body.car?.carId !== null && body.car?.carId !== undefined)
 			{
-				dataGTWing = {
-					pillar: 0, 
-					pillarMaterial: 0, 
-					mainWing: 0, 
-					mainWingColor: 0, 
-					wingTip: 0, 
-					material: 0, 
+				// GT Wing not set
+				if(gtWing === undefined || gtWing === null)
+				{
+					dataGTWing = {
+						pillar: 0, 
+						pillarMaterial: 0, 
+						mainWing: 0, 
+						mainWingColor: 0, 
+						wingTip: 0, 
+						material: 0, 
+					}
+
+					await prisma.carGTWing.update({
+						where: {
+							dbId: body.carId
+						}, 
+						data: dataGTWing
+					})
 				}
 			}
 
-			await prisma.carGTWing.update({
-				where: {
-					dbId: body.carId
-				}, 
-				data: dataGTWing
-			})
-			
 			// Response data
             let msg = {
                 error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,

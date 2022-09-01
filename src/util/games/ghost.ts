@@ -71,13 +71,19 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
         // ghostResult is set
         if (ghostResult)
         {
+            let stampSheet: any = undefined;
+            if(ghostResult.stampSheet!.length > 0)
+            {
+                stampSheet = ghostResult.stampSheet;
+            }
+
             // Ghost update data
             dataGhost = {
                 rgRegionMapScore: common.sanitizeInput(ghostResult.rgRegionMapScore), 
                 rgPlayCount: common.sanitizeInput(ghostResult.rgPlayCount), 
                 dressupLevel: common.sanitizeInput(ghostResult.dressupLevel), 
                 dressupPoint: common.sanitizeInput(ghostResult.dressupPoint),
-                stampSheet: common.sanitizeInput(ghostResult.stampSheet),
+                stampSheet: stampSheet,
                 stampSheetCount: common.sanitizeInputNotZero(ghostResult.stampSheetCount),
             }
 

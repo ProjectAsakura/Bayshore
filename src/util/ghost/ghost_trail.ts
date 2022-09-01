@@ -3,6 +3,7 @@ import { OCMTop1GhostTrail } from "@prisma/client";
 
 // Import Proto
 import * as ghost_ocm_area from "./ghost_ocm_area";
+import * as ghost_area from "./ghost_area";
 
 
 // Save ghost battle result
@@ -220,67 +221,12 @@ export async function getCrownGhostTrail(carId: number, areaId: number)
     {
         console.log('Crown Ghost Trail not found');
 
-        if(areaId === 0){ // GID_RUNAREA_C1
-            rampVal = Math.floor(Math.random() * 4);
-            pathVal = Math.floor(Math.random() * 10);
-        }
-        else if(areaId === 1){ // GID_RUNAREA_RING
-            rampVal = Math.floor(Math.random() * 2) + 4;
-            pathVal = Math.floor(Math.random() * 6) + 10;
-        }
-        else if(areaId === 2){ // GID_RUNAREA_SUBTOKYO_3_4
-            rampVal = Math.floor(Math.random() * 2) + 6;
-            pathVal = Math.floor(Math.random() * 2) + 16;
-        }
-        else if(areaId === 3){ // GID_RUNAREA_SUBTOKYO_5
-            rampVal = Math.floor(Math.random() * 2) + 8;
-            pathVal = Math.floor(Math.random() * 2) + 18;
-        }
-        else if(areaId === 4){ // GID_RUNAREA_WANGAN
-            rampVal = Math.floor(Math.random() * 4) + 10;
-            pathVal = Math.floor(Math.random() * 7) + 20;
-        }
-        else if(areaId === 5){ // GID_RUNAREA_K1
-            rampVal = Math.floor(Math.random() * 4) + 14;
-            pathVal = Math.floor(Math.random() * 7) + 27;
-        }
-        else if(areaId === 6){ // GID_RUNAREA_YAESU
-            rampVal = Math.floor(Math.random() * 3) + 18;
-            pathVal = Math.floor(Math.random() * 4) + 34;
-        }
-        else if(areaId === 7){ // GID_RUNAREA_YOKOHAMA
-            rampVal = Math.floor(Math.random() * 4) + 21;
-            pathVal = Math.floor(Math.random() * 11) + 38;
-        }
-        else if(areaId === 8){ // GID_RUNAREA_NAGOYA
-            rampVal = 25;
-            pathVal = 49;
-        }
-        else if(areaId === 9){ // GID_RUNAREA_OSAKA
-            rampVal = 26;
-            pathVal = Math.floor(Math.random() * 4) + 50;
-        }
-        else if(areaId === 10){ // GID_RUNAREA_KOBE
-            rampVal = 28;
-            pathVal = 55;
-        }
-        else if(areaId === 11){ // GID_RUNAREA_FUKUOKA
-            rampVal = Math.floor(Math.random() * 4) + 29;
-            pathVal = Math.floor(Math.random() * 4) + 58;
-        }
-        else if(areaId === 12){ // GID_RUNAREA_HAKONE
-            rampVal = Math.floor(Math.random() * 2) + 33;
-            pathVal = Math.floor(Math.random() * 2) + 62;
-        }
-        else if(areaId === 13){ // GID_RUNAREA_TURNPIKE
-            rampVal = Math.floor(Math.random() * 2) + 35;
-            pathVal = Math.floor(Math.random() * 2) + 64;
-        }
-        //14 - 16 are dummy area, 17 is GID_RUNAREA_C1_CLOSED
-        else if(areaId === 18){ // GID_RUNAREA_HIROSHIMA
-            rampVal = Math.floor(Math.random() * 2) + 37;
-            pathVal = Math.floor(Math.random() * 2) + 56;
-        }
+        // Get the ramp and path id
+        let ghost_areas = await ghost_area.GhostArea(areaId);
+
+        // Set the value
+        rampVal = ghost_areas.rampVal;
+        pathVal = ghost_areas.pathVal;
 
         // Random value lmao, for default ghost trail stuff (any value maybe works)
         playedAt = date
