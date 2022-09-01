@@ -169,17 +169,15 @@ export default class TerminalModule extends Module {
 			})
 
 			// Generate the response to the terminal (success messsage)
-			let resp = wm.wm.protobuf.LoadBookmarksResponse.encode({
+			let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS
-			});
+			};
 
-			let end = resp.finish();
-			let r = res
-				.header('Server', 'v388 wangan')
-				.header('Content-Type', 'application/x-protobuf; revision=8053')
-				.header('Content-Length', end.length.toString())
-				.status(200);
-			r.send(Buffer.from(end));
+			// Encode the response
+			let message = wm.wm.protobuf.LoadBookmarksResponse.encode(msg);
+
+			// Send the response to the client
+            common.sendResponse(message, res);
 		})
 
 		
@@ -264,15 +262,11 @@ export default class TerminalModule extends Module {
 				cars: cars
 			}
 
-			let resp = wm.wm.protobuf.CarSummary.encode(msg);
-			let end = resp.finish();
-			let r = res
-				.header('Server', 'v388 wangan')
-				.header('Content-Type', 'application/x-protobuf; revision=8053')
-				.header('Content-Length', end.length.toString())
-				.status(200);
-			r.send(Buffer.from(end));
+			// Encode the response
+			let message = wm.wm.protobuf.CarSummary.encode(msg);
 
+			// Send the response to the client
+            common.sendResponse(message, res);
 		})
 
 
@@ -328,15 +322,11 @@ export default class TerminalModule extends Module {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
 			}
 
-			// Encode the save terminal result response
-			let resp = wm.wm.protobuf.SaveTerminalResultResponse.encode(msg);
-			let end = resp.finish();
-			let r = res
-				.header('Server', 'v388 wangan')
-				.header('Content-Type', 'application/x-protobuf; revision=8053')
-				.header('Content-Length', end.length.toString())
-				.status(200);
-			r.send(Buffer.from(end));
+			// Encode the response
+			let message = wm.wm.protobuf.SaveTerminalResultResponse.encode(msg);
+
+			// Send the response to the client
+            common.sendResponse(message, res);
 		})
 
 
