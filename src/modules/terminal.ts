@@ -583,31 +583,10 @@ export default class TerminalModule extends Module {
 
             // Get current active OCM Event
             let ocmEventDate = await prisma.oCMEvent.findFirst({
-                where: {
-					// qualifyingPeriodStartAt is less than current date
-					qualifyingPeriodStartAt: { lte: date },
-		
-					// competitionEndAt is greater than current date
-					competitionEndAt: { gte: date },
-				},
-                orderBy:{
-                    dbId: 'desc'
-                }
-            });
-
-			if(!(ocmEventDate))
-			{
-				ocmEventDate = await prisma.oCMEvent.findFirst({
-					where:{
-						competitionId: body.competitionId
-					}
-				});
-
-				if(ocmEventDate)
-				{
-					console.log('Previous OCM found');
+				where:{
+					competitionId: body.competitionId
 				}
-			}
+			});
 
 			// Declare GhostCompetitionSchedule
             let compeSch; 
