@@ -114,7 +114,7 @@ model Car {
     rgWinCount             Int         @default(0)
     rgTrophy               Int         @default(0)
     rgScore                Int         @default(0)
-    rgStamp                Int         @default(0)
+    rgStamp                Int         @default(1)
     rgAcquireAllCrowns     Boolean     @default(false)
     rgRegionMapScore       Int[]
     stampSheetCount        Int         @default(0)
