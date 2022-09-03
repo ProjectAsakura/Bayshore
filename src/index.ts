@@ -13,6 +13,7 @@ import { Config } from './config';
 import process from 'process';
 import * as Sentry from '@sentry/node';
 import * as Tracing from '@sentry/tracing';
+import * as common from './util/common';
 
 import * as dotenv from "dotenv";
 dotenv.config({path: __dirname + '/.env'});
@@ -53,23 +54,26 @@ if (useSentry) {
 const muchaApp = express();
 const allnetApp = express();
 
+// Get the current timestamp
+let timestamp: string = common.getTimeStamp();
+
 if (useSentry) {
     app.use(Sentry.Handlers.requestHandler());
     app.use(Sentry.Handlers.tracingHandler());
 }
 
 app.use((req, res, next) => {
-    console.log(`[  MAIN] ${req.method} ${req.url}`);
+    console.log(timestamp+` [  MAIN] ${req.method} ${req.url}`);
     next()
 });
 
 muchaApp.use((req, res, next) => {
-    console.log(`[ MUCHA] ${req.method} ${req.url}`);
+    console.log(timestamp+` [ MUCHA] ${req.method} ${req.url}`);
     next()
 });
 
 allnetApp.use((req, res, next) => {
-    console.log(`[ALLNET] ${req.method} ${req.url}`);
+    console.log(timestamp+` [ALLNET] ${req.method} ${req.url}`);
     next()
 });
 
@@ -97,7 +101,7 @@ app.use('/', appRouter);
 app.use('/wmmt6/', appRouter);
 
 app.all('*', (req, res) => {
-    console.log(`[  MAIN] ${req.method} ${req.url} is unhandled`);
+    console.log(timestamp+` [  MAIN] ${req.method} ${req.url} is unhandled`);
     res.status(200).end();
 })
 
