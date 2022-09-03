@@ -11,6 +11,7 @@ import * as wm from "../wmmt/wm.proto";
 // Import Util
 import * as common from "../util/common";
 import * as scratch from "../util/scratch";
+import * as terminal from "../util/terminal/check_car";
 
 
 export default class CarModule extends Module {
@@ -275,6 +276,7 @@ export default class CarModule extends Module {
 
 			// Get the request body for the create car request
 			let body = wm.wm.protobuf.CreateCarRequest.decode(req.body);
+			console.log(body);
 
 			// Get the current date/time (unix epoch)
 			let date = Math.floor(new Date().getTime() / 1000)
@@ -408,6 +410,9 @@ export default class CarModule extends Module {
 			{
 				// Car is fully tuned
 				tune = 2;
+
+				// Check if created car is from terminal scratch car
+				await terminal.checkScratchCar(body.userId, body.car.visualModel!)
 			}
 			// User item not used, but car has 600 HP by default
 			else if (body.car && 
