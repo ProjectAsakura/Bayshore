@@ -13,6 +13,7 @@ export async function ocmTallying(body: wm.protobuf.LoadGhostCompetitionInfoRequ
     {
         periodId = periodId - 1;
 
+        // Current day is main draw and tallying qualifying period
         if(periodId === 0)
         {
             console.log('Tallying data from Qualifying');
@@ -28,12 +29,14 @@ export async function ocmTallying(body: wm.protobuf.LoadGhostCompetitionInfoRequ
                     result: 'desc',
                 }
             });
+            let arr = [];
             
             // gbRecordTally is set
             if(gbRecordTally)
             {
                 let top1advantage = null;
                 let currentResult = 0;
+
                 for(let i=0; i<gbRecordTally.length; i++)
                 {
                     // Get the Top 1 Advantage
@@ -90,6 +93,9 @@ export async function ocmTallying(body: wm.protobuf.LoadGhostCompetitionInfoRequ
                         currentResult = -Math.abs(currentResult);
                     }
 
+                    // Pushing carId to array
+                    arr.push(gbRecordTally[i].carId); 
+
                     // Moving data to OCM Tally
                     let data : any = {
                         carId: gbRecordTally[i].carId,
@@ -113,9 +119,40 @@ export async function ocmTallying(body: wm.protobuf.LoadGhostCompetitionInfoRequ
                             data: data
                         });
                     }
+                } 
+            }
+
+            // Check if someone is retiring or use cheat engine time up
+            let checkPlayRecord = await prisma.oCMPlayRecord.findMany({ 
+                where:{
+                    NOT: {
+                        carId:{ in: arr }
+                    }
+                }
+            });
+
+            if(checkPlayRecord)
+            {
+                for(let i=0; i<checkPlayRecord.length; i++)
+                {
+                    // Moving data to OCM Tally
+                    let dataLeft : any = {
+                        carId: checkPlayRecord[i].carId,
+                        result: -9999999,
+                        tunePower: 17,
+                        tuneHandling: 17,
+                        competitionId: body.competitionId,
+                        periodId: periodId + 1
+                    }
+
+                    // Create the data
+                    await prisma.oCMTally.create({
+                        data: dataLeft
+                    });
                 }
             }
         }
+        // Current day is main draw period 2 (and so on..) and tallying main draw period 1 (and so on..)
         else
         {
             console.log('Tallying data from previous Period');

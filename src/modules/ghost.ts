@@ -339,8 +339,8 @@ export default class GhostModule extends Module {
 			{ 
                 // Pick random car Id
 				let randomNumber: number = Math.floor(Math.random() * car.length);
-				if(arr.indexOf(randomNumber) === -1){
-
+				if(arr.indexOf(randomNumber) === -1)
+				{
                     // Push current number to array
 					arr.push(randomNumber); 
 

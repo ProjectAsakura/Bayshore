@@ -48,6 +48,15 @@ export function sanitizeInput(value: any)
     return (value == null || value == undefined) ? undefined : value;
 }
 
-export function sanitizeInputNotZero(value: any){
+
+export function sanitizeInputNotZero(value: any)
+{
     return (value !== null && value !== undefined && value !== 0) ? value : undefined;
+}
+
+
+export function getTimeStamp(date: Date = new Date())
+{
+    // Return a timestamp string for the current / provided time
+    return String("[" + date.toLocaleString() + "]");
 }

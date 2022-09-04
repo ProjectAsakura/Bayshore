@@ -154,6 +154,7 @@ export async function shuttleReturnStamp(body: wm.protobuf.SaveGameResultRequest
                     where:{
                         carId: rgResult.opponents![i].carId,
                         stampTargetCarId: body.carId,
+                        recommended: true
                     }
                 })
 
@@ -212,6 +213,7 @@ export async function shuttleReturnStamp(body: wm.protobuf.SaveGameResultRequest
                     where:{
                         carId: body.carId,
                         stampTargetCarId: rgResult.opponents![i].carId,
+                        recommended: false
                     }
                 })
 
