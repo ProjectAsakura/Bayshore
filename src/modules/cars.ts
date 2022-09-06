@@ -441,8 +441,14 @@ export default class CarModule extends Module {
 				}
 			}
 
+			// Randomize regionId
+			let randomRegionId: number = 18;
+			for(let i=0; i<5; i++)
+			{
+				randomRegionId = Math.floor(Math.random() * 47) + 1;
+			}
+			
 			// Default car values
-			let randomRegionId = Math.floor(Math.random() * 47) + 1;
 			let carInsert = {
 				userId: user.id,
 				manufacturer: body.car.manufacturer!,
