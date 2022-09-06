@@ -17,6 +17,7 @@ export async function saveStoryResult(body: wm.protobuf.SaveGameResultRequest, c
     {
         // Get the story result for the car
         let storyResult = body?.stResult;
+        let stLoseBits = 0;
 
         // storyResult is set
         if (storyResult)
@@ -43,9 +44,10 @@ export async function saveStoryResult(body: wm.protobuf.SaveGameResultRequest, c
             {
                 // Convert them to BigInt and add to the data
                 data.stLoseBits = common.getBigIntFromLong(storyResult.stLoseBits);
+                stLoseBits = data.stLoseBits
 
                 // If a loss has been recorded
-                if (data.stLoseBits > 0)
+                if (stLoseBits > 0)
                 {
                     // End the win streak
                     data.stConsecutiveWins = 0;
@@ -53,9 +55,12 @@ export async function saveStoryResult(body: wm.protobuf.SaveGameResultRequest, c
             }
 
             // Check if clearBits is not null, and not lose the story
-            if (common.sanitizeInput(storyResult.stClearBits) && data.stLoseBits === 0) 
+            if(storyResult.stClearBits !== null && storyResult.stClearBits !== undefined)
             {
-                data.stClearBits = storyResult.stClearBits;
+                if(stLoseBits === 0) 
+                {
+                    data.stClearBits = storyResult.stClearBits;
+                }
             }
 
             // Calling check step function (BASE_PATH/src/util/games/games_util/check_step.ts)
