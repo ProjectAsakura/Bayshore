@@ -9,6 +9,7 @@ import fs from 'fs';
 import bodyParser from 'body-parser';
 import AllnetModule from './allnet';
 import MuchaModule from './mucha';
+import ApiModule from './api';
 import { Config } from './config';
 import process from 'process';
 import * as Sentry from '@sentry/node';
@@ -30,8 +31,13 @@ const appRouter = Router();
 const PORT_ALLNET = 80;
 const PORT_MUCHA = 10082;
 const PORT_BNGI = 9002;
+const PORT_API = 9003;
 
 const app = express();
+const muchaApp = express();
+const allnetApp = express();
+const apiApp = express();
+
 app.use(bodyParser.raw({
     type: '*/*'
 }));
@@ -50,9 +56,6 @@ if (useSentry) {
         tracesSampleRate: 0.5
     });
 }
-
-const muchaApp = express();
-const allnetApp = express();
 
 // Get the current timestamp
 let timestamp: string = common.getTimeStamp();
@@ -74,6 +77,11 @@ muchaApp.use((req, res, next) => {
 
 allnetApp.use((req, res, next) => {
     console.log(timestamp+` [ALLNET] ${req.method} ${req.url}`);
+    next()
+});
+
+apiApp.use((req, res, next) => {
+    console.log(timestamp+` [   API] ${req.method} ${req.url}`);
     next()
 });
 
@@ -108,11 +116,12 @@ app.all('*', (req, res) => {
 // Register the ALL.NET / Mucha Server
 new AllnetModule().register(allnetApp);
 new MuchaModule().register(muchaApp);
+new ApiModule().register(apiApp);
 
 // Sentry is in use
 if (useSentry)
 {
-     // Use the sentry error handler
+    // Use the sentry error handler
     app.use(Sentry.Handlers.errorHandler());
 }
 
@@ -140,4 +149,9 @@ https.createServer({key, cert}, muchaApp).listen(PORT_MUCHA, '0.0.0.0', 511, () 
 // Create the game server
 https.createServer({key, cert}, app).listen(PORT_BNGI, '0.0.0.0', 511, () => {
     console.log(`Game server listening on port ${PORT_BNGI}!`);
+})
+
+// Create the API server
+http.createServer(apiApp).listen(PORT_API, '0.0.0.0', 511, () => {
+    console.log(`API server listening on port ${PORT_API}!`);
 })
