@@ -80,10 +80,10 @@ allnetApp.use((req, res, next) => {
     next()
 });
 
-apiApp.use((req, res, next) => {
+/*apiApp.use((req, res, next) => {
     console.log(timestamp+` [   API] ${req.method} ${req.url}`);
     next()
-});
+});*/
 
 // Get all of the files in the modules directory
 let dirs = fs.readdirSync('dist/modules');
