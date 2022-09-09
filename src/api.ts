@@ -80,7 +80,8 @@ export default class ApiModule extends Module {
 
             // Message Response
             let message: any = {
-                cars: []
+                cars: [],
+                lastPlayedPlace: 'Bayshore'
             };
  
             // Get all of the cars matching the query
@@ -102,9 +103,17 @@ export default class ApiModule extends Module {
                             title: true, 
                             regionId: true, 
                         }  
-                    }
+                    },
                 }
             });
+
+            let getLastPlayedPlace = await prisma.placeList.findFirst({
+                where:{
+                    id: message.cars[0].lastPlayedPlace
+                }
+            })
+
+            message.lastPlayedPlace = getLastPlayedPlace?.shopName;
 
             // Send the response to the client
             res.send(message);
