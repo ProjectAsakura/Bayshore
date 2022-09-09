@@ -95,7 +95,8 @@ export default class ApiModule extends Module {
                     car: {
                         select:{
                             carId: true, 
-                            name: true, 
+                            name: true,
+                            defaultColor: true,
                             visualModel: true, 
                             level: true, 
                             title: true, 
