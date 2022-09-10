@@ -152,6 +152,6 @@ https.createServer({key, cert}, app).listen(PORT_BNGI, '0.0.0.0', 511, () => {
 })
 
 // Create the API server
-http.createServer(apiApp).listen(PORT_API, '0.0.0.0', 511, () => {
+http.createServer(apiApp).listen(PORT_API, '0.0.0.0', 4369, () => {
     console.log(`API server listening on port ${PORT_API}!`);
 })
