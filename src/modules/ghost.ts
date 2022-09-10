@@ -110,10 +110,29 @@ export default class GhostModule extends Module {
 				}
 			}
 
-			// Get all of the friend cars for the carId provided
+			// Get all of the challenger car for the carId provided except beated car
+			let checkBeatedCar = await prisma.carStampTarget.findMany({
+                where: {
+                    stampTargetCarId: body.carId,
+					recommended: false
+                },
+				orderBy:{
+					carId: 'asc'
+				}
+            });
+
+			let arrChallengerCarId = [];
+			for(let i=0; i<checkBeatedCar.length; i++)
+			{
+				arrChallengerCarId.push(checkBeatedCar[i].carId);
+			}
+
             let challengers = await prisma.carChallenger.findMany({
                 where: {
-                    carId: body.carId
+                    carId: body.carId,
+					NOT: {
+						challengerCarId: { in: arrChallengerCarId }, // Except beated challenger id
+					},
                 }
             });
 
