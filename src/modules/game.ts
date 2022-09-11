@@ -173,6 +173,7 @@ export default class GameModule extends Module {
 					windowSticker: body.car!.windowSticker!,
 					lastPlayedAt: timestamps,
 					regionId: body.car!.regionId!,
+					ghostLevel: body.car!.ghostLevel!,
 					rgStamp: common.sanitizeInputNotZero(body.rgResult?.rgStamp),
 					stampSheetCount: common.sanitizeInputNotZero(body.rgResult?.stampSheetCount)
 				}
