@@ -193,7 +193,7 @@ export default class GameModule extends Module {
 			let giveMeterReward = Config.getConfig().gameOptions.giveMeterReward; 
 
 			// Check if this feature activated and check if user's play count is n*100 play
-			if(giveMeterReward === 1 && body.playCount % 100 === 0)
+			if(giveMeterReward === 1 && body.playCount % 100 === 0 &&  body.playCount !== 0)
 			{
 				// Calling give meter reward function (BASE_PATH/src/util/meter_reward.ts)
 				await meter_reward.giveMeterRewards(body);
