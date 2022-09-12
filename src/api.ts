@@ -10,9 +10,11 @@ export default class ApiModule extends Module {
             extended: true
         }));
     
+
         app.use(express.json({
             type: '*/*'
         }));
+
 
         // API Get Requests
         // Get Current Competition Id
@@ -51,9 +53,6 @@ export default class ApiModule extends Module {
             if(ocmEventDate)
             {
                 message.competitionId = ocmEventDate.competitionId;
-
-                // Send the response to the client
-                res.send(message);
             }
             else{
                 ocmEventDate = await prisma.oCMEvent.findFirst({
@@ -66,11 +65,12 @@ export default class ApiModule extends Module {
                 });
 
                 message.competitionId = ocmEventDate!.competitionId;
-
-                // Send the response to the client
-                res.send(message);
             }
+
+            // Send the response to the client
+            res.send(message);
         });
+
 
         // Get Competition Ranking
         app.get('/api/get_competition_ranking', async (req, res) => {
