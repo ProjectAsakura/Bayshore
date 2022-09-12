@@ -300,11 +300,11 @@ export async function ocmTallying(body: wm.protobuf.LoadGhostCompetitionInfoRequ
                 // Get the Top 1 Advantage
                 if(top1advantage === null)
                 {
-                    top1advantage = OCMTally[i].result;
+                    top1advantage = OCMTally[0].result;
 
                     let getTrail = await prisma.oCMGhostTrail.findFirst({
                         where:{
-                            carId: OCMTally[i].carId,
+                            carId: OCMTally[0].carId,
                             competitionId: body.competitionId,
                             ocmMainDraw: true
                         }
