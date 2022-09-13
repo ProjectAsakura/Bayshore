@@ -25,7 +25,15 @@ export default class ApiModule extends Module {
                 version: null
             };
 
-            message.version = 'v1.0.0';
+            let myJSON = '{"version": "v1.0.0", "log": ['+
+                                                        '"• Fix ghost play count when retiring ocm",'+
+                                                        '"• API for ocm ranking",'+
+                                                        '"• Fix unlimited ghost stamp return (hopefully no more of this)",'+
+                                                        '"• Fix give meter reward bug if playCount still 0",'+
+                                                        '"• Hopefully fix ocm HoF bug"'+
+                                                       ']'+
+                         '}';
+            message.version = JSON.parse(myJSON);
 
             // Send the response to the client
             res.send(message);
@@ -173,13 +181,14 @@ export default class ApiModule extends Module {
                 }
             });
 
-            let getLastPlayedPlace = await prisma.placeList.findFirst({
+            let getLastPlayedPlace = await prisma.oCMGhostBattleRecord.findFirst({
                 where:{
-                    id: message.cars[0].lastPlayedPlace
+                    carId: message.cars[0].carId,
+                    competitionId: competitionId
                 }
             })
 
-            message.lastPlayedPlace = getLastPlayedPlace?.shopName;
+            message.lastPlayedPlace = getLastPlayedPlace?.playedShopName;
 
             // Send the response to the client
             res.send(message);
