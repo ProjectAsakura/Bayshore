@@ -25,13 +25,16 @@ export default class ApiModule extends Module {
                 version: null
             };
 
-            let myJSON = '{"version": "v1.0.0", "log": ['+
-                                                        '"• Fix ghost play count when retiring ocm",'+
-                                                        '"• API for ocm ranking",'+
-                                                        '"• Fix unlimited ghost stamp return (hopefully no more of this)",'+
-                                                        '"• Fix give meter reward bug if playCount still 0",'+
-                                                        '"• Hopefully fix ocm HoF bug"'+
-                                                       ']'+
+            let myJSON = '{'+
+                            '"version": "v1.0.0",'+
+                            '"log":'+
+                                '['+
+                                    '"• Fix ghost play count when retiring ocm",'+
+                                    '"• API for ocm ranking",'+
+                                    '"• Fix unlimited ghost stamp return (hopefully no more of this)",'+
+                                    '"• Fix give meter reward bug if playCount still 0",'+
+                                    '"• Hopefully fix ocm HoF bug"'+
+                                ']'+
                          '}';
             message.version = JSON.parse(myJSON);
 
@@ -54,7 +57,9 @@ export default class ApiModule extends Module {
             // Get the user from the database
 			let user = await prisma.user.findFirst({
 				where: {
-					chipId: query.cardChipId?.toString(),
+					chipId: {
+                        startsWith: query.cardChipId?.toString()
+                    },
 					accessCode: query.accessCode?.toString()
 				},
 				include: {
