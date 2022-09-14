@@ -432,7 +432,7 @@ export default class GhostModule extends Module {
 			// Declare variable for Top 1 OCM Ghost
 			let ghostCars: wm.wm.protobuf.GhostCar;
 			let ghostTypes;
-			let cars: wm.wm.protobuf.ICar | (Car & { gtWing: CarGTWing; }) | null;
+			let cars: wm.wm.protobuf.ICar | null;
 			let playedPlace = wm.wm.protobuf.Place.create({ 
 				placeId: Config.getConfig().placeId,
                 regionId: Config.getConfig().regionId,
@@ -607,70 +607,88 @@ export default class GhostModule extends Module {
 							carId: checkGhostTrail!.carId
 						},
 						include:{
-							gtWing: true,
-							lastPlayedPlace: true
+							lastPlayedPlace: true,
+							gtWing: true
 						}
 					});
 
-					// If regionId is 0 or not set, game will crash after defeating the ghost
-					if(cars!.regionId === 0)
+					if(cars)
 					{
-						let randomRegionId = Math.floor(Math.random() * 47) + 1;
-						cars!.regionId = randomRegionId;
-					}
-
-                    // Set the tunePower used when playing ghost crown
-					cars!.tunePower = ocmTallyRecord!.tunePower; 
-
-                    // Set the tuneHandling used when playing ghost crown
-					cars!.tuneHandling = ocmTallyRecord!.tuneHandling;
-
-					// Set Ghost stuff Value
-					cars!.lastPlayedAt = checkGhostTrail.playedAt
-					ghostTrailId = checkGhostTrail.dbId!;
-					ghostTypes = wm.wm.protobuf.GhostType.GHOST_NORMAL;
-
-					let ocmEventDate = await prisma.oCMEvent.findFirst({
-						where: {
-							competitionId: competition_id
+						// If regionId is 0 or not set, game will crash after defeating the ghost
+						if(cars.regionId === 0)
+						{
+							let randomRegionId = Math.floor(Math.random() * 47) + 1;
+							cars.regionId = randomRegionId;
 						}
-					});
 
-					if(ocmEventDate)
-					{
-						// Creating GhostCompetitionSchedule
-						competitionSchedule = wm.wm.protobuf.GhostCompetitionSchedule.create({ 
+						// Set the tunePower used when playing ghost crown
+						cars.tunePower = ocmTallyRecord!.tunePower; 
 
-							// OCM Competition ID (1 = C1 (Round 16), 4 = Nagoya (Round 19), 8 = Hiroshima (Round 21))
-							competitionId: ocmEventDate.competitionId,
-	
-							// OCM Qualifying Start Timestamp
-							qualifyingPeriodStartAt: ocmEventDate.qualifyingPeriodStartAt, 
-	
-							// OCM Qualifying Close Timestamp
-							qualifyingPeriodCloseAt: ocmEventDate.qualifyingPeriodCloseAt,
-	
-							// OCM Competition (Main Draw) Start Timestamp
-							competitionStartAt: ocmEventDate.competitionStartAt, 
-	
-							// OCM Competition (Main Draw) Close Timestamp
-							competitionCloseAt: ocmEventDate.competitionCloseAt, 
-	
-							// OCM Competition (Main Draw) End Timestamp
-							competitionEndAt: ocmEventDate.competitionEndAt, 
-	
-							// idk what this is
-							lengthOfPeriod: ocmEventDate.lengthOfPeriod, 
-	
-							// idk what this is
-							lengthOfInterval: ocmEventDate.lengthOfInterval, 
-	
-							// Area for the event (GID_RUNAREA_*, 8 is GID_RUNAREA_NAGOYA)
-							area: ocmEventDate.area, 
-	
-							// idk what this is
-							minigamePatternId: ocmEventDate.minigamePatternId 
+						// Set the tuneHandling used when playing ghost crown
+						cars.tuneHandling = ocmTallyRecord!.tuneHandling;
+
+						// Set Ghost stuff Value
+						cars.lastPlayedAt = checkGhostTrail.playedAt;
+						ghostTrailId = checkGhostTrail.dbId!;
+						ghostTypes = wm.wm.protobuf.GhostType.GHOST_NORMAL;
+
+						let checkShopName = await prisma.oCMGhostBattleRecord.findFirst({
+							where:{
+								carId: checkGhostTrail!.carId,
+								competitionId: competition_id
+							},
+							select:{
+								playedShopName: true
+							}
+						})
+
+						if(checkShopName)
+						{
+							cars.lastPlayedPlace!.shopName = checkShopName.playedShopName;
+						}
+
+						let ocmEventDate = await prisma.oCMEvent.findFirst({
+							where: {
+								competitionId: competition_id
+							}
 						});
+
+						if(ocmEventDate)
+						{
+							// Creating GhostCompetitionSchedule
+							competitionSchedule = wm.wm.protobuf.GhostCompetitionSchedule.create({ 
+
+								// OCM Competition ID (1 = C1 (Round 16), 4 = Nagoya (Round 19), 8 = Hiroshima (Round 21))
+								competitionId: ocmEventDate.competitionId,
+		
+								// OCM Qualifying Start Timestamp
+								qualifyingPeriodStartAt: ocmEventDate.qualifyingPeriodStartAt, 
+		
+								// OCM Qualifying Close Timestamp
+								qualifyingPeriodCloseAt: ocmEventDate.qualifyingPeriodCloseAt,
+		
+								// OCM Competition (Main Draw) Start Timestamp
+								competitionStartAt: ocmEventDate.competitionStartAt, 
+		
+								// OCM Competition (Main Draw) Close Timestamp
+								competitionCloseAt: ocmEventDate.competitionCloseAt, 
+		
+								// OCM Competition (Main Draw) End Timestamp
+								competitionEndAt: ocmEventDate.competitionEndAt, 
+		
+								// idk what this is
+								lengthOfPeriod: ocmEventDate.lengthOfPeriod, 
+		
+								// idk what this is
+								lengthOfInterval: ocmEventDate.lengthOfInterval, 
+		
+								// Area for the event (GID_RUNAREA_*, 8 is GID_RUNAREA_NAGOYA)
+								area: ocmEventDate.area, 
+		
+								// idk what this is
+								minigamePatternId: ocmEventDate.minigamePatternId 
+							});
+						}
 					}
 				}
 			}

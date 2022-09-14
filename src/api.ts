@@ -35,6 +35,7 @@ export default class ApiModule extends Module {
                                     '"• Fix give meter reward bug if playCount still 0",'+
                                     '"• Hopefully fix ocm HoF bug"'+
                                     '"• Fix duplicate id in carOrder"'+
+                                    '"• Fix OCM HoF wrong shopName"'+
                                 ']'+
                          '}';
             message.version = JSON.parse(myJSON);
