@@ -152,6 +152,38 @@ export default class ApiModule extends Module {
         });
 
 
+        // Get Current Competition Id
+        app.get('/api/get_hof_competition_id', async (req, res) => {
+
+            // Message Response
+            let message: any = {
+                error: null,
+                competitionId: 1 // default
+            };
+
+            // Get current / previous active OCM Event
+            let ocmEventDate = await prisma.oCMTally.findFirst({
+                where:{
+                    periodId: 999999999
+                },
+                orderBy: {
+                    competitionId: 'desc'
+                },
+                select:{
+                    competitionId: true
+                }
+            });
+
+            if(ocmEventDate)
+            {
+                message.competitionId = ocmEventDate.competitionId;
+            }
+
+            // Send the response to the client
+            res.send(message);
+        });
+
+
         // Get Competition Ranking
         app.get('/api/get_competition_ranking', async (req, res) => {
 
