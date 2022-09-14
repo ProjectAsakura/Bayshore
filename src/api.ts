@@ -34,6 +34,7 @@ export default class ApiModule extends Module {
                                     '"• Fix unlimited ghost stamp return (hopefully no more of this)",'+
                                     '"• Fix give meter reward bug if playCount still 0",'+
                                     '"• Hopefully fix ocm HoF bug"'+
+                                    '"• Fix duplicate id in carOrder"'+
                                 ']'+
                          '}';
             message.version = JSON.parse(myJSON);

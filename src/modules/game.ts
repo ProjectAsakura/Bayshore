@@ -223,15 +223,14 @@ export default class GameModule extends Module {
 				// Get the index of the selected car
 				let index = carOrder.indexOf(body.carId);
 
-				// If the selected car is not first
-				if (index > 0)
-				{
-					// Remove that index from the array
-					carOrder.slice(index);
-
-					// Add it back to the front
-					carOrder.unshift(body.carId);
+				// Only splice array when item is found
+				if (index > -1) 
+				{ 
+					carOrder.splice(index, 1); // 2nd parameter means remove one item only
 				}
+
+				// Add it back to the front
+				carOrder.unshift(body.carId);
 
 				// Otherwise, just ignore it
 
