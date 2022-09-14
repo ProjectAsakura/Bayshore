@@ -1,6 +1,7 @@
 import express, { Application } from "express";
 import { prisma } from ".";
 import { Module } from "./module";
+const cors = require('cors');
 
 
 export default class ApiModule extends Module {
@@ -14,6 +15,11 @@ export default class ApiModule extends Module {
 
         app.use(express.json({
             type: '*/*'
+        }));
+
+
+        app.use(cors({
+            origin: '*'
         }));
 
 
@@ -48,7 +54,7 @@ export default class ApiModule extends Module {
         app.post('/api/login', async (req, res) => {
 
             // Get the request body
-			let query = req.query;
+			let query = req.body;
 
             // Message Response
             let message: any = {
@@ -60,26 +66,14 @@ export default class ApiModule extends Module {
 			let user = await prisma.user.findFirst({
 				where: {
 					chipId: {
-                        startsWith: query.cardChipId?.toString()
+                        startsWith: query.cardChipId.toString()
                     },
-					accessCode: query.accessCode?.toString()
+					accessCode: query.accessCode.toString()
 				},
-				include: {
-					cars: {
-						select: {
-							state: true,
-							gtWing: true,
-							lastPlayedPlace: true,
-                            carId: true, 
-                            name: true,
-                            defaultColor: true,
-                            visualModel: true, 
-                            level: true, 
-                            title: true, 
-                            regionId: true, 
-                        }
-					}
-				}
+                select:{
+                    id: true,
+                    chipId: true
+                }
 			});
             
             if(user)
@@ -96,7 +90,7 @@ export default class ApiModule extends Module {
         })
 
 
-        // Get Current Competition Id
+        // Get Lastest Competition Id
         app.get('/api/get_competition_id', async (req, res) => {
 
             // Get current date
@@ -152,7 +146,7 @@ export default class ApiModule extends Module {
         });
 
 
-        // Get Current Competition Id
+        // Get Lastest HoF Competition Id
         app.get('/api/get_hof_competition_id', async (req, res) => {
 
             // Message Response
@@ -232,5 +226,63 @@ export default class ApiModule extends Module {
             // Send the response to the client
             res.send(message);
         });
+
+
+        // Get Car List
+        app.post('/api/get_carlist', async (req, res) => {
+
+            // Get the request body
+			let query = req.body;
+
+            // Message Response
+            let message: any = {
+                error: null,
+                cars: [],
+                carsOrder: null,
+            };
+
+            let user = await prisma.user.findFirst({
+                where:{
+                    id: Number(query.userId),
+                    chipId: query.cardChipId.toString()
+                }
+            })
+
+            if(user)
+            {
+                // Get all of the cars matching the query
+                message.cars = await prisma.car.findMany({
+                    where:{
+                        userId: Number(query.userId),
+                    },
+                    select:{
+                        carId: true, 
+                        name: true,
+                        defaultColor: true,
+                        visualModel: true, 
+                        level: true, 
+                        title: true, 
+                        regionId: true, 
+                    },
+                    orderBy:{
+                        carId: 'asc'
+                    }
+                });
+
+                let getCarOrder = await prisma.user.findFirst({
+                    where:{
+                        id: Number(query.userId)
+                    },
+                    select:{
+                        carOrder: true
+                    },
+                })
+
+                message.carsOrder = getCarOrder?.carOrder;
+            }
+
+            // Send the response to the client
+            res.send(message);
+        })
     }
 }
