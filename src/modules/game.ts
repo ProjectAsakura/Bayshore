@@ -193,7 +193,7 @@ export default class GameModule extends Module {
 			let giveMeterReward = Config.getConfig().gameOptions.giveMeterReward; 
 
 			// Check if this feature activated and check if user's play count is n*100 play
-			if(giveMeterReward === 1 && body.playCount % 100 === 0)
+			if(giveMeterReward === 1 && body.playCount % 100 === 0 &&  body.playCount !== 0)
 			{
 				// Calling give meter reward function (BASE_PATH/src/util/meter_reward.ts)
 				await meter_reward.giveMeterRewards(body);
@@ -223,15 +223,14 @@ export default class GameModule extends Module {
 				// Get the index of the selected car
 				let index = carOrder.indexOf(body.carId);
 
-				// If the selected car is not first
-				if (index > 0)
-				{
-					// Remove that index from the array
-					carOrder.slice(index);
-
-					// Add it back to the front
-					carOrder.unshift(body.carId);
+				// Only splice array when item is found
+				if (index > -1) 
+				{ 
+					carOrder.splice(index, 1); // 2nd parameter means remove one item only
 				}
+
+				// Add it back to the front
+				carOrder.unshift(body.carId);
 
 				// Otherwise, just ignore it
 

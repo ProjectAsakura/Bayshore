@@ -581,6 +581,21 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                 }
             }
         }
+
+        // Ghost update data
+        let dataGhost = {
+            rgPlayCount: common.sanitizeInput(body.rgResult!.rgPlayCount), 
+        }
+
+        // Update the car properties
+        await prisma.car.update({
+            where: {
+                carId: body.carId
+            },
+            data: {
+                ...dataGhost
+            }
+        }); 
     }
 
     // Return the value to 'BASE_PATH/src/modules/game.ts'

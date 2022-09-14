@@ -990,7 +990,8 @@ export default class TerminalModule extends Module {
 			// Unlock all of the stamp targets for the car
 			await prisma.carStampTarget.updateMany({
 				where: {
-					stampTargetCarId: body.carId
+					stampTargetCarId: body.carId,
+					recommended: true
 				}, 
 				data: {
 					locked: false
@@ -1007,7 +1008,8 @@ export default class TerminalModule extends Module {
 				await prisma.carStampTarget.updateMany({
 					where: {
 						carId: targetCar, 
-						stampTargetCarId: body.carId
+						stampTargetCarId: body.carId,
+						recommended: true
 					}, 
 					data: {
 						locked: true

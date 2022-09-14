@@ -487,13 +487,18 @@ export default class UserModule extends Module {
 						{
 							let checkRegisteredGhost = await prisma.ghostRegisteredFromTerminal.findFirst({
 								where:{
-									carId: user.cars[i].carId
+									carId: user.cars[i].carId,
+									competitionId: ocmEventDate.competitionId
 								}
 							});
 
 							if(checkRegisteredGhost)
 							{
 								carStates[i].hasOpponentGhost = true;
+							}
+							else
+							{
+								carStates[i].hasOpponentGhost = false;
 							}
 						}
 					}

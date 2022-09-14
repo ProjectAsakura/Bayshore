@@ -37,10 +37,12 @@ export default class CarModule extends Module {
 			});
 
 			// Error handling if ghostLevel accidentally set to 0 or more than 10
-			if(car!.ghostLevel < 1){
+			if(car!.ghostLevel < 1)
+			{
 				car!.ghostLevel = 1;
 			}
-			if(car!.ghostLevel > 11){
+			if(car!.ghostLevel > 11)
+			{
 				car!.ghostLevel = 10;
 			}
 
@@ -160,7 +162,37 @@ export default class CarModule extends Module {
 									trailId: trailIdNo1
 								});
 							}
-							
+							else
+							{
+								ghostTrailNo1 = await prisma.oCMGhostTrail.findFirst({
+									where:{
+										carId: getNo1OCM.carId,
+										competitionId: ocmEventDate.competitionId
+									},
+									orderBy:{
+										playedAt: 'desc'
+									}
+								});
+
+								if(ghostTrailNo1)
+								{
+									console.log('Getting registered ghost trail from other table');
+
+									trailIdNo1 = ghostTrailNo1.dbId;
+
+									ghostCarsNo1 = wm.wm.protobuf.GhostCar.create({ 
+										car: {
+											...cars!,
+										},
+										area: ghostTrailNo1.area,
+										ramp: ghostTrailNo1.ramp,
+										path: ghostTrailNo1.path,
+										nonhuman: false,
+										type: wm.wm.protobuf.GhostType.GHOST_NORMAL,
+										trailId: trailIdNo1
+									});
+								}
+							}
 						}
 					}
 				}
@@ -588,7 +620,6 @@ export default class CarModule extends Module {
 
 			// Get the request body for the update car request
 			let body = wm.wm.protobuf.UpdateCarRequest.decode(req.body);
-			console.log(body);
 
 			// Get the ghost result for the car
 			let cars = body?.car;
