@@ -1,7 +1,6 @@
 import express, { Application } from "express";
 import { prisma } from ".";
 import { Module } from "./module";
-const cors = require('cors');
 
 
 export default class ApiModule extends Module {
@@ -15,11 +14,6 @@ export default class ApiModule extends Module {
 
         app.use(express.json({
             type: '*/*'
-        }));
-
-
-        app.use(cors({
-            origin: '*'
         }));
 
 
@@ -45,45 +39,6 @@ export default class ApiModule extends Module {
                                 ']'+
                          '}';
             message.version = JSON.parse(myJSON);
-
-            // Send the response to the client
-            res.send(message);
-        })
-
-        // Post Login
-        app.post('/api/login', async (req, res) => {
-
-            // Get the request body
-			let query = req.body;
-
-            // Message Response
-            let message: any = {
-                error: null,
-                user: null
-            };
-
-            // Get the user from the database
-			let user = await prisma.user.findFirst({
-				where: {
-					chipId: {
-                        startsWith: query.cardChipId.toString()
-                    },
-					accessCode: query.accessCode.toString()
-				},
-                select:{
-                    id: true,
-                    chipId: true
-                }
-			});
-            
-            if(user)
-            {
-                message.user = user;
-            }
-            else
-            {
-                message.error = 404
-            }
 
             // Send the response to the client
             res.send(message);
@@ -146,38 +101,6 @@ export default class ApiModule extends Module {
         });
 
 
-        // Get Lastest HoF Competition Id
-        app.get('/api/get_hof_competition_id', async (req, res) => {
-
-            // Message Response
-            let message: any = {
-                error: null,
-                competitionId: 1 // default
-            };
-
-            // Get current / previous active OCM Event
-            let ocmEventDate = await prisma.oCMTally.findFirst({
-                where:{
-                    periodId: 999999999
-                },
-                orderBy: {
-                    competitionId: 'desc'
-                },
-                select:{
-                    competitionId: true
-                }
-            });
-
-            if(ocmEventDate)
-            {
-                message.competitionId = ocmEventDate.competitionId;
-            }
-
-            // Send the response to the client
-            res.send(message);
-        });
-
-
         // Get Competition Ranking
         app.get('/api/get_competition_ranking', async (req, res) => {
 
@@ -226,63 +149,5 @@ export default class ApiModule extends Module {
             // Send the response to the client
             res.send(message);
         });
-
-
-        // Get Car List
-        app.post('/api/get_carlist', async (req, res) => {
-
-            // Get the request body
-			let query = req.body;
-
-            // Message Response
-            let message: any = {
-                error: null,
-                cars: [],
-                carsOrder: null,
-            };
-
-            let user = await prisma.user.findFirst({
-                where:{
-                    id: Number(query.userId),
-                    chipId: query.cardChipId.toString()
-                }
-            })
-
-            if(user)
-            {
-                // Get all of the cars matching the query
-                message.cars = await prisma.car.findMany({
-                    where:{
-                        userId: Number(query.userId),
-                    },
-                    select:{
-                        carId: true, 
-                        name: true,
-                        defaultColor: true,
-                        visualModel: true, 
-                        level: true, 
-                        title: true, 
-                        regionId: true, 
-                    },
-                    orderBy:{
-                        carId: 'asc'
-                    }
-                });
-
-                let getCarOrder = await prisma.user.findFirst({
-                    where:{
-                        id: Number(query.userId)
-                    },
-                    select:{
-                        carOrder: true
-                    },
-                })
-
-                message.carsOrder = getCarOrder?.carOrder;
-            }
-
-            // Send the response to the client
-            res.send(message);
-        })
     }
 }
