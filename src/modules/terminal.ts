@@ -582,7 +582,8 @@ export default class TerminalModule extends Module {
             let compeSch; 
 			let msg: any;
 
-            if(ocmEventDate){
+            if(ocmEventDate)
+			{
                 // Creating GhostCompetitionSchedule
                 compeSch = wm.wm.protobuf.GhostCompetitionSchedule.create({ 
 

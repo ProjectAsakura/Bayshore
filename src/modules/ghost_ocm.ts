@@ -226,7 +226,7 @@ export default class GhostModule extends Module {
 						{
 							let itemId = 0;
 
-							// 16th - C1
+							// 16th - C1 Outbound
 							if(ocmEventDate.competitionId === 1)
 							{
 								itemId = 204;
@@ -246,7 +246,7 @@ export default class GhostModule extends Module {
 							{
 								itemId = 222;
 							}
-							// 6th - C1
+							// 6th - C1 Inbound
 							else if(ocmEventDate.competitionId === 5) 
 							{
 								itemId = 35;
@@ -271,7 +271,7 @@ export default class GhostModule extends Module {
 							{
 								itemId = 47;
 							}
-							// 1st - C1
+							// 1st - C1 Outbound
 							else if(ocmEventDate.competitionId === 10) 
 							{
 								itemId = 5;

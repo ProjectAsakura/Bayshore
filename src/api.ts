@@ -36,6 +36,7 @@ export default class ApiModule extends Module {
                                     '"• Hopefully fix ocm HoF bug"'+
                                     '"• Fix duplicate id in carOrder"'+
                                     '"• Fix OCM HoF wrong shopName"'+
+                                    '"• More OCM Data (old event before mt6 and dev ghost)"'+
                                 ']'+
                          '}';
             message.version = JSON.parse(myJSON);
@@ -86,7 +87,7 @@ export default class ApiModule extends Module {
             else{
                 ocmEventDate = await prisma.oCMEvent.findFirst({
                     orderBy: {
-                        dbId: 'desc'
+                        competitionId: 'desc'
                     },
                     select:{
                         competitionId: true
@@ -111,40 +112,93 @@ export default class ApiModule extends Module {
             let message: any = {
                 error: null,
                 cars: [],
-                lastPlayedPlace: 'Bayshore'
+                lastPlayedPlace: 'Bayshore',
+                rankType: null
             };
- 
-            // Get all of the cars matching the query
-            message.cars = await prisma.oCMTally.findMany({
+
+            // Get current date
+            let date = Math.floor(new Date().getTime() / 1000);
+
+            // Get current / previous active OCM Event
+            let ocmEventDate = await prisma.oCMEvent.findFirst({
                 where:{
                     competitionId: competitionId
-                },
-                orderBy: {
-                    result: 'desc'
-                },
-                include:{
-                    car: {
-                        select:{
-                            carId: true, 
-                            name: true,
-                            defaultColor: true,
-                            visualModel: true, 
-                            level: true, 
-                            title: true, 
-                            regionId: true, 
-                        }  
-                    },
                 }
             });
+ 
+            // Current date is OCM main draw and so on
+            if(ocmEventDate!.competitionStartAt < date)
+            {
+                // Get all of the cars matching the query
+                message.cars = await prisma.oCMTally.findMany({
+                    where:{
+                        competitionId: competitionId
+                    },
+                    orderBy: {
+                        result: 'desc'
+                    },
+                    include:{
+                        car: {
+                            select:{
+                                carId: true, 
+                                name: true,
+                                defaultColor: true,
+                                visualModel: true, 
+                                level: true, 
+                                title: true, 
+                                regionId: true, 
+                            }  
+                        },
+                    }
+                });
 
-            let getLastPlayedPlace = await prisma.oCMGhostBattleRecord.findFirst({
-                where:{
-                    carId: message.cars[0].carId,
-                    competitionId: competitionId
-                }
-            })
+                let getLastPlayedPlace = await prisma.oCMGhostBattleRecord.findFirst({
+                    where:{
+                        carId: message.cars[0].carId,
+                        competitionId: competitionId
+                    }
+                })
 
-            message.lastPlayedPlace = getLastPlayedPlace?.playedShopName;
+                message.lastPlayedPlace = getLastPlayedPlace?.playedShopName;
+                message.rankType = 'MainDraw';
+            }
+            // Current date is OCM qualifying day
+            else if(ocmEventDate!.qualifyingPeriodStartAt < date && ocmEventDate!.qualifyingPeriodCloseAt > date)
+            {
+                // Get all of the cars matching the query
+                message.cars = await prisma.oCMGhostBattleRecord.findMany({
+                    where:{
+                        competitionId: competitionId,
+                        ocmMainDraw: false
+                    },
+                    orderBy: {
+                        result: 'desc'
+                    },
+                    include:{
+                        car: {
+                            select:{
+                                carId: true, 
+                                name: true,
+                                defaultColor: true,
+                                visualModel: true, 
+                                level: true, 
+                                title: true, 
+                                regionId: true, 
+                            }  
+                        },
+                    }
+                });
+
+                let getLastPlayedPlace = await prisma.oCMGhostBattleRecord.findFirst({
+                    where:{
+                        carId: message.cars[0].carId,
+                        competitionId: competitionId
+                    }
+                })
+
+                message.lastPlayedPlace = getLastPlayedPlace?.playedShopName;
+                message.rankType = 'Qualifying';
+            }
 
             // Send the response to the client
             res.send(message);
