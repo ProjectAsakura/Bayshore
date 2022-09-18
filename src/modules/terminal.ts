@@ -676,7 +676,7 @@ export default class TerminalModule extends Module {
 
 							let ocmGhostrecord = await prisma.oCMGhostBattleRecord.findFirst({
 								where:{
-									carId: ocmParticipant[i].carId,
+									carId: ocmParticipant[0].carId,
 									competitionId: ocmEventDate!.competitionId,
 								}
 							});
@@ -830,7 +830,7 @@ export default class TerminalModule extends Module {
 
 							let ocmGhostrecord = await prisma.oCMGhostBattleRecord.findFirst({
 								where:{
-									carId: ocmParticipant[i].carId,
+									carId: ocmParticipant[0].carId,
 									competitionId: ocmEventDate!.competitionId,
 								}
 							});
