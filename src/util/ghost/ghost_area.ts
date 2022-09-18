@@ -1,5 +1,3 @@
-import { wm } from "../../wmmt/wm.proto";
-
 // OCM Area
 export async function GhostArea(area: number)
 {

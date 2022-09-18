@@ -711,6 +711,8 @@ export default class GhostModule extends Module {
             // Query parameter from OCM Battle available
 			if(pTrailId)
 			{ 
+				console.log('Requesting OCM Ghost Trail');
+
                 // Get the trail data
 				let ghost_trails = await ghost_trail.getOCMGhostTrail(pCarId, pTrailId);
 
@@ -723,6 +725,8 @@ export default class GhostModule extends Module {
             // Query parameter from Crown Ghost Battle available
 			else
 			{ 
+				console.log('Requesting Crown Ghost Trail');
+
 				// Get the crown trail data
 				let ghost_trails = await ghost_trail.getCrownGhostTrail(pCarId, pArea);
 
