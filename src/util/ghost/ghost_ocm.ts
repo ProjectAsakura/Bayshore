@@ -125,6 +125,7 @@ export async function ocmTallying(body: wm.protobuf.LoadGhostCompetitionInfoRequ
             // Check if someone is retiring or use cheat engine time up
             let checkPlayRecord = await prisma.oCMPlayRecord.findMany({ 
                 where:{
+                    competitionId: body.competitionId,
                     NOT: {
                         carId:{ in: arr }
                     }
