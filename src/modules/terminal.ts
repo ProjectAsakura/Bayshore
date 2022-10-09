@@ -631,30 +631,17 @@ export default class TerminalModule extends Module {
 				{
 					console.log('Current OCM Day : Competition Day / Main Draw');
 
-					// Get Current OCM Period
-					let OCMCurrentPeriod = await prisma.oCMPeriod.findFirst({ 
-						where: {
-							competitionDbId: ocmEventDate!.dbId,
-							competitionId: ocmEventDate!.competitionId,
-							startAt: 
-							{
-								lte: date, // competitionStartAt is less than current date
-							},
-							closeAt:
-							{
-								gte: date, // competitionCloseAt is greater than current date
-							}
-						}
-					});
-					
+					// Get Current OCM Period and All User's Record
 					let ocmParticipant = await prisma.oCMTally.findMany({
 						where:{
 							competitionId: ocmEventDate!.competitionId,
-							periodId: OCMCurrentPeriod!.periodId
 						},
-						orderBy: {
-							result: 'desc'
-						}
+						orderBy: [
+							{
+								result: 'desc',
+								periodId: 'desc'
+							}
+						]
 					})
 
 					numOfParticipants = ocmParticipant.length;
@@ -663,6 +650,8 @@ export default class TerminalModule extends Module {
 
 					if(ocmParticipant)
 					{
+						periodId = ocmParticipant[0].periodId;
+						
 						for(let i=0; i<ocmParticipant.length; i++)
 						{
 							let cars = await prisma.car.findFirst({
