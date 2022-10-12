@@ -638,10 +638,12 @@ export default class TerminalModule extends Module {
 						},
 						orderBy: [
 							{
-								result: 'desc',
+								result: 'desc'
+							},
+							{
 								periodId: 'desc'
-							}
-						]
+							}   
+						],
 					})
 
 					numOfParticipants = ocmParticipant.length;
