@@ -706,6 +706,7 @@ export default class GhostModule extends Module {
 			let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
 				competitionId: competition_id,
+				specialGhostId: competition_id,
 				ghostCar: ghostCars!,
 				trailId: ghostTrailId,
 				updatedAt: date,
