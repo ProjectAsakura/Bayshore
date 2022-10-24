@@ -52,149 +52,49 @@ export default class CarModule extends Module {
 			// Get current date
             let date = Math.floor(new Date().getTime() / 1000);
 
-			// Get current / previous active OCM Event
-            let ocmEventDate = await prisma.oCMEvent.findFirst({
-                where: {
-					// qualifyingPeriodStartAt is less than current date
-					qualifyingPeriodStartAt: { lte: date },
-		
-					// competitionEndAt is greater than current date
-					competitionEndAt: { gte: date },
-				},
-                orderBy: [
-                    {
-                        dbId: 'desc'
-                    },
-                    {
-                        competitionEndAt: 'desc',
-                    },
-                ],
-            });
+			// Get Registered Target
+			let getTarget = await prisma.ghostRegisteredFromTerminal.findFirst({
+				where:{
+					carId: body.carId
+				}
+			});
+			let opponentGhost;
+			let opponentTrailId;
+			let opponentCompetitionId;
 
-			let pastEvent = 0;
-			if(!(ocmEventDate))
-            {
-            	ocmEventDate = await prisma.oCMEvent.findFirst({
-					orderBy: [
-						{
-							dbId: 'desc'
-						},
-						{
-							competitionEndAt: 'desc',
-						},
-					],
+			if(getTarget)
+			{
+				
+				let getTargetTrail = await prisma.oCMTop1GhostTrail.findFirst({
+					where:{
+						carId: getTarget.opponentCarId,
+						competitionId: Number(getTarget.competitionId)
+					}
 				});
 
-				pastEvent = 1;
-			}
-
-            // Current / previous OCM Event is found
-			let ghostCarsNo1;
-			let trailIdNo1: number = 0;
-            if(ocmEventDate)
-            {
-                let pastDay = date - ocmEventDate.competitionEndAt
-
-				// Get Previous Top 1 OCM
-                if(pastDay < 604800 && pastEvent === 1)
-                {
-					let checkRegisteredGhost = await prisma.ghostRegisteredFromTerminal.findFirst({
+				if(getTargetTrail)
+				{
+					let getTargetCar = await prisma.car.findFirst({
 						where:{
-							carId: body.carId
+							carId: getTarget.opponentCarId
 						}
 					});
 
-					if(checkRegisteredGhost)
-					{
-						console.log('OCM Ghost Registered From Terminal');
-
-						let getNo1OCM = await prisma.oCMTally.findFirst({
-							where:{
-								competitionId: ocmEventDate.competitionId,
-								periodId: 999999999
-							},
-							orderBy:{
-								competitionId: 'desc'
-							}
-						});
-
-						if(getNo1OCM)
-						{
-							console.log('Getting registered car data');
-							
-							// Get Car Data
-							let cars = await prisma.car.findFirst({
-								where:{
-									carId: getNo1OCM.carId
-								},
-								include:{
-									gtWing: true,
-									lastPlayedPlace: true
-								}
-							});
-
-							// Get Ghost Trail
-							let ghostTrailNo1 = await prisma.oCMTop1GhostTrail.findFirst({
-								where:{
-									carId: getNo1OCM.carId,
-									competitionId: ocmEventDate.competitionId
-								},
-								orderBy:{
-									dbId: 'asc'
-								}
-							});
-
-							if(ghostTrailNo1)
-							{
-								console.log('Getting registered ghost trail');
-
-								trailIdNo1 = ghostTrailNo1.dbId;
-
-								ghostCarsNo1 = wm.wm.protobuf.GhostCar.create({ 
-									car: {
-										...cars!,
-									},
-									area: ghostTrailNo1.area,
-									ramp: ghostTrailNo1.ramp,
-									path: ghostTrailNo1.path,
-									nonhuman: false,
-									type: wm.wm.protobuf.GhostType.GHOST_NORMAL,
-									trailId: trailIdNo1
-								});
-							}
-							else
-							{
-								ghostTrailNo1 = await prisma.oCMGhostTrail.findFirst({
-									where:{
-										carId: getNo1OCM.carId,
-										competitionId: ocmEventDate.competitionId
-									},
-									orderBy:{
-										playedAt: 'desc'
-									}
-								});
-
-								if(ghostTrailNo1)
-								{
-									console.log('Getting registered ghost trail from other table');
-
-									trailIdNo1 = ghostTrailNo1.dbId;
-
-									ghostCarsNo1 = wm.wm.protobuf.GhostCar.create({ 
-										car: {
-											...cars!,
-										},
-										area: ghostTrailNo1.area,
-										ramp: ghostTrailNo1.ramp,
-										path: ghostTrailNo1.path,
-										nonhuman: false,
-										type: wm.wm.protobuf.GhostType.GHOST_NORMAL,
-										trailId: trailIdNo1
-									});
-								}
-							}
-						}
-					}
+					opponentGhost = wm.wm.protobuf.GhostCar.create({
+						car: {
+							...getTargetCar!,
+							tunePower: getTargetTrail!.tunePower,
+							tuneHandling: getTargetTrail!.tuneHandling,
+						},
+						area: getTargetTrail!.area,
+						ramp: getTargetTrail!.ramp,
+						path: getTargetTrail!.path,
+						nonhuman: false,
+						type: wm.wm.protobuf.GhostType.GHOST_NORMAL,
+						trailId: getTargetTrail!.dbId
+					});
+					opponentTrailId = Number(getTargetTrail!.dbId);
+					opponentCompetitionId = Number(getTarget.competitionId);
 				}
 			}
 
@@ -290,9 +190,9 @@ export default class CarModule extends Module {
 				numOfChallengers: carsChallengers.length + 1 || null,
 
 				// OCM Challenge Top 1
-				opponentGhost: ghostCarsNo1 || null,
-				opponentTrailId: trailIdNo1 || null,
-				opponentCompetitionId: ocmEventDate?.competitionId || null
+				opponentGhost: opponentGhost || null,
+				opponentTrailId: opponentTrailId || null,
+				opponentCompetitionId: opponentCompetitionId || null
 			};
 
             // Generate the load car response message
@@ -635,6 +535,8 @@ export default class CarModule extends Module {
 
 				// Car update data
 				data = {
+					name: common.sanitizeInput(cars.name),
+					visualModel: common.sanitizeInput(cars.visualModel),
 					customColor: common.sanitizeInput(cars.customColor),
 					wheel: common.sanitizeInput(cars.wheel),
 					wheelColor: common.sanitizeInput(cars.wheelColor), 

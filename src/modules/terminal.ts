@@ -906,64 +906,46 @@ export default class TerminalModule extends Module {
 			// Get the information from the request
 			let body = wm.wm.protobuf.RegisterOpponentGhostRequest.decode(req.body);
 			
-			let ocmEventDate = await prisma.oCMEvent.findFirst({
-				orderBy: [
-					{
-						dbId: 'desc'
-					},
-					{
-						competitionEndAt: 'desc',
-					},
-				],
+			// Check if target is already registered
+			let checkOpponent = await prisma.ghostRegisteredFromTerminal.findFirst({
+				where:{
+					carId: body.carId,
+				}
 			});
 
-			if(ocmEventDate)
+			// Get Target Car ID
+			let ghostCompetitionTarget = await prisma.oCMTop1Ghost.findFirst({
+				where:{
+					competitionId: body.specialGhostId,
+				},
+				orderBy:{
+					periodId: 'desc'
+				}
+			});
+
+			// Target not yet registerted
+			if(!(checkOpponent))
 			{
-				let checkRegisteredGhost = await prisma.ghostRegisteredFromTerminal.findFirst({
-					where:{
-						carId: body.carId
+				await prisma.ghostRegisteredFromTerminal.create({
+					data:{
+						carId: body.carId,
+						competitionId: body.specialGhostId,
+						opponentCarId: ghostCompetitionTarget!.carId
 					}
 				});
-
-				let getNo1OCM = await prisma.oCMTally.findFirst({
+			}
+			else
+			{
+				await prisma.ghostRegisteredFromTerminal.update({
 					where:{
-						competitionId: ocmEventDate.competitionId,
-						periodId: 999999999
+						dbId: checkOpponent.dbId
 					},
-					orderBy:{
-						competitionId: 'desc'
+					data:{
+						carId: body.carId,
+						competitionId: body.specialGhostId,
+						opponentCarId: ghostCompetitionTarget!.carId
 					}
 				});
-
-				if(!(checkRegisteredGhost))
-				{
-					await prisma.ghostRegisteredFromTerminal.create({
-						data:{
-							carId: body.carId,
-							competitionId: ocmEventDate!.competitionId,
-							opponentCarId: getNo1OCM!.carId
-						}
-					});
-
-					console.log('Creating new Register Ghost Opponent entry')
-				}
-				else
-				{
-					await prisma.ghostRegisteredFromTerminal.update({
-						where:{
-							dbId: checkRegisteredGhost.dbId
-						},
-						data:{
-							carId: body.carId,
-							competitionId: ocmEventDate!.competitionId,
-							opponentCarId: getNo1OCM!.carId
-						}
-					});
-
-					console.log('Updating Register Ghost Opponent entry')
-				}
-
-				
 			}
 
 			// Response data
