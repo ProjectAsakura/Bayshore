@@ -15,9 +15,12 @@ export async function saveStoryResult(body: wm.protobuf.SaveGameResultRequest, c
     // If the game was not retired / timed out
     if (!(body.retired || body.timeup)) 
     {
+        console.log('Game not retired / timed out, continuing ...')
+        console.log(body);
+
         // Get the story result for the car
         let storyResult = body?.stResult;
-        let stLoseBits = 0;
+        let stLoseBits;
 
         // storyResult is set
         if (storyResult)
@@ -54,6 +57,12 @@ export async function saveStoryResult(body: wm.protobuf.SaveGameResultRequest, c
                 }
             }
 
+            // Calling check step function (BASE_PATH/src/util/games/games_util/check_step.ts)
+            let check_steps = await check_step.checkCurrentStep(body);
+
+            // Set the ghost level to the correct level
+            data.ghostLevel = check_steps.ghostLevel;
+
             // Check if clearBits is not null, and not lose the story
             if(storyResult.stClearBits !== null && storyResult.stClearBits !== undefined)
             {
@@ -63,19 +72,19 @@ export async function saveStoryResult(body: wm.protobuf.SaveGameResultRequest, c
                 }
             }
 
-            // Calling check step function (BASE_PATH/src/util/games/games_util/check_step.ts)
-            let check_steps = await check_step.checkCurrentStep(body);
-
-            // Set the ghost level to the correct level
-            data.ghostLevel = check_steps.ghostLevel;
-
-            // Update the car properties
-            await prisma.car.update({
-                where: {
-                    carId: body.carId
-                },
-                data: data
-            });
+            
+            if(data.stClearCount || stLoseBits)
+            {
+                console.log('Updating story data');
+                
+                // Update the car properties
+                await prisma.car.update({
+                    where: {
+                        carId: body.carId
+                    },
+                    data: data
+                });
+            }
         }
     }
 }
