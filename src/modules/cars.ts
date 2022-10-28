@@ -536,6 +536,8 @@ export default class CarModule extends Module {
 				// Car update data
 				data = {
 					name: common.sanitizeInput(cars.name),
+					manufacturer: common.sanitizeInput(cars.manufacturer),
+					model: common.sanitizeInput(cars.model),
 					visualModel: common.sanitizeInput(cars.visualModel),
 					customColor: common.sanitizeInput(cars.customColor),
 					wheel: common.sanitizeInput(cars.wheel),
