@@ -31,6 +31,7 @@ export async function saveTimeAttackResult(body: wm.protobuf.SaveGameResultReque
                         dbId: currentRecord!.dbId
                     },
                     data: {
+                        model: body.car!.model!,
                         time: body.taResult!.time,
                         section1Time: body!.taResult!.section_1Time,
                         section2Time: body!.taResult!.section_2Time,
