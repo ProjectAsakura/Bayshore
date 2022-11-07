@@ -451,7 +451,7 @@ export default class ResourceModule extends Module {
             else
             {
                 // Loop GID_RUNAREA
-                for(let i=0; i<14; i++)
+                for(let i=0; i<19; i++)
                 { 
                     // After Kobe is Hiroshima then Fukuoka and the rest
                     if(i > 14)
