@@ -49,6 +49,22 @@ export default class ResourceModule extends Module {
                     }
                 })
             }
+            else
+            {
+                if(checkPlaceList.shopName !== Config.getConfig().shopName)
+                {
+                    await prisma.placeList.update({
+                        where:{
+                            id: checkPlaceList.id
+                        },
+                        data:{
+                            regionId: Number(Config.getConfig().placeId),
+                            shopName: Config.getConfig().shopName,
+                            country: Config.getConfig().country
+                        }
+                    })
+                }
+            }
 
             // Encode the response
             let message = wm.wm.protobuf.PlaceList.encode({places});

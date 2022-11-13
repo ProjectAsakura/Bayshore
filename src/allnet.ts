@@ -70,7 +70,7 @@ export default class AllnetModule extends Module {
             const adjusted = now;
 
             let shopName = Config.getConfig().shopName;
-            let shopNick = Config.getConfig().shopNickname;
+            let shopNick = Config.getConfig().shopName;
             let regionName = Config.getConfig().regionName;
             let placeId = Config.getConfig().placeId;
             let country = Config.getConfig().country;
