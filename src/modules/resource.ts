@@ -49,6 +49,22 @@ export default class ResourceModule extends Module {
                     }
                 })
             }
+            else
+            {
+                if(checkPlaceList.shopName !== Config.getConfig().shopName)
+                {
+                    await prisma.placeList.update({
+                        where:{
+                            id: checkPlaceList.id
+                        },
+                        data:{
+                            regionId: Number(Config.getConfig().placeId),
+                            shopName: Config.getConfig().shopName,
+                            country: Config.getConfig().country
+                        }
+                    })
+                }
+            }
 
             // Encode the response
             let message = wm.wm.protobuf.PlaceList.encode({places});
@@ -451,7 +467,7 @@ export default class ResourceModule extends Module {
             else
             {
                 // Loop GID_RUNAREA
-                for(let i=0; i<14; i++)
+                for(let i=0; i<19; i++)
                 { 
                     // After Kobe is Hiroshima then Fukuoka and the rest
                     if(i > 14)

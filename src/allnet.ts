@@ -12,7 +12,8 @@ const STARTUP_HOST = `${Config.getConfig().serverIp || "localhost"}:9002`;
 export default class AllnetModule extends Module {
     register(app: Application): void {
         app.use(bodyParser.raw({
-            type: '*/*'
+            type: '*/*',
+            limit: '50mb' // idk.. i got PayloadTooLargeError: request entity too large (adding this solve the problem)
         }));
 
         app.use("/sys/servlet/PowerOn", function(req, res, next) {
@@ -70,7 +71,7 @@ export default class AllnetModule extends Module {
             const adjusted = now;
 
             let shopName = Config.getConfig().shopName;
-            let shopNick = Config.getConfig().shopNickname;
+            let shopNick = Config.getConfig().shopName;
             let regionName = Config.getConfig().regionName;
             let placeId = Config.getConfig().placeId;
             let country = Config.getConfig().country;

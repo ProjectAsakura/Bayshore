@@ -12,7 +12,8 @@ export default class MuchaModule extends Module {
 
         app.use(express.urlencoded({
             type: '*/*',
-            extended: true
+            extended: true,
+            limit: '50mb', // idk.. i got PayloadTooLargeError: request entity too large (adding this solve the problem)
         }))
 
         app.post('/updatacheck.do', (req, res) => {
