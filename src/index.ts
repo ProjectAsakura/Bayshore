@@ -6,6 +6,7 @@ import * as dotenv from "dotenv";
 dotenv.config({path: __dirname + '/.env'});
 
 if (process.env.OPENTELEMETRY_ENABLED === "true") {
+    console.log('Enabling OpenTelemetry-compatible tracing...');
     require('./tracing');
 }
 
