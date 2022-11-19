@@ -27,8 +27,6 @@ export const prisma = new PrismaClient();
 
 const appRouter = Router();
 
-console.log(process.env);
-
 const PORT_ALLNET = process.env.ALLNET_PORT !== undefined ? parseInt(process.env.ALLNET_PORT) : 80;
 const PORT_MUCHA = process.env.MUCHA_PORT !== undefined ? parseInt(process.env.MUCHA_PORT) : 10082;
 const PORT_BNGI = process.env.SERVICE_PORT !== undefined ? parseInt(process.env.SERVICE_PORT) : 9002;
