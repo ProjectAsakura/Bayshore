@@ -42,7 +42,13 @@ interface HttpMetricsParameter {
 // TODO: Implement stuff in such a way to make it be possible to view data like
 //       time attack clears per hour, story stuff etc etc. Not now tho, later
 export function startHttpMetrics(apps: HttpMetricsParameter[]) {
-    const provider = new MeterProvider();
+    const provider = new MeterProvider({
+        resource: new Resource({
+            [SemanticResourceAttributes.SERVICE_NAME]: 'bayshore',
+            [SemanticResourceAttributes.DEPLOYMENT_ENVIRONMENT]:
+                process.env.NODE_ENV !== undefined ? process.env.NODE_ENV : 'development',
+        }),
+    });
     
     function configureMiddleware(opts: MiddlewareOpts) {
         let meter = provider.getMeter(opts.appName);
@@ -67,12 +73,11 @@ export function startHttpMetrics(apps: HttpMetricsParameter[]) {
 
     const exporter = new OTLPMetricExporter({
         url: process.env.OPENTELEMETRY_OTLP_URI,
-        temporalityPreference: AggregationTemporality.DELTA,
     });
 
     provider.addMetricReader(new PeriodicExportingMetricReader({
         exporter,
-        exportIntervalMillis: 1500,
+        exportIntervalMillis: 15000,
         exportTimeoutMillis: 1000,
     }));
 
