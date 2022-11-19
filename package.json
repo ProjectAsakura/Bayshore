@@ -24,6 +24,7 @@
     "@opentelemetry/auto-instrumentations-node": "^0.35.0",
     "@opentelemetry/exporter-trace-otlp-grpc": "^0.34.0",
     "@opentelemetry/sdk-node": "^0.34.0",
+    "@opentelemetry/semantic-conventions": "^1.8.0",
     "@prisma/client": "^4.0.0",
     "@sentry/node": "^7.7.0",
     "@sentry/tracing": "^7.7.0",
