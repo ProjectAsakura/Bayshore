@@ -1,6 +1,14 @@
 // Bayshore - a Wangan Midnight Maximum Tune 6 private server.
 // Made with love by Luna, and part of Project Asakura.
 
+import process from 'process';
+import * as dotenv from "dotenv";
+dotenv.config({path: __dirname + '/.env'});
+
+if (process.env.OPENTELEMETRY_ENABLED === "true") {
+    require('./tracing');
+}
+
 import express, { Router } from 'express';
 import {PrismaClient} from '@prisma/client';
 import https, {globalAgent} from 'https';
@@ -10,13 +18,9 @@ import bodyParser from 'body-parser';
 import AllnetModule from './allnet';
 import MuchaModule from './mucha';
 import { Config } from './config';
-import process from 'process';
 import * as Sentry from '@sentry/node';
 import * as Tracing from '@sentry/tracing';
 import * as common from './util/common';
-
-import * as dotenv from "dotenv";
-dotenv.config({path: __dirname + '/.env'});
 
 globalAgent.options.keepAlive = true;
 
