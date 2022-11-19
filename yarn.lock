@@ -198,6 +198,30 @@
     "@opentelemetry/semantic-conventions" "1.8.0"
     jaeger-client "^3.15.0"
 
+"@opentelemetry/exporter-metrics-otlp-grpc@^0.34.0":
+  version "0.34.0"
+  resolved "https://registry.yarnpkg.com/@opentelemetry/exporter-metrics-otlp-grpc/-/exporter-metrics-otlp-grpc-0.34.0.tgz#3a84f4e2c21ce5c9dce507ff36715cc2536bfa87"
+  integrity sha512-9INc1TBJ7OwpMsImqUjpPEvQeRyyU9tEiFQIYQ53kKQK7V8MqB5koyDeb5/qBSbNu4ZxSpukAOLPgBOEMDK6Qw==
+  dependencies:
+    "@grpc/grpc-js" "^1.7.1"
+    "@opentelemetry/core" "1.8.0"
+    "@opentelemetry/exporter-metrics-otlp-http" "0.34.0"
+    "@opentelemetry/otlp-grpc-exporter-base" "0.34.0"
+    "@opentelemetry/otlp-transformer" "0.34.0"
+    "@opentelemetry/resources" "1.8.0"
+    "@opentelemetry/sdk-metrics" "1.8.0"
+
+"@opentelemetry/exporter-metrics-otlp-http@0.34.0":
+  version "0.34.0"
+  resolved "https://registry.yarnpkg.com/@opentelemetry/exporter-metrics-otlp-http/-/exporter-metrics-otlp-http-0.34.0.tgz#f890a83f695b60719e54492e72bcbfa21d2968ee"
+  integrity sha512-ToRJA4frErHGiKKnPCI3+cvdyK8rksRI+mV6xZ6Yt7HiIrArY9eDX7QaCEZcTLbQIib09LTlCX87TKEL3TToWQ==
+  dependencies:
+    "@opentelemetry/core" "1.8.0"
+    "@opentelemetry/otlp-exporter-base" "0.34.0"
+    "@opentelemetry/otlp-transformer" "0.34.0"
+    "@opentelemetry/resources" "1.8.0"
+    "@opentelemetry/sdk-metrics" "1.8.0"
+
 "@opentelemetry/exporter-trace-otlp-grpc@0.34.0", "@opentelemetry/exporter-trace-otlp-grpc@^0.34.0":
   version "0.34.0"
   resolved "https://registry.yarnpkg.com/@opentelemetry/exporter-trace-otlp-grpc/-/exporter-trace-otlp-grpc-0.34.0.tgz#6ec4a897f263e371f4ce8e3b1aa83167fe6aedc2"
@@ -638,7 +662,7 @@
     "@opentelemetry/core" "1.8.0"
     "@opentelemetry/semantic-conventions" "1.8.0"
 
-"@opentelemetry/sdk-metrics@1.8.0":
+"@opentelemetry/sdk-metrics@1.8.0", "@opentelemetry/sdk-metrics@^1.8.0":
   version "1.8.0"
   resolved "https://registry.yarnpkg.com/@opentelemetry/sdk-metrics/-/sdk-metrics-1.8.0.tgz#d061060f03861ab3f345d0f924922bc1a6396157"
   integrity sha512-+KYb+uj0vHhl8xzJO+oChS4oP1e+/2Wl3SXoHoIdcEjd1TQfDV+lxOm4oqxWq6wykXvI35/JHyejxSoT+qxGmg==

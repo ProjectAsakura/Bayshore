@@ -5,9 +5,12 @@ import process from 'process';
 import * as dotenv from "dotenv";
 dotenv.config({path: __dirname + '/.env'});
 
+let tracing: any = {};
+
 if (process.env.OPENTELEMETRY_ENABLED === "true") {
     console.log('Enabling OpenTelemetry-compatible tracing...');
-    require('./tracing');
+    tracing = require('./tracing');
+    tracing.startTracing();
 }
 
 import express, { Router } from 'express';
@@ -59,6 +62,29 @@ if (useSentry) {
 
         tracesSampleRate: 0.5
     });
+}
+
+if (process.env.OPENTELEMETRY_ENABLED === "true") {
+    tracing.startHttpMetrics([
+        {
+            app,
+            options: {
+                appName: 'service'
+            }
+        },
+        {
+            app: muchaApp,
+            options: {
+                appName: 'mucha'
+            }
+        },
+        {
+            app: allnetApp,
+            options: {
+                appName: 'allnet'
+            }
+        }
+    ]);
 }
 
 // Get the current timestamp
