@@ -9,7 +9,7 @@ import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions'
 import process from 'process';
 import {Request, Response, Application} from 'express';
 import { AggregationTemporality, MeterProvider, PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics';
-import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-grpc';
+import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-http';
 
 export function startTracing() {
     diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.INFO);
@@ -72,7 +72,7 @@ export function startHttpMetrics(apps: HttpMetricsParameter[]) {
     }
 
     const exporter = new OTLPMetricExporter({
-        url: process.env.OPENTELEMETRY_OTLP_URI,
+        url: process.env.OPENTELEMETRY_OTLP_HTTP_URI,
     });
 
     provider.addMetricReader(new PeriodicExportingMetricReader({
