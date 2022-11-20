@@ -99,7 +99,7 @@ export default class CarModule extends Module {
 			}
 
 			// Check opponents target
-			let opponentTarget = await prisma.carStampTarget.findMany({
+			let opponentTargetCount = await prisma.carStampTarget.count({
 				where:{
 					stampTargetCarId: body.carId,
 					recommended: true,
@@ -108,59 +108,69 @@ export default class CarModule extends Module {
 					locked: 'desc'
 				}
 			})
-
-			let carsChallengers: wm.wm.protobuf.ChallengerCar[] = [];	
-			
+			let carsChallengers;	
 			let returnCount = 1;
-			if(opponentTarget.length > 0)
+			
+			if(opponentTargetCount > 0)
 			{
 				console.log('Challengers Available');
 
-				for(let i=0; i<opponentTarget.length; i++)
-				{
-					// Get all of the friend cars for the carId provided
-					let challengers = await prisma.carChallenger.findFirst({
-						where: {
-							challengerCarId: opponentTarget[0].carId,
-							carId: body.carId
-						},
-						orderBy:{
-							id: 'desc'
-						}
-					});
+				// Randomize pick
+				let random: number = Math.floor(Math.random() * opponentTargetCount);
+
+				// Check opponents target
+				let opponentTarget = await prisma.carStampTarget.findMany({
+					where:{
+						stampTargetCarId: body.carId,
+						recommended: true,
+					},
+					orderBy:{
+						locked: 'desc'
+					},
+					skip: random,
+  					take: 1,
+				});
 				
-					if(challengers)
-					{
-						returnCount = opponentTarget[0].returnCount;
-
-						let carTarget = await prisma.car.findFirst({
-							where:{
-								carId: challengers.challengerCarId
-							},
-							include:{
-								gtWing: true,
-								lastPlayedPlace: true
-							}
-						})
-
-						let result = 0;
-						if(challengers.result > 0)
-						{
-							result = -Math.abs(challengers.result);
-						}
-						else{
-							result = Math.abs(challengers.result);
-						}
-	
-						carsChallengers.push(
-							wm.wm.protobuf.ChallengerCar.create({
-								car: carTarget!,
-								stamp: challengers.stamp,
-								result: result, 
-								area: challengers.area
-							})
-						);
+				// Get all of the friend cars for the carId provided
+				let challengers = await prisma.carChallenger.findFirst({
+					where: {
+						challengerCarId: opponentTarget[0].carId,
+						carId: body.carId
+					},
+					orderBy:{
+						id: 'desc'
 					}
+				});
+			
+				if(challengers)
+				{
+					returnCount = opponentTarget[0].returnCount;
+
+					let carTarget = await prisma.car.findFirst({
+						where:{
+							carId: challengers.challengerCarId
+						},
+						include:{
+							gtWing: true,
+							lastPlayedPlace: true
+						}
+					})
+
+					let result = 0;
+					if(challengers.result > 0)
+					{
+						result = -Math.abs(challengers.result);
+					}
+					else{
+						result = Math.abs(challengers.result);
+					}
+
+					carsChallengers = wm.wm.protobuf.ChallengerCar.create({
+						car: carTarget!,
+						stamp: challengers.stamp,
+						result: result, 
+						area: challengers.area
+					});
 				}
 			}
 			
@@ -185,9 +195,9 @@ export default class CarModule extends Module {
 				announceEventModePrize: true,
 
 				// Stamp or Challenger
-				challenger: carsChallengers[0] || null,
+				challenger: carsChallengers || null,
 				challengerReturnCount: returnCount || null,
-				numOfChallengers: carsChallengers.length + 1 || null,
+				numOfChallengers: opponentTargetCount + 1 || null,
 
 				// OCM Challenge Top 1
 				opponentGhost: opponentGhost || null,
@@ -208,7 +218,6 @@ export default class CarModule extends Module {
 
 			// Get the request body for the create car request
 			let body = wm.wm.protobuf.CreateCarRequest.decode(req.body);
-			console.log(body);
 
 			// Get the current date/time (unix epoch)
 			let date = Math.floor(new Date().getTime() / 1000)
