@@ -6,7 +6,7 @@ WORKDIR /server
 COPY package*.json ./
 
 # tsconfig definitions
-COPY tsconfig*.json .
+COPY tsconfig*.json ./
 
 # Copy the entire app source tree
 COPY . .
