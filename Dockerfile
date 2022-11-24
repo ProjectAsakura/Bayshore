@@ -11,6 +11,9 @@ COPY tsconfig*.json ./
 # Copy the entire app source tree
 COPY . .
 
+# Copy game configuration file
+COPY config.json .
+
 RUN npm install
 
 # ALLnet
