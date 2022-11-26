@@ -22,7 +22,7 @@ export async function saveVersusBattleResult(body: wm.protobuf.SaveGameResultReq
             let data : any = {
                 vsPlayCount: common.sanitizeInput(vsResult.vsPlayCount), 
                 vsBurstCount: common.sanitizeInput(vsResult.vsBurstCount), 
-                vsStarCount: common.sanitizeInput(vsResult.vsStarCount), 
+                vsStarCount: common.sanitizeInputNotZero(vsResult.vsStarCount), 
                 vsCoolOrWild: common.sanitizeInput(vsResult.vsCoolOrWild),
                 vsSmoothOrRough: common.sanitizeInput(vsResult.vsSmoothOrRough), 
                 vsTripleStarMedals: common.sanitizeInputNotZero(vsResult.vsTripleStarMedals),
