@@ -92,7 +92,7 @@ export default class StartupModule extends Module {
                     });
                 }
 
-                if(pastEvent === 1 && pastDay < 604800)
+                if(pastEvent === 1)
                 {
                     lastCompetitionId = ocmEventDate.competitionId
                 }
