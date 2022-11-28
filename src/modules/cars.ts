@@ -81,6 +81,10 @@ export default class CarModule extends Module {
 					let getTargetCar = await prisma.car.findFirst({
 						where:{
 							carId: getTarget.opponentCarId
+						},
+						include:{
+							gtWing: true,
+							lastPlayedPlace: true
 						}
 					});
 
