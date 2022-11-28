@@ -525,7 +525,7 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                 competitionEndAt: { gte: date },
             },
             orderBy:{
-                dbId: 'desc'
+                competitionId: 'desc'
             }
         });
 

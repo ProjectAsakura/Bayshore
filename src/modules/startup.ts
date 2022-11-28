@@ -30,14 +30,10 @@ export default class StartupModule extends Module {
 					// competitionEndAt is greater than current date
 					competitionEndAt: { gte: date },
 				},
-                orderBy: [
-                    {
-                        dbId: 'desc'
-                    },
-                    {
-                        competitionEndAt: 'desc',
-                    },
-                ],
+                orderBy: 
+                {
+                    competitionEndAt: 'desc',
+                },
             });
 
             let pastEvent = 0;
@@ -45,7 +41,7 @@ export default class StartupModule extends Module {
             {
                 ocmEventDate = await prisma.oCMEvent.findFirst({
                     orderBy:{
-                        dbId: 'desc'
+                        competitionId: 'desc'
                     }
                 });
 

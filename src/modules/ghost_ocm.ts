@@ -35,7 +35,7 @@ export default class GhostModule extends Module {
 					competitionEndAt: { gte: date },
 				},
                 orderBy:{
-                    dbId: 'desc'
+                    competitionId: 'desc'
                 }
             });
 			
@@ -414,7 +414,7 @@ export default class GhostModule extends Module {
 					competitionEndAt: { gte: date },
 				},
                 orderBy:{
-                    dbId: 'desc'
+                    competitionId: 'desc'
                 }
             });
 
@@ -423,7 +423,7 @@ export default class GhostModule extends Module {
 				ocmEventDate = await prisma.oCMEvent.findFirst({
                     orderBy: [
                         {
-                            dbId: 'desc'
+                            competitionId: 'desc'
                         },
                     ],
                 });

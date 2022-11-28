@@ -22,7 +22,7 @@ export async function saveOCMGhostTrail(body: wm.protobuf.RegisterGhostTrailRequ
             competitionEndAt: { gte: date },
         },
         orderBy:{
-            dbId: 'desc'
+            competitionId: 'desc'
         }
     });
 

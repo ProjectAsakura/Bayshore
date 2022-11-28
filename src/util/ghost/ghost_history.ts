@@ -164,7 +164,7 @@ export async function saveOCMGhostHistory(body: wm.protobuf.SaveGameResultReques
             competitionEndAt: { gte: date },
         },
         orderBy:{
-            dbId: 'desc'
+            competitionId: 'desc'
         }
     });
 
