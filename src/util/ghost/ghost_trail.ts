@@ -89,11 +89,6 @@ export async function getOCMGhostTrail(carId: number, trailId: number)
             where: {
                 carId: carId,
                 dbId: trailId,
-                competitionId: ocmEventDate!.competitionId,
-                periodId: 999999999
-            },
-            orderBy: {
-                playedAt: 'desc'
             }
         });
     }

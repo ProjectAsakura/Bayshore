@@ -64,11 +64,15 @@ export default class CarModule extends Module {
 
 			if(getTarget)
 			{
-				
+				console.log('Registered Opponents Available');
+
 				let getTargetTrail = await prisma.oCMTop1GhostTrail.findFirst({
 					where:{
 						carId: getTarget.opponentCarId,
 						competitionId: Number(getTarget.competitionId)
+					},
+					orderBy:{
+						dbId: 'desc'
 					}
 				});
 
