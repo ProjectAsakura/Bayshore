@@ -72,7 +72,7 @@ export default class CarModule extends Module {
 						competitionId: Number(getTarget.competitionId)
 					},
 					orderBy:{
-						dbId: 'desc'
+						periodId: 'desc'
 					}
 				});
 
