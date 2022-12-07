@@ -1006,6 +1006,25 @@ export default class TerminalModule extends Module {
             common.sendResponse(message, res);
         });
 
+		
+		// Save Screenshoot
+		app.post('/method/save_screenshot', async (req, res) => {
+
+			// Get the information from the request
+			let body = wm.wm.protobuf.SaveScreenshotRequest.decode(req.body);
+
+			// Response data
+            let msg = {
+				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+			};
+
+            // Encode the response
+			let message = wm.wm.protobuf.SaveScreenshotResponse.encode(msg);
+
+			// Send the response to the client
+            common.sendResponse(message, res);
+		})
+
 
 		/*
 		app.post('/method/load_unreceived_user_items', async (req, res) => {
@@ -1020,24 +1039,6 @@ export default class TerminalModule extends Module {
 
             // Encode the response
 			let message = wmsrv.wm.protobuf.LoadUnreceivedUserItemsResponse.encode(msg);
-
-			// Send the response to the client
-            common.sendResponse(message, res);
-		})
-
-
-		app.post('/method/save_screenshot', async (req, res) => {
-
-			// Get the information from the request
-			let body = wm.wm.protobuf.SaveScreenshotRequest.decode(req.body);
-
-			// Response data
-            let msg = {
-				error: wmsrv.wm.protobuf.ErrorCode.ERR_SUCCESS,
-			};
-
-            // Encode the response
-			let message = wmsrv.wm.protobuf.SaveScreenshotResponse.encode(msg);
 
 			// Send the response to the client
             common.sendResponse(message, res);

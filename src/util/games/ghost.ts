@@ -175,9 +175,9 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                     if (ghostResultCrown)
                     {
                         let carId: number = 0;
-                        if(body.carId)
+                        if(body.car?.carId)
                         {
-                            carId = Number(body.carId);
+                            carId = Number(body.car.carId);
                         }
 
                         // Ghost Crown update data
@@ -525,7 +525,7 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                 competitionEndAt: { gte: date },
             },
             orderBy:{
-                dbId: 'desc'
+                competitionId: 'desc'
             }
         });
 

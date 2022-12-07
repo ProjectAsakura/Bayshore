@@ -21,27 +21,19 @@ export async function getOCMGhostTrail(carId: number, trailId: number)
             // competitionEndAt is greater than current date
             competitionEndAt: { gte: date },
         },
-        orderBy: [
-            {
-                dbId: 'desc'
-            },
-            {
-                competitionEndAt: 'desc',
-            },
-        ],
+        orderBy: 
+        {
+            competitionEndAt: 'desc',
+        }
     });
 
     if(!(ocmEventDate))
     {
         ocmEventDate = await prisma.oCMEvent.findFirst({
-            orderBy: [
-                {
-                    dbId: 'desc'
-                },
-                {
-                    competitionEndAt: 'desc',
-                },
-            ],
+            orderBy: 
+            {
+                competitionEndAt: 'desc',
+            }
         });
     }
 
@@ -97,11 +89,6 @@ export async function getOCMGhostTrail(carId: number, trailId: number)
             where: {
                 carId: carId,
                 dbId: trailId,
-                competitionId: ocmEventDate!.competitionId,
-                periodId: 999999999
-            },
-            orderBy: {
-                playedAt: 'desc'
             }
         });
     }

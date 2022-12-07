@@ -356,7 +356,7 @@ export default class UserModule extends Module {
 					competitionEndAt: { gte: date },
 				},
 				orderBy:{
-					dbId: 'desc'
+					competitionId: 'desc'
 				}
 			});
 			
@@ -484,14 +484,10 @@ export default class UserModule extends Module {
 				if(!ocmEventDate)
 				{
 					let ocmEventDate = await prisma.oCMEvent.findFirst({
-						orderBy: [
-							{
-								dbId: 'desc'
-							},
-							{
-								competitionEndAt: 'desc',
-							},
-						],
+						orderBy: 
+						{
+							competitionEndAt: 'desc',
+						}
 					});
 
 					if(ocmEventDate)
