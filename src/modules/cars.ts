@@ -4,6 +4,7 @@ import { Module } from "module";
 import { prisma } from "..";
 import { User } from "@prisma/client";
 import Long from "long";
+let MersenneTwister = require('chancer');
 
 // Import Proto
 import * as wm from "../wmmt/wm.proto";
@@ -49,9 +50,6 @@ export default class CarModule extends Module {
 			// Convert the database lose bits to a Long
 			let longLoseBits = Long.fromString(car!.stLoseBits.toString());
 
-			// Get current date
-            let date = Math.floor(new Date().getTime() / 1000);
-
 			// Get Registered Target
 			let getTarget = await prisma.ghostRegisteredFromTerminal.findFirst({
 				where:{
@@ -61,6 +59,7 @@ export default class CarModule extends Module {
 			let opponentGhost;
 			let opponentTrailId;
 			let opponentCompetitionId;
+			let registeredTarget: boolean = false;
 
 			if(getTarget)
 			{
@@ -104,83 +103,93 @@ export default class CarModule extends Module {
 					opponentTrailId = Number(getTargetTrail!.dbId);
 					opponentCompetitionId = Number(getTarget.competitionId);
 				}
+
+				registeredTarget = true;
 			}
 
-			// Check opponents target
-			let opponentTargetCount = await prisma.carStampTarget.count({
-				where:{
-					stampTargetCarId: body.carId,
-					recommended: true,
-				},
-				orderBy:{
-					locked: 'desc'
-				}
-			})
-			let carsChallengers;	
-			let returnCount = 1;
-			
-			if(opponentTargetCount > 0)
+			// Check opponents stamp target
+			// Will skip this if user's have Hall of Fame ghost registered
+			let carsChallengers;
+			let returnCount = 0;
+			let opponentTargetCount = 0;
+			if(registeredTarget === false)
 			{
-				console.log('Challengers Available');
-
-				// Randomize pick
-				let random: number = Math.floor(Math.random() * opponentTargetCount);
-
-				// Check opponents target
-				let opponentTarget = await prisma.carStampTarget.findMany({
+				opponentTargetCount = await prisma.carStampTarget.count({
 					where:{
 						stampTargetCarId: body.carId,
 						recommended: true,
 					},
 					orderBy:{
 						locked: 'desc'
-					},
-					skip: random,
-  					take: 1,
-				});
+					}
+				})
+					
+				returnCount = 1;
 				
-				// Get all of the friend cars for the carId provided
-				let challengers = await prisma.carChallenger.findFirst({
-					where: {
-						challengerCarId: opponentTarget[0].carId,
-						carId: body.carId
-					},
-					orderBy:{
-						id: 'desc'
-					}
-				});
-			
-				if(challengers)
+				if(opponentTargetCount > 0)
 				{
-					returnCount = opponentTarget[0].returnCount;
+					console.log('Challengers Available');
 
-					let carTarget = await prisma.car.findFirst({
+					// Randomize pick
+					let random: number = MersenneTwister.int(0, opponentTargetCount);
+
+					// Check opponents target
+					let opponentTarget = await prisma.carStampTarget.findMany({
 						where:{
-							carId: challengers.challengerCarId
+							stampTargetCarId: body.carId,
+							recommended: true,
 						},
-						include:{
-							gtWing: true,
-							lastPlayedPlace: true
-						}
-					})
-
-					let result = 0;
-					if(challengers.result > 0)
-					{
-						result = -Math.abs(challengers.result);
-					}
-					else{
-						result = Math.abs(challengers.result);
-					}
-
-					carsChallengers = wm.wm.protobuf.ChallengerCar.create({
-						car: carTarget!,
-						stamp: challengers.stamp,
-						result: result, 
-						area: challengers.area
+						orderBy:{
+							locked: 'desc'
+						},
+						skip: random,
+						take: 1,
 					});
+					
+					// Get all of the friend cars for the carId provided
+					let challengers = await prisma.carChallenger.findFirst({
+						where: {
+							challengerCarId: opponentTarget[0].carId,
+							carId: body.carId
+						},
+						orderBy:{
+							id: 'desc'
+						}
+					});
+				
+					if(challengers)
+					{
+						returnCount = opponentTarget[0].returnCount;
+
+						let carTarget = await prisma.car.findFirst({
+							where:{
+								carId: challengers.challengerCarId
+							},
+							include:{
+								gtWing: true,
+								lastPlayedPlace: true
+							}
+						})
+
+						let result = 0;
+						if(challengers.result > 0)
+						{
+							result = -Math.abs(challengers.result);
+						}
+						else{
+							result = Math.abs(challengers.result);
+						}
+
+						carsChallengers = wm.wm.protobuf.ChallengerCar.create({
+							car: carTarget!,
+							stamp: challengers.stamp,
+							result: result, 
+							area: challengers.area
+						});
+					}
 				}
 			}
+			
 			
 
             // Response data
@@ -391,11 +400,8 @@ export default class CarModule extends Module {
 			}
 
 			// Randomize regionId
-			let randomRegionId: number = 18;
-			for(let i=0; i<5; i++)
-			{
-				randomRegionId = Math.floor(Math.random() * 47) + 1;
-			}
+			let regionId: number = 18;
+			regionId = MersenneTwister.int(1, 47);
 			
 			// Default car values
 			let carInsert = {
@@ -412,7 +418,7 @@ export default class CarModule extends Module {
 				carSettingsDbId: settings.dbId,
 				carStateDbId: state.dbId,
 				carGTWingDbId: gtWing.dbId,
-				regionId: randomRegionId,
+				regionId: regionId,
 				lastPlayedAt: date,
 				lastPlayedPlaceId: 1, // Server Default
 			};

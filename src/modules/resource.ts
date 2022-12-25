@@ -1,7 +1,9 @@
-import { Application } from "express";
-import {Module} from "module";
+import e, { Application } from "express";
+import { Module } from "module";
 import { Config } from "../config";
 import { prisma } from "..";
+import path from 'path';
+let MersenneTwister = require('chancer');
 
 // Import Proto
 import * as wm from "../wmmt/wm.proto";
@@ -48,22 +50,6 @@ export default class ResourceModule extends Module {
                         country: Config.getConfig().country || 'JPN'
                     }
                 })
-            }
-            else
-            {
-                if(checkPlaceList.shopName !== Config.getConfig().shopName)
-                {
-                    await prisma.placeList.update({
-                        where:{
-                            id: checkPlaceList.id
-                        },
-                        data:{
-                            regionId: Number(Config.getConfig().placeId),
-                            shopName: Config.getConfig().shopName,
-                            country: Config.getConfig().country
-                        }
-                    })
-                }
             }
 
             // Encode the response
@@ -147,8 +133,8 @@ export default class ResourceModule extends Module {
                                 result: resultTime,
                                 name: 'ＧＵＥＳＴ',
                                 regionId: 1, // Hokkaido
-                                model: Math.floor(Math.random() * 50), // Randomizing ＧＵＥＳＴ Car data
-                                visualModel: Math.floor(Math.random() * 100), // Randomizing ＧＵＥＳＴ Car data
+                                model: MersenneTwister.int(0, 50), // Randomizing ＧＵＥＳＴ Car data
+                                visualModel: MersenneTwister.int(0, 100), // Randomizing ＧＵＥＳＴ Car data
                                 defaultColor: 0,
                                 tunePower: 0,
                                 tuneHandling: 0,
@@ -185,8 +171,8 @@ export default class ResourceModule extends Module {
                             result: resulttime,
                             name: 'ＧＵＥＳＴ',
                             regionId: 1, // Hokkaido
-                            model: Math.floor(Math.random() * 50), // Randomizing ＧＵＥＳＴ Car data
-                            visualModel: Math.floor(Math.random() * 100), // Randomizing ＧＵＥＳＴ Car data
+                            model: MersenneTwister.int(0, 50), // Randomizing ＧＵＥＳＴ Car data
+                            visualModel: MersenneTwister.int(0, 100), // Randomizing ＧＵＥＳＴ Car data
                             defaultColor: 0,
                             tunePower: 0,
                             tuneHandling: 0,
@@ -249,8 +235,8 @@ export default class ResourceModule extends Module {
                         result: 0,
                         name: 'ＧＵＥＳＴ',
                         regionId: 1, // Hokkaido
-                        model: Math.floor(Math.random() * 50), // Randomizing ＧＵＥＳＴ Car data
-                        visualModel: Math.floor(Math.random() * 100), // Randomizing ＧＵＥＳＴ Car data
+                        model: MersenneTwister.int(0, 50), // Randomizing ＧＵＥＳＴ Car data
+                        visualModel: MersenneTwister.int(0, 100), // Randomizing ＧＵＥＳＴ Car data
                         defaultColor: 0,
                         tunePower: 0,
                         tuneHandling: 0,
@@ -312,8 +298,8 @@ export default class ResourceModule extends Module {
                         result: 0,
                         name: 'ＧＵＥＳＴ',
                         regionId: 1, // Hokkaido
-                        model: Math.floor(Math.random() * 50), // Randomizing ＧＵＥＳＴ Car data
-                        visualModel: Math.floor(Math.random() * 100), // Randomizing ＧＵＥＳＴ Car data
+                        model: MersenneTwister.int(0, 50), // Randomizing ＧＵＥＳＴ Car data
+                        visualModel: MersenneTwister.int(0, 100), // Randomizing ＧＵＥＳＴ Car data
                         defaultColor: 0,
                         tunePower: 0,
                         tuneHandling: 0,
@@ -415,7 +401,6 @@ export default class ResourceModule extends Module {
                                 car: car!
                             });
 
-                            // Push it after Kobe
                             list_crown.splice(11, 0, listCrown);
                         }
                         // GID_RUNAREA_C1 - GID_RUNAREA_TURNPIKE
@@ -448,7 +433,6 @@ export default class ResourceModule extends Module {
                                 unlockAt: 0,
                             });
 
-                            // Push it after Kobe
                             list_crown.splice(11, 0, listCrown);
                         }
                         // GID_RUNAREA_C1 - GID_RUNAREA_TURNPIKE
@@ -498,7 +482,7 @@ export default class ResourceModule extends Module {
                         }));
                     }
                 }
-            } 
+            }  
 
             // Response data
             let msg = {
@@ -512,18 +496,35 @@ export default class ResourceModule extends Module {
             common.sendResponse(message, res);
         })
 
+        app.use("/static", e.static(
+            path.join(__dirname, '..', '..', 'static'), 
+            { cacheControl: false }
+        ));
+
+
         app.get('/resource/file_list', async (req, res) => {
 
             console.log('file_list');
 
             // TODO: Actual stuff here
             // This is literally just bare-bones so the shit boots
+            let files: wm.wm.protobuf.FileList.FileInfo[] = [];
+
+            files.push(wm.wm.protobuf.FileList.FileInfo.create({
+                fileId: 1,
+                fileType: wm.wm.protobuf.FileType.FILE_PROMOTION_ANNOUNCEMENT,
+                fileSize: 383791,
+                url: 'https://'+Config.getConfig().serverIp+':9002/static/000002-bayshore.bin',
+                sha1sum: Buffer.from('F1A1AF6F7273F2BA5189CDB15165028B56E022E6', "hex"),
+                notBefore: 0,
+                notAfter: 2147483647,
+            }));
 
 			// Response data
 			let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
-                files: null,
-                interval: null
+                files: files,
+                interval: 2
 			}
 
 			// Encode the response
@@ -533,6 +534,7 @@ export default class ResourceModule extends Module {
             common.sendResponse(message, res);
 		})
 
+        
         app.get('/resource/ghost_list', async (req, res) => {
 
             console.log('ghost_list');

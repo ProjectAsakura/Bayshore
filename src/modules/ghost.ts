@@ -4,6 +4,7 @@ import { prisma } from "..";
 import { CarPathandTuning } from "@prisma/client";
 import Long from "long";
 import { Config } from "../config";
+let MersenneTwister = require('chancer');
 
 // Import Proto
 import * as wm from "../wmmt/wm.proto";
@@ -357,7 +358,7 @@ export default class GhostModule extends Module {
 			while(arr.length < maxNumber)
 			{ 
                 // Pick random car Id
-				let randomNumber: number = Math.floor(Math.random() * car.length);
+				let randomNumber = MersenneTwister.int(0, maxNumber-1);
 				if(arr.indexOf(randomNumber) === -1)
 				{
                     // Push current number to array
@@ -377,9 +378,8 @@ export default class GhostModule extends Module {
 
                     // If regionId is 0 or not set, game will crash after defeating the ghost
 					if(car[randomNumber]!.regionId === 0)
-					{ 
-						let randomRegionId = Math.floor(Math.random() * 47) + 1;
-						car[randomNumber].regionId = randomRegionId;
+					{
+						car[randomNumber].regionId = MersenneTwister.int(1, 47);
 					}
 
                     // Push user's car data without ghost trail

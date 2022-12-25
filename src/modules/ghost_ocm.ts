@@ -1,8 +1,8 @@
 import { Application } from "express";
 import { Module } from "module";
 import { prisma } from "..";
-import { Car, CarGTWing } from "@prisma/client";
 import { Config } from "../config";
+let MersenneTwister = require('chancer');
 
 // Import Proto
 import * as wm from "../wmmt/wm.proto";
@@ -423,7 +423,7 @@ export default class GhostModule extends Module {
 				ocmEventDate = await prisma.oCMEvent.findFirst({
                     orderBy: [
                         {
-                            competitionId: 'desc'
+                            dbId: 'desc'
                         },
                     ],
                 });
@@ -492,8 +492,7 @@ export default class GhostModule extends Module {
 					// If regionId is 0 or not set, game will crash after defeating the ghost
 					if(cars!.regionId === 0)
 					{
-						let randomRegionId = Math.floor(Math.random() * 47) + 1;
-						cars!.regionId = randomRegionId;
+						cars!.regionId = MersenneTwister.int(1, 47);
 					}
 
                     // Set the tunePower used when playing ghost crown
@@ -615,8 +614,7 @@ export default class GhostModule extends Module {
 					// If regionId is 0 or not set, game will crash after defeating the ghost
 					if(cars!.regionId === 0)
 					{
-						let randomRegionId = Math.floor(Math.random() * 47) + 1;
-						cars!.regionId = randomRegionId;
+						cars!.regionId = MersenneTwister.int(1, 47);
 					}
 
                     // Set the tunePower used when playing ghost crown
@@ -647,7 +645,7 @@ export default class GhostModule extends Module {
 
 
 					let ocmEventDate = await prisma.oCMEvent.findFirst({
-						where: {
+						where:{
 							competitionId: competition_id
 						}
 					});
@@ -706,7 +704,6 @@ export default class GhostModule extends Module {
 			let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
 				competitionId: competition_id,
-				specialGhostId: competition_id,
 				ghostCar: ghostCars!,
 				trailId: ghostTrailId,
 				updatedAt: date,

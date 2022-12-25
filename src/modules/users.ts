@@ -1,4 +1,4 @@
-import e, { Application } from "express";
+import { Application } from "express";
 import { Config } from "../config";
 import { Module } from "module";
 import { prisma } from "..";
@@ -484,33 +484,27 @@ export default class UserModule extends Module {
 				if(!ocmEventDate)
 				{
 					let ocmEventDate = await prisma.oCMEvent.findFirst({
-						orderBy: 
-						{
+						orderBy: {
 							competitionEndAt: 'desc',
 						}
 					});
 
 					if(ocmEventDate)
 					{
-						let pastDay = date - ocmEventDate.competitionEndAt;
+						let checkRegisteredGhost = await prisma.ghostRegisteredFromTerminal.findFirst({
+							where:{
+								carId: user.cars[i].carId,
+								competitionId: ocmEventDate.competitionId
+							}
+						});
 
-						if(pastDay < 604800)
+						if(checkRegisteredGhost)
 						{
-							let checkRegisteredGhost = await prisma.ghostRegisteredFromTerminal.findFirst({
-								where:{
-									carId: user.cars[i].carId,
-									competitionId: ocmEventDate.competitionId
-								}
-							});
-
-							if(checkRegisteredGhost)
-							{
-								carStates[i].hasOpponentGhost = true;
-							}
-							else
-							{
-								carStates[i].hasOpponentGhost = false;
-							}
+							carStates[i].hasOpponentGhost = true;
+						}
+						else
+						{
+							carStates[i].hasOpponentGhost = false;
 						}
 					}
 				}

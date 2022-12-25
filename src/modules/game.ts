@@ -1,7 +1,8 @@
-import e, { Application } from "express";
+import { Application } from "express";
 import { Module } from "../module";
 import { prisma } from "..";
 import { Config } from "../config";
+let MersenneTwister = require('chancer');
 
 // Import Proto
 import * as wm from "../wmmt/wm.proto";
@@ -138,8 +139,7 @@ export default class GameModule extends Module {
 			// Check region id is 0
 			if(body.car!.regionId! === 0)
 			{
-				let randomRegionId = Math.floor(Math.random() * 47) + 1;
-				body.car!.regionId = randomRegionId;
+				body.car!.regionId = MersenneTwister.int(1, 47);
 			}
 
 			// Check playet at timestamp
@@ -256,7 +256,7 @@ export default class GameModule extends Module {
 					error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
 
 					// Set session for saving ghost trail Ghost Battle Mode or Crown Ghost Battle Mode
-					ghostSessionId: Math.floor(Math.random() * 100) + 1 
+					ghostSessionId: MersenneTwister.int(1, 100)
 				}
 			}
 			// OCM Battle game mode is completed
@@ -266,7 +266,7 @@ export default class GameModule extends Module {
 					error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
 
 					// Set session for saving ghost trail OCM Ghost Battle Mode
-					ghostSessionId: Math.floor(Math.random() * 100) + 101 
+					ghostSessionId: MersenneTwister.int(101, 200)
 				}
 			}
 			// Story mode or TA mode is completed
@@ -438,8 +438,7 @@ export default class GameModule extends Module {
 
 				if(ghostOpponentCar!.regionId === 0)
 				{
-					let randomRegionId = Math.floor(Math.random() * 47) + 1;
-					ghostOpponentCar!.regionId = randomRegionId;
+					ghostOpponentCar!.regionId = MersenneTwister.int(1, 47);
 				}
 
 				// Get Opponent 1 tune
@@ -481,8 +480,7 @@ export default class GameModule extends Module {
 
 					if(ghostOpponentCar!.regionId === 0)
 					{
-						let randomRegionId = Math.floor(Math.random() * 47) + 1;
-						ghostOpponentCar2!.regionId = randomRegionId;
+						ghostOpponentCar2!.regionId = MersenneTwister.int(1, 47);
 					}
 
 					// Get Opponent 2 tune
@@ -521,8 +519,7 @@ export default class GameModule extends Module {
 
 					if(ghostOpponentCar!.regionId === 0)
 					{
-						let randomRegionId = Math.floor(Math.random() * 47) + 1;
-						ghostOpponentCar3!.regionId = randomRegionId;
+						ghostOpponentCar3!.regionId = MersenneTwister.int(1, 47);
 					}
 
 					// Get Opponent 3 tune

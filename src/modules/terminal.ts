@@ -3,6 +3,7 @@ import { Config } from "../config";
 import { Module } from "module";
 import { prisma } from "..";
 import { Car } from "@prisma/client";
+let MersenneTwister = require('chancer');
 
 // Import Proto
 import * as wm from "../wmmt/wm.proto";
@@ -252,8 +253,7 @@ export default class TerminalModule extends Module {
 			{
 				if(cars[i].regionId === 0)
 				{
-					let randomRegionId = Math.floor(Math.random() * 47) + 1;
-					cars[i].regionId = randomRegionId;
+					cars[i].regionId = MersenneTwister.int(1, 47);
 				}
 			}
 			
@@ -900,52 +900,66 @@ export default class TerminalModule extends Module {
             common.sendResponse(message, res);
 		})
 
-		// Recieve user items
+		
+		// Register Opponent Ghost
 		app.post('/method/register_opponent_ghost', async (req, res) => {
 		
 			// Get the information from the request
 			let body = wm.wm.protobuf.RegisterOpponentGhostRequest.decode(req.body);
 			
-			// Check if target is already registered
-			let checkOpponent = await prisma.ghostRegisteredFromTerminal.findFirst({
-				where:{
-					carId: body.carId,
+			let ocmEventDate = await prisma.oCMEvent.findFirst({
+				orderBy: {
+					competitionEndAt: 'desc',
 				}
 			});
 
-			// Get Target Car ID
-			let ghostCompetitionTarget = await prisma.oCMTop1Ghost.findFirst({
-				where:{
-					competitionId: body.specialGhostId,
-				},
-				orderBy:{
-					periodId: 'desc'
-				}
-			});
-
-			// Target not yet registerted
-			if(!(checkOpponent))
+			if(ocmEventDate)
 			{
-				await prisma.ghostRegisteredFromTerminal.create({
-					data:{
-						carId: body.carId,
-						competitionId: body.specialGhostId,
-						opponentCarId: ghostCompetitionTarget!.carId
-					}
-				});
-			}
-			else
-			{
-				await prisma.ghostRegisteredFromTerminal.update({
+				let checkRegisteredGhost = await prisma.ghostRegisteredFromTerminal.findFirst({
 					where:{
-						dbId: checkOpponent.dbId
-					},
-					data:{
-						carId: body.carId,
-						competitionId: body.specialGhostId,
-						opponentCarId: ghostCompetitionTarget!.carId
+						carId: body.carId
 					}
 				});
+
+				let getNo1OCM = await prisma.oCMTally.findFirst({
+					where:{
+						competitionId: ocmEventDate.competitionId,
+						periodId: 999999999
+					},
+					orderBy:{
+						competitionId: 'desc'
+					}
+				});
+
+				if(!(checkRegisteredGhost))
+				{
+					await prisma.ghostRegisteredFromTerminal.create({
+						data:{
+							carId: body.carId,
+							competitionId: ocmEventDate!.competitionId,
+							opponentCarId: getNo1OCM!.carId
+						}
+					});
+
+					console.log('Creating new Register Ghost Opponent entry')
+				}
+				else
+				{
+					await prisma.ghostRegisteredFromTerminal.update({
+						where:{
+							dbId: checkRegisteredGhost.dbId
+						},
+						data:{
+							carId: body.carId,
+							competitionId: ocmEventDate!.competitionId,
+							opponentCarId: getNo1OCM!.carId
+						}
+					});
+
+					console.log('Updating Register Ghost Opponent entry')
+				}
+
+				
 			}
 
 			// Response data
@@ -1006,25 +1020,6 @@ export default class TerminalModule extends Module {
             common.sendResponse(message, res);
         });
 
-		
-		// Save Screenshoot
-		app.post('/method/save_screenshot', async (req, res) => {
-
-			// Get the information from the request
-			let body = wm.wm.protobuf.SaveScreenshotRequest.decode(req.body);
-
-			// Response data
-            let msg = {
-				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
-			};
-
-            // Encode the response
-			let message = wm.wm.protobuf.SaveScreenshotResponse.encode(msg);
-
-			// Send the response to the client
-            common.sendResponse(message, res);
-		})
-
 
 		/*
 		app.post('/method/load_unreceived_user_items', async (req, res) => {
@@ -1039,6 +1034,24 @@ export default class TerminalModule extends Module {
 
             // Encode the response
 			let message = wmsrv.wm.protobuf.LoadUnreceivedUserItemsResponse.encode(msg);
+
+			// Send the response to the client
+            common.sendResponse(message, res);
+		})
+
+
+		app.post('/method/save_screenshot', async (req, res) => {
+
+			// Get the information from the request
+			let body = wm.wm.protobuf.SaveScreenshotRequest.decode(req.body);
+
+			// Response data
+            let msg = {
+				error: wmsrv.wm.protobuf.ErrorCode.ERR_SUCCESS,
+			};
+
+            // Encode the response
+			let message = wmsrv.wm.protobuf.SaveScreenshotResponse.encode(msg);
 
 			// Send the response to the client
             common.sendResponse(message, res);
