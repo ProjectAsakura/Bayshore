@@ -28,6 +28,7 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
         // Declare data
         let dataGhost : any;
         let dataCar : any;
+        let dataCarGTWing: any;
 
         // Get the ghost result for the car
         let cars = body?.car;
@@ -63,6 +64,18 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                 plateNumber: common.sanitizeInput(cars.plateNumber),
                 ghostLevel: common.sanitizeInput(cars.ghostLevel),
             }
+
+            if(cars.gtWing)
+            {
+                dataCarGTWing = {
+                    pillar: common.sanitizeInput(cars.gtWing.pillar),
+                    pillarMaterial: common.sanitizeInput(cars.gtWing.pillarMaterial),
+                    mainWing: common.sanitizeInput(cars.gtWing.mainWing),
+                    mainWingColor: common.sanitizeInput(cars.gtWing.mainWingColor),
+                    wingTip: common.sanitizeInput(cars.gtWing.wingTip),
+                    material: common.sanitizeInput(cars.gtWing.material),
+                }
+            }
         }
 
         // Get the ghost result for the car
@@ -72,7 +85,15 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
         if (ghostResult)
         {
             let stampSheet: any = undefined;
-            if(ghostResult.stampSheet!.length > 0)
+            if(ghostResult.stampSheet!.length === 0)
+            {
+                if(ghostResult.stampSheetCount !== null && ghostResult.stampSheetCount !== undefined && ghostResult.stampSheetCount !== 0)
+                {
+                    stampSheet = ghostResult.stampSheet;
+                }
+            }
+            // Stamp Sheet available
+            else if(ghostResult.stampSheet!.length > 0)
             {
                 stampSheet = ghostResult.stampSheet;
             }
@@ -112,7 +133,8 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
             },
             data: {
                 ...dataGhost,
-                ...dataCar
+                ...dataCar,
+                ...dataCarGTWing,
             }
         }); 
 
