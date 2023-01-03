@@ -98,7 +98,6 @@ export async function getOCMGhostTrail(carId: number, trailId: number)
     let pathVal = 0;
     let playedAt = 0;
     let ghostTrail;
-    let ghostFound: boolean = false;
 
     // Trails data for certain area is available
     if(ghost_trails)
@@ -119,9 +118,6 @@ export async function getOCMGhostTrail(carId: number, trailId: number)
 
         // Set to OCM trail data
         ghostTrail = ghost_trails!.trail;
-
-        // Set OCM ghost trail found
-        ghostFound = true;
     }
     // Trails data for certain area is not available
     else
@@ -141,7 +137,7 @@ export async function getOCMGhostTrail(carId: number, trailId: number)
         ghostTrail = new Uint8Array([1, 2, 3, 4]); 
     }
 
-    return { areaVal, rampVal, pathVal, playedAt, ghostTrail, ghostFound }
+    return { areaVal, rampVal, pathVal, playedAt, ghostTrail }
 }
 
 
