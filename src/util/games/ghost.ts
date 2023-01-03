@@ -134,9 +134,17 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
             data: {
                 ...dataGhost,
                 ...dataCar,
-                ...dataCarGTWing,
             }
         }); 
+
+        await prisma.carGTWing.update({
+            where: {
+                dbId: body.carId
+            },
+            data:{
+                ...dataCarGTWing,
+            }
+        });
 
 
         // --------------GHOST BATTLE SELECTION MODE--------------
