@@ -110,7 +110,7 @@ export default class CarModule extends Module {
 			// Check opponents stamp target
 			// Will skip this if user's have Hall of Fame ghost registered
 			let carsChallengers;
-			let returnCount = 0;
+			let returnCount = 1;
 			let opponentTargetCount = 0;
 			if(registeredTarget === false)
 			{
@@ -123,15 +123,13 @@ export default class CarModule extends Module {
 						locked: 'desc'
 					}
 				})
-					
-				returnCount = 1;
-				
+
 				if(opponentTargetCount > 0)
 				{
 					console.log('Challengers Available');
 
 					// Randomize pick
-					let random: number = MersenneTwister.int(0, opponentTargetCount);
+					let random: number = MersenneTwister.int(0, opponentTargetCount - 1);
 
 					// Check opponents target
 					let opponentTarget = await prisma.carStampTarget.findMany({
