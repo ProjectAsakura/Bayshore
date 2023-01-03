@@ -358,7 +358,8 @@ export default class GhostModule extends Module {
 			while(arr.length < maxNumber)
 			{ 
                 // Pick random car Id
-				let randomNumber = MersenneTwister.int(0, maxNumber-1);
+				let randomNumber = MersenneTwister.int(0, car.length-1);
+				
 				if(arr.indexOf(randomNumber) === -1)
 				{
                     // Push current number to array
