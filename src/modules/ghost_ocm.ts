@@ -423,7 +423,7 @@ export default class GhostModule extends Module {
 				ocmEventDate = await prisma.oCMEvent.findFirst({
                     orderBy: [
                         {
-                            dbId: 'desc'
+                            competitionId: 'desc'
                         },
                     ],
                 });
@@ -704,7 +704,8 @@ export default class GhostModule extends Module {
 			let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
 				competitionId: competition_id,
-				ghostCar: ghostCars!,
+				specialGhostId: competition_id,
+				ghostCar: ghostCars,
 				trailId: ghostTrailId,
 				updatedAt: date,
 				competitionSchedule: competitionSchedule || null

@@ -907,27 +907,20 @@ export default class TerminalModule extends Module {
 			// Get the information from the request
 			let body = wm.wm.protobuf.RegisterOpponentGhostRequest.decode(req.body);
 			
-			let ocmEventDate = await prisma.oCMEvent.findFirst({
+			let getHoFCarId = await prisma.oCMTop1Ghost.findFirst({
+				where:{
+					competitionId: body.specialGhostId,
+				},
 				orderBy: {
-					competitionEndAt: 'desc',
+					periodId: 'desc',
 				}
 			});
 
-			if(ocmEventDate)
+			if(getHoFCarId)
 			{
 				let checkRegisteredGhost = await prisma.ghostRegisteredFromTerminal.findFirst({
 					where:{
 						carId: body.carId
-					}
-				});
-
-				let getNo1OCM = await prisma.oCMTally.findFirst({
-					where:{
-						competitionId: ocmEventDate.competitionId,
-						periodId: 999999999
-					},
-					orderBy:{
-						competitionId: 'desc'
 					}
 				});
 
@@ -936,8 +929,8 @@ export default class TerminalModule extends Module {
 					await prisma.ghostRegisteredFromTerminal.create({
 						data:{
 							carId: body.carId,
-							competitionId: ocmEventDate!.competitionId,
-							opponentCarId: getNo1OCM!.carId
+							competitionId: body.specialGhostId,
+							opponentCarId: getHoFCarId.carId,
 						}
 					});
 
@@ -951,15 +944,13 @@ export default class TerminalModule extends Module {
 						},
 						data:{
 							carId: body.carId,
-							competitionId: ocmEventDate!.competitionId,
-							opponentCarId: getNo1OCM!.carId
+							competitionId: body.specialGhostId,
+							opponentCarId: getHoFCarId.carId,
 						}
 					});
 
 					console.log('Updating Register Ghost Opponent entry')
 				}
-
-				
 			}
 
 			// Response data

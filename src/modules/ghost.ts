@@ -716,11 +716,45 @@ export default class GhostModule extends Module {
                 // Get the trail data
 				let ghost_trails = await ghost_trail.getOCMGhostTrail(pCarId, pTrailId);
 
-				pArea = ghost_trails.areaVal;
-				rampVal = ghost_trails.rampVal;
-				pathVal = ghost_trails.pathVal;
-				playedAt = ghost_trails.playedAt;
-				ghostTrail = ghost_trails.ghostTrail;
+				// Qualifiers or Main Draw OCM
+				if(ghost_trails.ghostFound === true)
+				{
+					pArea = ghost_trails.areaVal;
+					rampVal = ghost_trails.rampVal;
+					pathVal = ghost_trails.pathVal;
+					playedAt = ghost_trails.playedAt;
+					ghostTrail = ghost_trails.ghostTrail;
+				}
+				// HoF OCM
+				else
+				{
+					console.log("Getting HoF Ghost Trail")
+
+					let ghost_trail = await prisma.oCMTop1GhostTrail.findFirst({
+						where:{
+							dbId: pTrailId
+						}
+					});
+
+					if(ghost_trail)
+					{
+						pArea = ghost_trail.area;
+						rampVal = ghost_trail.ramp;
+						pathVal = ghost_trail.path;
+						playedAt = ghost_trail.playedAt;
+						ghostTrail = ghost_trail.trail;
+					}
+					// HoF Not Found
+					else
+					{
+						pArea = ghost_trails.areaVal;
+						rampVal = ghost_trails.rampVal;
+						pathVal = ghost_trails.pathVal;
+						playedAt = ghost_trails.playedAt;
+						ghostTrail = ghost_trails.ghostTrail;
+					}
+					
+				}
 			}
             // Query parameter from Crown Ghost Battle available
 			else
