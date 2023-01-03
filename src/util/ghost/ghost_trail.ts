@@ -6,92 +6,18 @@ import * as ghost_ocm_area from "./ghost_ocm_area";
 import * as ghost_area from "./ghost_area";
 
 
-// Save ghost battle result
+// Get OCM Ghost Trail
 export async function getOCMGhostTrail(carId: number, trailId: number)
 {
     // Get current date
     let date = Math.floor(new Date().getTime() / 1000);
 
-    // Get current / previous active OCM Event
-    let ocmEventDate = await prisma.oCMEvent.findFirst({
+    let ghost_trails = await prisma.oCMTop1GhostTrail.findFirst({ 
         where: {
-            // qualifyingPeriodStartAt is less than current date
-            qualifyingPeriodStartAt: { lte: date },
-
-            // competitionEndAt is greater than current date
-            competitionEndAt: { gte: date },
-        },
-        orderBy: 
-        {
-            competitionEndAt: 'desc',
+            carId: carId,
+            dbId: trailId,
         }
     });
-
-    if(!(ocmEventDate))
-    {
-        ocmEventDate = await prisma.oCMEvent.findFirst({
-            orderBy: 
-            {
-                competitionEndAt: 'desc',
-            }
-        });
-    }
-
-    let ghost_trails: OCMTop1GhostTrail | null;
-    // Current date is OCM main draw
-    if(ocmEventDate!.competitionStartAt < date && ocmEventDate!.competitionCloseAt > date)
-    {
-        // Get Current OCM Period
-        let OCMCurrentPeriod = await prisma.oCMPeriod.findFirst({ 
-            where: {
-                competitionDbId: ocmEventDate!.dbId,
-                startAt: 
-                {
-                    lte: date, // competitionStartAt is less than current date
-                },
-                closeAt:
-                {
-                    gte: date, // competitionCloseAt is greater than current date
-                }
-            }
-        });
-
-        ghost_trails = await prisma.oCMTop1GhostTrail.findFirst({ 
-            where: {
-                carId: carId,
-                dbId: trailId,
-                competitionId: ocmEventDate!.competitionId,
-                periodId: OCMCurrentPeriod!.periodId
-            },
-            orderBy: {
-                playedAt: 'desc'
-            }
-        });
-    }
-    // Current date is OCM qualifying day
-    else if(ocmEventDate!.qualifyingPeriodStartAt < date && ocmEventDate!.qualifyingPeriodCloseAt > date)
-    {
-        ghost_trails = await prisma.oCMTop1GhostTrail.findFirst({ 
-            where: {
-                carId: carId,
-                dbId: trailId,
-                competitionId: ocmEventDate!.competitionId,
-                periodId: 0
-            },
-            orderBy: {
-                playedAt: 'desc'
-            }
-        });
-    }
-    else
-    {
-        ghost_trails = await prisma.oCMTop1GhostTrail.findFirst({ 
-            where: {
-                carId: carId,
-                dbId: trailId,
-            }
-        });
-    }
 
     let areaVal = 0;
     let rampVal = 0;
@@ -123,6 +49,21 @@ export async function getOCMGhostTrail(carId: number, trailId: number)
     else
     {
         console.log('OCM Ghost Trail not found');
+
+        // Get current / previous active OCM Event
+        let ocmEventDate = await prisma.oCMEvent.findFirst({
+            where: {
+                // qualifyingPeriodStartAt is less than current date
+                qualifyingPeriodStartAt: { lte: date },
+
+                // competitionEndAt is greater than current date
+                competitionEndAt: { gte: date },
+            },
+            orderBy: 
+            {
+                competitionEndAt: 'desc',
+            }
+        });
 
         // Calling OCM Area function (BASE_PATH/src/util/games/ghost_ocm.ts)
         let OCMArea = await ghost_ocm_area.OCMArea(ocmEventDate!.competitionId);
