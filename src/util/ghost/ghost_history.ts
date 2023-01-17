@@ -142,7 +142,7 @@ export async function saveOCMGhostHistory(body: wm.protobuf.SaveGameResultReques
             saveExGhostHistory.result = rgResult.opponents[0].result;
         }
 
-        // Get played Area
+        // Get area
         if(common.sanitizeInput(rgResult.path))
         {
             let getArea = await ghost_get_area_from_path.getArea(rgResult.path);
@@ -210,6 +210,7 @@ export async function saveOCMGhostHistory(body: wm.protobuf.SaveGameResultReques
         if(countGBR!.result < saveExGhostHistory.result)
         {
             console.log('OCM Ghost Tally found');
+
             // Current date is OCM Main Draw
             if(ocmEventDate!.competitionStartAt < date && ocmEventDate!.competitionCloseAt > date)
             {
@@ -330,8 +331,7 @@ export async function saveOCMGhostHistory(body: wm.protobuf.SaveGameResultReques
             // Get OCM Period ID
             let OCM_periodId = await prisma.oCMPeriod.findFirst({ 
                 where:{
-                    competitionDbId: ocmEventDate!.dbId,
-                    competitionId: ocmEventDate!.competitionId
+                    competitionId: ocmEventDate!.competitionId,
                 },
                 orderBy:{
                     periodId: 'desc'
@@ -360,6 +360,7 @@ export async function saveOCMGhostHistory(body: wm.protobuf.SaveGameResultReques
             if(ocmTallyfind)
             {
                 console.log('Updating OCM Tally Record');
+
                 // Update the OCM Tally Record
                 await prisma.oCMTally.update({
                     where:{

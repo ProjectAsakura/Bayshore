@@ -1,5 +1,4 @@
 import { prisma } from "../..";
-import { OCMTop1GhostTrail } from "@prisma/client";
 
 // Import Proto
 import * as ghost_ocm_area from "./ghost_ocm_area";

@@ -135,7 +135,7 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                 ...dataGhost,
                 ...dataCar,
             }
-        }); 
+        });
 
         await prisma.carGTWing.update({
             where: {
@@ -205,9 +205,9 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                     if (ghostResultCrown)
                     {
                         let carId: number = 0;
-                        if(body.car?.carId)
+                        if(body.carId)
                         {
-                            carId = Number(body.car.carId);
+                            carId = Number(body.carId);
                         }
 
                         // Ghost Crown update data

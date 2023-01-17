@@ -421,11 +421,9 @@ export default class GhostModule extends Module {
 			if(!(ocmEventDate))
 			{
 				ocmEventDate = await prisma.oCMEvent.findFirst({
-                    orderBy: [
-                        {
-                            competitionId: 'desc'
-                        },
-                    ],
+                    orderBy:{
+                        competitionId: 'desc'
+                    },
                 });
 			}
 

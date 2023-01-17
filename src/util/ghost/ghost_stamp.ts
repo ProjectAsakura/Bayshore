@@ -24,12 +24,12 @@ export async function sendStamp(body: wm.protobuf.SaveGameResultRequest)
         }
 
         // Get the area
-        let area;
+        let area: Number = 0;
         if(rgResult.path)
         {
             let getArea = await ghost_get_area_from_path.getArea(rgResult.path);
 
-            area = getArea.area;
+            area = Number(getArea.area);
         }
 
         // Check how many opponents available

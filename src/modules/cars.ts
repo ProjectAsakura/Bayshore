@@ -123,7 +123,7 @@ export default class CarModule extends Module {
 						locked: 'desc'
 					}
 				})
-
+				
 				if(opponentTargetCount > 0)
 				{
 					console.log('Challengers Available');

@@ -417,6 +417,7 @@ export default class GhostModule extends Module {
 				{
 					// Get current date
 					let date = Math.floor(new Date().getTime() / 1000);
+					
 					let playedPlace = wm.wm.protobuf.Place.create({ 
 						placeId: Config.getConfig().placeId,
 						regionId: Config.getConfig().regionId,

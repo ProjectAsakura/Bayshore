@@ -1,0 +1,1 @@
+yarn build_protos

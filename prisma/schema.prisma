@@ -86,7 +86,7 @@ model Car {
     rivalMarker         Int     @default(0)
     lastPlayedAt        Int     @default(0)
     aura                Int     @default(0)
-    regionId            Int     @default(0)
+    regionId            Int     @default(18)
     country             String  @default("JPN")
 
     // This is more data about the car
@@ -436,4 +436,15 @@ model PlaceList {
   regionId         Int
   shopName         String
   country          String
+}
+
+model FileList {
+  fileId                Int     @id @default(autoincrement())
+  fileType              Int
+  fileSize              Int
+  urlFileName           String
+  sha1sum               String
+  notBefore             Int
+  notAfter              Int
+  filePath              String  @default("")
 }

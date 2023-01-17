@@ -43,18 +43,22 @@ export function getBigIntFromLong(n: Long)
     return Number(bigInt);
 }
 
+
+// Undefined Input Sanitization
 export function sanitizeInput(value: any)
 {
     return (value == null || value == undefined) ? undefined : value;
 }
 
 
+// Undefined and Zero Input Sanitization
 export function sanitizeInputNotZero(value: any)
 {
     return (value !== null && value !== undefined && value !== 0) ? value : undefined;
 }
 
 
+// Get Time Stamp
 export function getTimeStamp(date: Date = new Date())
 {
     // Return a timestamp string for the current / provided time

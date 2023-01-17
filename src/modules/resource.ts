@@ -496,12 +496,26 @@ export default class ResourceModule extends Module {
             common.sendResponse(message, res);
         })
 
-        app.use("/static", e.static(
-            path.join(__dirname, '..', '..', 'static'), 
-            { cacheControl: false }
-        ));
+
+        // For File List
+        app.get('/static/:filename', async function(req, res){
+            
+            // Static Files
+            let paths = await prisma.fileList.findFirst({
+                where:{
+                    urlFileName: req.params.filename
+                },
+                select: {
+                    filePath: true
+                }
+            });
+
+            
+            res.sendFile(path.resolve(paths!.filePath, req.params.filename), { cacheControl: false });
+        });
 
 
+        // File List
         app.get('/resource/file_list', async (req, res) => {
 
             console.log('file_list');
@@ -510,15 +524,25 @@ export default class ResourceModule extends Module {
             // This is literally just bare-bones so the shit boots
             let files: wm.wm.protobuf.FileList.FileInfo[] = [];
 
-            files.push(wm.wm.protobuf.FileList.FileInfo.create({
-                fileId: 1,
-                fileType: wm.wm.protobuf.FileType.FILE_PROMOTION_ANNOUNCEMENT,
-                fileSize: 383791,
-                url: 'https://'+Config.getConfig().serverIp+':9002/static/000002-bayshore.bin',
-                sha1sum: Buffer.from('F1A1AF6F7273F2BA5189CDB15165028B56E022E6', "hex"),
-                notBefore: 0,
-                notAfter: 2147483647,
-            }));
+            let fileList = await prisma.fileList.findMany({
+                orderBy:{
+                    fileId: 'asc'
+                }
+            });
+
+            for(let i=0; i<fileList.length; i++)
+            {
+                files.push(wm.wm.protobuf.FileList.FileInfo.create({
+                    fileId: fileList[i].fileId,
+                    fileType: fileList[i].fileType,
+                    fileSize: fileList[i].fileSize,
+                    url: 'https://'+Config.getConfig().serverIp+':9002/static/' +fileList[i].urlFileName,
+                    sha1sum: Buffer.from(fileList[i].sha1sum, "hex"),
+                    notBefore: fileList[i].notBefore,
+                    notAfter: fileList[i].notAfter,
+                }));
+            }
+            
 
 			// Response data
 			let msg = {
@@ -535,6 +559,7 @@ export default class ResourceModule extends Module {
 		})
 
         
+        // Ghost List
         app.get('/resource/ghost_list', async (req, res) => {
 
             console.log('ghost_list');
