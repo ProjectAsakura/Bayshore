@@ -1,4 +1,4 @@
-import e, { Application } from "express";
+import { Application } from "express";
 import { Module } from "module";
 import { Config } from "../config";
 import { prisma } from "..";

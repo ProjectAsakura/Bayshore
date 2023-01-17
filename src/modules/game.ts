@@ -136,12 +136,6 @@ export default class GameModule extends Module {
 				}
 			}
 
-			// Check region id is 0
-			if(body.car!.regionId! === 0)
-			{
-				body.car!.regionId = MersenneTwister.int(1, 47);
-			}
-
 			// Check playet at timestamp
 			let timestamps = 0;
 			if(body.car?.lastPlayedAt !== undefined && body.car?.lastPlayedAt !== null)
@@ -436,11 +430,6 @@ export default class GameModule extends Module {
 					ghostOpponentCar!.country = 'GLB';
 				}
 
-				if(ghostOpponentCar!.regionId === 0)
-				{
-					ghostOpponentCar!.regionId = MersenneTwister.int(1, 47);
-				}
-
 				// Get Opponent 1 tune
 				ghostOpponentCar!.tunePower = ghostHistoryData![i].opponent1TunePower!; 
 				ghostOpponentCar!.tuneHandling = ghostHistoryData![i].opponent1TuneHandling!;
@@ -478,11 +467,6 @@ export default class GameModule extends Module {
 						ghostOpponentCar2!.country = 'GLB';
 					}
 
-					if(ghostOpponentCar!.regionId === 0)
-					{
-						ghostOpponentCar2!.regionId = MersenneTwister.int(1, 47);
-					}
-
 					// Get Opponent 2 tune
 					ghostOpponentCar2!.tunePower = ghostHistoryData![i].opponent2TunePower!;
 					ghostOpponentCar2!.tuneHandling = ghostHistoryData![i].opponent2TuneHandling!;
@@ -515,11 +499,6 @@ export default class GameModule extends Module {
 						ghostOpponentCar3!.visualModel = 130;
 						ghostOpponentCar3!.regionId = 18;
 						ghostOpponentCar3!.country = 'GLB';
-					}
-
-					if(ghostOpponentCar!.regionId === 0)
-					{
-						ghostOpponentCar3!.regionId = MersenneTwister.int(1, 47);
 					}
 
 					// Get Opponent 3 tune

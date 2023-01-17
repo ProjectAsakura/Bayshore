@@ -357,18 +357,31 @@ export default class GhostModule extends Module {
             // Choose the user's car data randomly to appear
 			while(arr.length < maxNumber)
 			{ 
-                // Pick random car Id
-				let randomNumber = MersenneTwister.int(0, car.length-1);
+				// Randomize pick
+				let random: number = 1;
+
+				// Randomize it 5 times
+				for(let i=0; i<5; i++)
+				{
+					random = MersenneTwister.int(0, car.length - 1); // array 0 until max - 1
+				}
+		
+				// Try randomize it again if it's 1
+				if(random === 1)
+				{
+					random = MersenneTwister.int(0, car.length - 1); // array 0 until max - 1
+				}
 				
-				if(arr.indexOf(randomNumber) === -1)
+				
+				if(arr.indexOf(random) === -1)
 				{
                     // Push current number to array
-					arr.push(randomNumber); 
+					arr.push(random); 
 
                     // Check if ghost trail for certain car is available
 					let ghost_trails = await prisma.ghostTrail.findFirst({
 						where: {
-							carId: car[randomNumber].carId,
+							carId: car[random].carId,
 							area: body.area,
 							crownBattle: false
 						},
@@ -377,31 +390,25 @@ export default class GhostModule extends Module {
 						}
 					});
 
-                    // If regionId is 0 or not set, game will crash after defeating the ghost
-					if(car[randomNumber]!.regionId === 0)
-					{
-						car[randomNumber].regionId = MersenneTwister.int(1, 47);
-					}
-
                     // Push user's car data without ghost trail
 					if(!(ghost_trails))
 					{ 
 						lists_ghostcar.push(wm.wm.protobuf.GhostCar.create({
-							car: car[randomNumber]
+							car: car[random]
 						}));
 					}
                     // Push user's car data with ghost trail
 					else
 					{
                         // Set the tunePower used when playing certain area
-						car[randomNumber].tunePower = ghost_trails!.tunePower;
+						car[random].tunePower = ghost_trails!.tunePower;
 
                         // Set the tuneHandling used when playing certain area
-						car[randomNumber].tuneHandling = ghost_trails!.tuneHandling;
+						car[random].tuneHandling = ghost_trails!.tuneHandling;
 
                         // Push data to Ghost car proto
 						lists_ghostcar.push(wm.wm.protobuf.GhostCar.create({
-							car: car[randomNumber],
+							car: car[random],
 							nonhuman: false,
 							type: wm.wm.protobuf.GhostType.GHOST_NORMAL,
 							trailId: ghost_trails!.dbId!
