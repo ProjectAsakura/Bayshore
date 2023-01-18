@@ -423,6 +423,12 @@ export default class CarModule extends Module {
 			{
 				regionId = MersenneTwister.int(1, 47);
 			}
+
+			// Error handling if regionId is below 1
+			if(regionId < 1)
+			{
+				regionId = MersenneTwister.int(1, 47);
+			}
 		
 			// Error handling if regionId is above 47
 			if(regionId > 47)
