@@ -4,7 +4,6 @@ import { prisma } from "..";
 import { CarPathandTuning } from "@prisma/client";
 import Long from "long";
 import { Config } from "../config";
-let MersenneTwister = require('chancer');
 
 // Import Proto
 import * as wm from "../wmmt/wm.proto";
@@ -363,13 +362,13 @@ export default class GhostModule extends Module {
 				// Randomize it 5 times
 				for(let i=0; i<5; i++)
 				{
-					random = MersenneTwister.int(0, car.length - 1); // array 0 until max - 1
+					random = Math.floor(Math.random() * car.length);
 				}
 		
 				// Try randomize it again if it's 1
 				if(random === 1)
 				{
-					random = MersenneTwister.int(0, car.length - 1); // array 0 until max - 1
+					random = Math.floor(Math.random() * car.length);
 				}
 				
 				

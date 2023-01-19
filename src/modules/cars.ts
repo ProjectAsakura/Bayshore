@@ -4,7 +4,6 @@ import { Module } from "module";
 import { prisma } from "..";
 import { User } from "@prisma/client";
 import Long from "long";
-let MersenneTwister = require('chancer');
 
 // Import Proto
 import * as wm from "../wmmt/wm.proto";
@@ -134,13 +133,13 @@ export default class CarModule extends Module {
 					// Randomize it 5 times
 					for(let i=0; i<5; i++)
 					{
-						random = MersenneTwister.int(0, opponentTargetCount - 1); // array 0 until max - 1
+						random = Math.floor(Math.random() * opponentTargetCount);
 					}
 			
 					// Try randomize it again if it's 1
 					if(random === 1)
 					{
-						random = MersenneTwister.int(0, opponentTargetCount - 1); // array 0 until max - 1
+						random = Math.floor(Math.random() * opponentTargetCount);
 					}
 
 					// Check opponents target
@@ -415,25 +414,13 @@ export default class CarModule extends Module {
 			// Randomize it 5 times
 			for(let i=0; i<5; i++)
 			{
-				regionId = MersenneTwister.int(1, 47);
+				regionId = Math.floor(Math.random() * 47) + 1;
 			}
 		
 			// Try randomize it again if it's 1
 			if(regionId === 1)
 			{
-				regionId = MersenneTwister.int(1, 47);
-			}
-
-			// Error handling if regionId is below 1
-			if(regionId < 1)
-			{
-				regionId = MersenneTwister.int(1, 47);
-			}
-		
-			// Error handling if regionId is above 47
-			if(regionId > 47)
-			{
-				regionId = 47
+				regionId = Math.floor(Math.random() * 47) + 1;
 			}
 			
 			// Default car values

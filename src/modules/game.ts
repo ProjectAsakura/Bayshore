@@ -2,7 +2,6 @@ import { Application } from "express";
 import { Module } from "../module";
 import { prisma } from "..";
 import { Config } from "../config";
-let MersenneTwister = require('chancer');
 
 // Import Proto
 import * as wm from "../wmmt/wm.proto";
@@ -250,7 +249,7 @@ export default class GameModule extends Module {
 					error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
 
 					// Set session for saving ghost trail Ghost Battle Mode or Crown Ghost Battle Mode
-					ghostSessionId: MersenneTwister.int(1, 100)
+					ghostSessionId: Math.floor(Math.random() * 100) + 1
 				}
 			}
 			// OCM Battle game mode is completed
@@ -260,7 +259,7 @@ export default class GameModule extends Module {
 					error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
 
 					// Set session for saving ghost trail OCM Ghost Battle Mode
-					ghostSessionId: MersenneTwister.int(101, 200)
+					ghostSessionId: Math.floor(Math.random() * 100) + 101
 				}
 			}
 			// Story mode or TA mode is completed
