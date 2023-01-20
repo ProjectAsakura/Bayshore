@@ -149,6 +149,16 @@ export default class GameModule extends Module {
 				}
 			}
 
+			// Check P & H must not more than 34 (fully tuned value)
+			let tunePower = 0;
+			let tuneHandling = 0;
+			let totalTune = body.car!.tunePower + body.car!.tuneHandling;
+			if(totalTune <= 34)
+			{
+				tunePower = body.car!.tunePower;
+				tuneHandling = body.car!.tuneHandling;
+			}
+
 			// Update car
 			await prisma.car.update({
 				where: {
@@ -161,8 +171,8 @@ export default class GameModule extends Module {
 					playCount: body.playCount,
 					level: body.car!.level!,
 					title: body.car!.title!,
-					tunePower: body.car!.tunePower!,
-					tuneHandling: body.car!.tuneHandling!,
+					tunePower: tunePower,
+					tuneHandling: tuneHandling,
 					windowSticker: body.car!.windowSticker!,
 					lastPlayedAt: timestamps,
 					regionId: body.car!.regionId!,
