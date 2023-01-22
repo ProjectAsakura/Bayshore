@@ -338,6 +338,9 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
 
                 await ghost_history.saveGhostHistory(body);
 
+                // Return Stamp (Shuttle Match)
+                await ghost_stamp.shuttleReturnStamp(body);
+
                 break;
             }
 

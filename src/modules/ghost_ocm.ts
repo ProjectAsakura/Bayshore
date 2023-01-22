@@ -139,7 +139,7 @@ export default class GhostModule extends Module {
 						// If not yet tallying
 						if(OCMTallyCount === 0)
 						{ 
-							await ghost_ocm.ocmTallying(body, OCMCurrentPeriod.periodId, false);
+							await ghost_ocm.ocmTallying(body, OCMCurrentPeriod.periodId, false, ocmEventDate!.competitionId);
 
 							// Completed
 							console.log('Tally Completed!');
@@ -181,7 +181,6 @@ export default class GhostModule extends Module {
 					// Get Current OCM Period
 					let OCMCurrentPeriod = await prisma.oCMPeriod.findFirst({ 
 						where: {
-							competitionDbId: ocmEventDate!.dbId,
 							competitionId: ocmEventDate!.competitionId
 						},
 						orderBy: {
@@ -207,7 +206,7 @@ export default class GhostModule extends Module {
 						{ 
 							console.log('Tallying');
 
-							await ghost_ocm.ocmTallying(body, OCMCurrentPeriod.periodId, true);
+							await ghost_ocm.ocmTallying(body, OCMCurrentPeriod.periodId, true, ocmEventDate.competitionId);
 
 							// Completed
 							console.log('Last Tally Completed!');
