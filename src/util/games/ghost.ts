@@ -424,16 +424,21 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                 break;
             }
 
-            // Ghost Battle Appointment (VS HoF) (9)
+            // Ghost Battle Appointment (VS HoF Ghost) (9)
             case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_APPOINTMENT:
             {
-                console.log('Normal Ghost Mode Found - Appointment (VS HoF)');
+                console.log('OCM Ghost Mode Found - Appointment (VS HoF Ghost)');
 
-                await prisma.ghostRegisteredFromTerminal.deleteMany({
-                    where:{
-                        carId: Number(body.carId)
-                    }
-                });
+                // Defeated HoF Ghost
+                if(body.rgResult!.opponents![0].result >= 0)
+                {
+                    // Delete all the records
+                    await prisma.ghostRegisteredFromTerminal.deleteMany({
+                        where:{
+                            carId: Number(body.carId)
+                        }
+                    });
+                } 
 
                 break;
             }
