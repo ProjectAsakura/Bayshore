@@ -150,6 +150,7 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
         // --------------GHOST BATTLE SELECTION MODE--------------
         // Calling save ghost history battle function (BASE_PATH/src/util/games/games_util/ghost_history.ts)
         let ghost_historys: any;
+        console.log(body.rgResult!.selectionMethod);
 
         switch (body.rgResult!.selectionMethod) 
         {
@@ -424,6 +425,30 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                 break;
             }
 
+            // Ghost Battle Appointment (VS HoF) (9)
+            case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_APPOINTMENT:
+            {
+                console.log('Normal Ghost Mode Found - Appointment (VS HoF)');
+
+                await prisma.ghostRegisteredFromTerminal.deleteMany({
+                    where:{
+                        carId: Number(body.carId)
+                    }
+                });
+
+                break;
+            }
+
+            // Ghost Battle Default Opponent (10)
+            case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_DEFAULT_OPPONENT:
+            {
+                console.log('Normal Ghost Mode Found - Default Opponent');
+
+                // TODO: idk
+
+                break;
+            }
+
             // OCM Ghost Battle Mode (11)
             case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_COMPETITION:
             {
@@ -487,10 +512,10 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                 break;
             }
 
-            // Ghost Battle Select from Bookmars (12)
+            // Ghost Battle Select from Bookmarks (12)
             case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SELECT_FROM_BOOKMARKS:
             {
-                console.log('Normal Ghost Mode Found - Select from Bookmars');
+                console.log('Normal Ghost Mode Found - Select from Bookmarks');
 
                 ghost_historys = await ghost_history.saveGhostHistory(body);
 
