@@ -139,7 +139,7 @@ export default class GhostModule extends Module {
 						// If not yet tallying
 						if(OCMTallyCount === 0)
 						{ 
-							await ghost_ocm.ocmTallying(body, OCMCurrentPeriod.periodId, false, ocmEventDate!.competitionId);
+							await ghost_ocm.ocmTallying(body, OCMCurrentPeriod.periodId, false);
 
 							// Completed
 							console.log('Tally Completed!');
@@ -206,7 +206,7 @@ export default class GhostModule extends Module {
 						{ 
 							console.log('Tallying');
 
-							await ghost_ocm.ocmTallying(body, OCMCurrentPeriod.periodId, true, ocmEventDate.competitionId);
+							await ghost_ocm.ocmTallying(body, OCMCurrentPeriod.periodId, true);
 
 							// Completed
 							console.log('Last Tally Completed!');

@@ -6,7 +6,7 @@ import wmproto  from "../../wmmt/wm.proto";
 
 
 // OCM Tallying
-export async function ocmTallying(body: wm.protobuf.LoadGhostCompetitionInfoRequest, periodId: number, ended: boolean, competitionId: number)
+export async function ocmTallying(body: wm.protobuf.LoadGhostCompetitionInfoRequest, periodId: number, ended: boolean)
 {
     // OCM is still on going
     if(ended === false)
@@ -283,7 +283,7 @@ export async function ocmTallying(body: wm.protobuf.LoadGhostCompetitionInfoRequ
         // Get user that playing OCM qualifying day
         let OCMTally = await prisma.oCMTally.findMany({ 
             where:{
-                competitionId: competitionId,
+                competitionId: body.competitionId,
                 periodId: periodId
             },
             orderBy:{
