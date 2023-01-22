@@ -150,7 +150,6 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
         // --------------GHOST BATTLE SELECTION MODE--------------
         // Calling save ghost history battle function (BASE_PATH/src/util/games/games_util/ghost_history.ts)
         let ghost_historys: any;
-        console.log(body.rgResult!.selectionMethod);
 
         switch (body.rgResult!.selectionMethod) 
         {
