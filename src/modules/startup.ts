@@ -30,10 +30,9 @@ export default class StartupModule extends Module {
 					// competitionEndAt is greater than current date
 					competitionEndAt: { gte: date },
 				},
-                orderBy: 
-                {
+                orderBy: {
                     competitionEndAt: 'desc',
-                },
+                }
             });
 
             let pastEvent = 0;
@@ -57,6 +56,8 @@ export default class StartupModule extends Module {
 
                 if(pastDay < 604800)
                 {
+                    console.log("OCM Event Available");
+
                     // Creating GhostCompetitionSchedule
                     competitionSchedule = wm.wm.protobuf.GhostCompetitionSchedule.create({ 
 
@@ -94,6 +95,8 @@ export default class StartupModule extends Module {
 
                 if(pastEvent === 1)
                 {
+                    console.log("Previous OCM Event Available");
+
                     lastCompetitionId = ocmEventDate.competitionId
                 }
             }

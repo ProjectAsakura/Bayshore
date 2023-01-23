@@ -2,7 +2,6 @@ import { Application } from "express";
 import { Module } from "module";
 import { prisma } from "..";
 import { Config } from "../config";
-let MersenneTwister = require('chancer');
 
 // Import Proto
 import * as wm from "../wmmt/wm.proto";
@@ -182,7 +181,6 @@ export default class GhostModule extends Module {
 					// Get Current OCM Period
 					let OCMCurrentPeriod = await prisma.oCMPeriod.findFirst({ 
 						where: {
-							competitionDbId: ocmEventDate!.dbId,
 							competitionId: ocmEventDate!.competitionId
 						},
 						orderBy: {
@@ -421,11 +419,9 @@ export default class GhostModule extends Module {
 			if(!(ocmEventDate))
 			{
 				ocmEventDate = await prisma.oCMEvent.findFirst({
-                    orderBy: [
-                        {
-                            competitionId: 'desc'
-                        },
-                    ],
+                    orderBy:{
+                        competitionId: 'desc'
+                    },
                 });
 			}
 
@@ -488,12 +484,6 @@ export default class GhostModule extends Module {
 							lastPlayedPlace: true
 						}
 					});
-
-					// If regionId is 0 or not set, game will crash after defeating the ghost
-					if(cars!.regionId === 0)
-					{
-						cars!.regionId = MersenneTwister.int(1, 47);
-					}
 
                     // Set the tunePower used when playing ghost crown
 					cars!.tunePower = ocmTallyRecord!.tunePower; 
@@ -610,12 +600,6 @@ export default class GhostModule extends Module {
 							lastPlayedPlace: true
 						}
 					});
-
-					// If regionId is 0 or not set, game will crash after defeating the ghost
-					if(cars!.regionId === 0)
-					{
-						cars!.regionId = MersenneTwister.int(1, 47);
-					}
 
                     // Set the tunePower used when playing ghost crown
 					cars!.tunePower = ocmTallyRecord!.tunePower; 

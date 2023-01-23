@@ -135,7 +135,7 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                 ...dataGhost,
                 ...dataCar,
             }
-        }); 
+        });
 
         await prisma.carGTWing.update({
             where: {
@@ -205,9 +205,9 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                     if (ghostResultCrown)
                     {
                         let carId: number = 0;
-                        if(body.car?.carId)
+                        if(body.carId)
                         {
-                            carId = Number(body.car.carId);
+                            carId = Number(body.carId);
                         }
 
                         // Ghost Crown update data
@@ -338,6 +338,9 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
 
                 await ghost_history.saveGhostHistory(body);
 
+                // Return Stamp (Shuttle Match)
+                await ghost_stamp.shuttleReturnStamp(body);
+
                 break;
             }
 
@@ -421,6 +424,35 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                 break;
             }
 
+            // Ghost Battle Appointment (VS HoF Ghost) (9)
+            case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_APPOINTMENT:
+            {
+                console.log('OCM Ghost Mode Found - Appointment (VS HoF Ghost)');
+
+                // Defeated HoF Ghost
+                if(body.rgResult!.opponents![0].result >= 0)
+                {
+                    // Delete all the records
+                    await prisma.ghostRegisteredFromTerminal.deleteMany({
+                        where:{
+                            carId: Number(body.carId)
+                        }
+                    });
+                } 
+
+                break;
+            }
+
+            // Ghost Battle Default Opponent (10)
+            case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_DEFAULT_OPPONENT:
+            {
+                console.log('Normal Ghost Mode Found - Default Opponent');
+
+                // TODO: idk
+
+                break;
+            }
+
             // OCM Ghost Battle Mode (11)
             case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_COMPETITION:
             {
@@ -484,10 +516,10 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                 break;
             }
 
-            // Ghost Battle Select from Bookmars (12)
+            // Ghost Battle Select from Bookmarks (12)
             case wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SELECT_FROM_BOOKMARKS:
             {
-                console.log('Normal Ghost Mode Found - Select from Bookmars');
+                console.log('Normal Ghost Mode Found - Select from Bookmarks');
 
                 ghost_historys = await ghost_history.saveGhostHistory(body);
 

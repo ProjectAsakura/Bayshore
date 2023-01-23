@@ -11,6 +11,7 @@
         "giftCarsFullyTuned": 0, 
         "scratchEnabled": 1, 
         "scratchType": 1, 
-        "giveMeterReward": 0
+        "giveMeterReward": 0,
+		"newCardsBanned": 0
     }
 }

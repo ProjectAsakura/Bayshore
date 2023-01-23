@@ -4,7 +4,6 @@ import { Module } from "module";
 import { prisma } from "..";
 import { User } from "@prisma/client";
 import Long from "long";
-let MersenneTwister = require('chancer');
 
 // Import Proto
 import * as wm from "../wmmt/wm.proto";
@@ -123,13 +122,25 @@ export default class CarModule extends Module {
 						locked: 'desc'
 					}
 				})
-
+				
 				if(opponentTargetCount > 0)
 				{
 					console.log('Challengers Available');
 
 					// Randomize pick
-					let random: number = MersenneTwister.int(0, opponentTargetCount - 1);
+					let random: number = 1;
+
+					// Randomize it 5 times
+					for(let i=0; i<5; i++)
+					{
+						random = Math.floor(Math.random() * opponentTargetCount);
+					}
+			
+					// Try randomize it again if it's 1
+					if(random === 1)
+					{
+						random = Math.floor(Math.random() * opponentTargetCount);
+					}
 
 					// Check opponents target
 					let opponentTarget = await prisma.carStampTarget.findMany({
@@ -399,7 +410,18 @@ export default class CarModule extends Module {
 
 			// Randomize regionId
 			let regionId: number = 18;
-			regionId = MersenneTwister.int(1, 47);
+
+			// Randomize it 5 times
+			for(let i=0; i<5; i++)
+			{
+				regionId = Math.floor(Math.random() * 47) + 1;
+			}
+		
+			// Try randomize it again if it's 1
+			if(regionId === 1)
+			{
+				regionId = Math.floor(Math.random() * 47) + 1;
+			}
 			
 			// Default car values
 			let carInsert = {

@@ -381,7 +381,8 @@ export async function ocmTallying(body: wm.protobuf.LoadGhostCompetitionInfoRequ
                 }
                 
 
-                if(i === 0){
+                if(i === 0)
+                {
                     console.log('Making OCM Top 1 Ghost Data');
 
                     // Create Top 1 ghost data

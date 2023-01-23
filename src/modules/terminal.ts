@@ -3,7 +3,6 @@ import { Config } from "../config";
 import { Module } from "module";
 import { prisma } from "..";
 import { Car } from "@prisma/client";
-let MersenneTwister = require('chancer');
 
 // Import Proto
 import * as wm from "../wmmt/wm.proto";
@@ -247,14 +246,6 @@ export default class TerminalModule extends Module {
 						lastPlayedPlace: true
 					}
 				});
-			}
-
-			for(let i=0; i<cars.length; i++)
-			{
-				if(cars[i].regionId === 0)
-				{
-					cars[i].regionId = MersenneTwister.int(1, 47);
-				}
 			}
 			
 			let msg = {

@@ -2,7 +2,6 @@ import { Application } from "express";
 import { Module } from "../module";
 import { prisma } from "..";
 import { Config } from "../config";
-let MersenneTwister = require('chancer');
 
 // Import Proto
 import * as wm from "../wmmt/wm.proto";
@@ -136,12 +135,6 @@ export default class GameModule extends Module {
 				}
 			}
 
-			// Check region id is 0
-			if(body.car!.regionId! === 0)
-			{
-				body.car!.regionId = MersenneTwister.int(1, 47);
-			}
-
 			// Check playet at timestamp
 			let timestamps = 0;
 			if(body.car?.lastPlayedAt !== undefined && body.car?.lastPlayedAt !== null)
@@ -156,6 +149,16 @@ export default class GameModule extends Module {
 				}
 			}
 
+			// Check P & H must not more than 34 (fully tuned value)
+			let tunePower = 0;
+			let tuneHandling = 0;
+			let totalTune = body.car!.tunePower + body.car!.tuneHandling;
+			if(totalTune <= 34)
+			{
+				tunePower = body.car!.tunePower;
+				tuneHandling = body.car!.tuneHandling;
+			}
+
 			// Update car
 			await prisma.car.update({
 				where: {
@@ -168,8 +171,8 @@ export default class GameModule extends Module {
 					playCount: body.playCount,
 					level: body.car!.level!,
 					title: body.car!.title!,
-					tunePower: body.car!.tunePower!,
-					tuneHandling: body.car!.tuneHandling!,
+					tunePower: tunePower,
+					tuneHandling: tuneHandling,
 					windowSticker: body.car!.windowSticker!,
 					lastPlayedAt: timestamps,
 					regionId: body.car!.regionId!,
@@ -256,7 +259,7 @@ export default class GameModule extends Module {
 					error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
 
 					// Set session for saving ghost trail Ghost Battle Mode or Crown Ghost Battle Mode
-					ghostSessionId: MersenneTwister.int(1, 100)
+					ghostSessionId: Math.floor(Math.random() * 100) + 1
 				}
 			}
 			// OCM Battle game mode is completed
@@ -266,7 +269,7 @@ export default class GameModule extends Module {
 					error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
 
 					// Set session for saving ghost trail OCM Ghost Battle Mode
-					ghostSessionId: MersenneTwister.int(101, 200)
+					ghostSessionId: Math.floor(Math.random() * 100) + 101
 				}
 			}
 			// Story mode or TA mode is completed
@@ -436,11 +439,6 @@ export default class GameModule extends Module {
 					ghostOpponentCar!.country = 'GLB';
 				}
 
-				if(ghostOpponentCar!.regionId === 0)
-				{
-					ghostOpponentCar!.regionId = MersenneTwister.int(1, 47);
-				}
-
 				// Get Opponent 1 tune
 				ghostOpponentCar!.tunePower = ghostHistoryData![i].opponent1TunePower!; 
 				ghostOpponentCar!.tuneHandling = ghostHistoryData![i].opponent1TuneHandling!;
@@ -478,11 +476,6 @@ export default class GameModule extends Module {
 						ghostOpponentCar2!.country = 'GLB';
 					}
 
-					if(ghostOpponentCar!.regionId === 0)
-					{
-						ghostOpponentCar2!.regionId = MersenneTwister.int(1, 47);
-					}
-
 					// Get Opponent 2 tune
 					ghostOpponentCar2!.tunePower = ghostHistoryData![i].opponent2TunePower!;
 					ghostOpponentCar2!.tuneHandling = ghostHistoryData![i].opponent2TuneHandling!;
@@ -515,11 +508,6 @@ export default class GameModule extends Module {
 						ghostOpponentCar3!.visualModel = 130;
 						ghostOpponentCar3!.regionId = 18;
 						ghostOpponentCar3!.country = 'GLB';
-					}
-
-					if(ghostOpponentCar!.regionId === 0)
-					{
-						ghostOpponentCar3!.regionId = MersenneTwister.int(1, 47);
 					}
 
 					// Get Opponent 3 tune
