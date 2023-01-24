@@ -6,7 +6,7 @@ import { prisma } from "..";
 import * as wm from "../wmmt/wm.proto";
 
 // Import Util
-import * as common from "../util/common";
+import * as common from "./util/common";
 
 
 export default class TimeAttackModule extends Module {

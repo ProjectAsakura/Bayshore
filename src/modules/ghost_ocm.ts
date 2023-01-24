@@ -7,7 +7,7 @@ import { Config } from "../config";
 import * as wm from "../wmmt/wm.proto";
 
 // Import Util
-import * as common from "../util/common";
+import * as common from "./util/common";
 import * as ghost_ocm from "../util/ghost/ghost_ocm";
 import * as ghost_ocm_area from "../util/ghost/ghost_ocm_area";
 
@@ -462,9 +462,6 @@ export default class GhostModule extends Module {
 						carId: ocmTallyRecord!.carId,
 						competitionId: ocmEventDate!.competitionId,
 						periodId: period_id,
-						area: areaVal,
-						ramp: rampVal,
-						path: pathVal,
 					},
 					orderBy:{
 						playedAt: 'desc'
@@ -494,6 +491,9 @@ export default class GhostModule extends Module {
 					// Set Ghost stuff Value
 					cars!.lastPlayedAt = checkGhostTrail.playedAt
 					ghostTrailId = checkGhostTrail.dbId!;
+					areaVal = Number(checkGhostTrail.area);
+					rampVal = Number(checkGhostTrail.ramp);
+					pathVal = Number(checkGhostTrail.path);
 					ghostTypes = wm.wm.protobuf.GhostType.GHOST_NORMAL;
 				}
 			}
@@ -508,9 +508,6 @@ export default class GhostModule extends Module {
 						carId: 999999999,
 						competitionId: ocmEventDate!.competitionId,
 						periodId: 0,
-						area: areaVal,
-						ramp: rampVal,
-						path: pathVal
 					},
 					orderBy:{
 						playedAt: 'desc'
@@ -553,7 +550,10 @@ export default class GhostModule extends Module {
 				});
 				
 				// Set Ghost stuff Value
-				ghostTrailId = checkGhostTrail!.dbId!;
+				ghostTrailId = checkGhostTrail!.dbId;
+				areaVal = Number(checkGhostTrail!.area);
+				rampVal = Number(checkGhostTrail!.ramp);
+				pathVal = Number(checkGhostTrail!.path);
 				ghostTypes = wm.wm.protobuf.GhostType.GHOST_NORMAL;
 			}
 			else if(ocmEventDate!.competitionCloseAt < date && ocmEventDate!.competitionEndAt > date)

@@ -1,8 +1,8 @@
-import { prisma } from "..";
-import { Config } from "../config";
+import { prisma } from "../..";
+import { Config } from "../../config";
 
 //Import Proto
-import * as wm from "../wmmt/wm.proto";
+import * as wm from "../../wmmt/wm.proto";
 
 // *** CONSTANTS ***
 

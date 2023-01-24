@@ -4,7 +4,7 @@ import { prisma } from "../..";
 import { wm } from "../../wmmt/wm.proto";
 
 // Import Util
-import * as common from "../common";
+import * as common from "../util/common";
 
 
 // Save versus battle result

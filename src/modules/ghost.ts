@@ -10,7 +10,7 @@ import * as wm from "../wmmt/wm.proto";
 import * as wmsrv from "../wmmt/service.proto";
 
 // Import Util
-import * as common from "../util/common";
+import * as common from "./util/common";
 import * as ghost_save_trail from "../util/ghost/ghost_save_trail";
 import * as ghost_trail from "../util/ghost/ghost_trail";
 import * as ghost_area from "../util/ghost/ghost_area";
@@ -747,11 +747,11 @@ export default class GhostModule extends Module {
             // Response data
 			let msg = {
 				carId: pCarId,
-				area: pArea,
-				ramp: rampVal,
-				path: pathVal,
+				area: 18,
+				ramp: 37,
+				path: 56,
 				playedAt: playedAt,
-				trail: ghostTrail
+				trail: new Uint8Array([1, 2, 3, 4])
 			};
 			
 			// Encode the response

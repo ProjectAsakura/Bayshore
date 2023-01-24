@@ -5,8 +5,8 @@ import { prisma } from "../..";
 import { wm } from "../../wmmt/wm.proto";
 
 // Import Util
-import * as common from "../common";
-import * as check_step from "../games/games_util/check_step";
+import * as common from "../util/common";
+import * as check_step from "./games_util/check_step";
 
 
 // Save story result

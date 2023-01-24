@@ -24,7 +24,7 @@ import MuchaModule from './mucha';
 import { Config } from './config';
 import * as Sentry from '@sentry/node';
 import * as Tracing from '@sentry/tracing';
-import * as common from './util/common';
+import * as common from './modules/util/common';
 
 globalAgent.options.keepAlive = true;
 
