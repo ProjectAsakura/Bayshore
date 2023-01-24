@@ -747,11 +747,11 @@ export default class GhostModule extends Module {
             // Response data
 			let msg = {
 				carId: pCarId,
-				area: 18,
-				ramp: 37,
-				path: 56,
+				area: pArea,
+				ramp: rampVal,
+				path: pathVal,
 				playedAt: playedAt,
-				trail: new Uint8Array([1, 2, 3, 4])
+				trail: ghostTrail
 			};
 			
 			// Encode the response
