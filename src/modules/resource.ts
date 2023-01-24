@@ -9,7 +9,7 @@ import * as wm from "../wmmt/wm.proto";
 import * as wmsrv from "../wmmt/service.proto";
 
 // Import Util
-import * as common from "../util/common";
+import * as common from "./util/common";
 
 
 export default class ResourceModule extends Module {

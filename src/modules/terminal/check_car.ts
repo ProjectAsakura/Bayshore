@@ -1,5 +1,6 @@
 import { prisma } from "../..";
 
+
 // Sends the server response to the client
 export async function checkScratchCar(userId: number, visualModel: number)
 {

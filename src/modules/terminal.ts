@@ -8,8 +8,8 @@ import { Car } from "@prisma/client";
 import * as wm from "../wmmt/wm.proto";
 
 // Import Util
-import * as scratch from "../util/scratch";
-import * as common from "../util/common";
+import * as scratch from "./terminal/scratch";
+import * as common from "./util/common";
 
 
 export default class TerminalModule extends Module {
@@ -1001,24 +1001,6 @@ export default class TerminalModule extends Module {
             // Send the response to the client
             common.sendResponse(message, res);
         });
-
-
-		app.post('/method/save_screenshot', async (req, res) => {
-
-			// Get the information from the request
-			let body = wm.wm.protobuf.SaveScreenshotRequest.decode(req.body);
-
-			// Response data
-            let msg = {
-				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
-			};
-
-            // Encode the response
-			let message = wm.wm.protobuf.SaveScreenshotResponse.encode(msg);
-
-			// Send the response to the client
-            common.sendResponse(message, res);
-		});
 
 
 		/*

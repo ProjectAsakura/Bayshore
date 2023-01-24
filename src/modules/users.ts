@@ -7,8 +7,8 @@ import { prisma } from "..";
 import * as wm from "../wmmt/wm.proto";
 
 // Import Util
-import * as scratch from "../util/scratch";
-import * as common from "../util/common";
+import * as scratch from "./terminal/scratch";
+import * as common from "./util/common";
 
 
 export default class UserModule extends Module {
@@ -19,6 +19,13 @@ export default class UserModule extends Module {
 
             // Get the request body for the load user request
 			let body = wm.wm.protobuf.LoadUserRequest.decode(req.body);
+			
+			// Block blank card.ini data
+			if(body.cardChipId.match(/7F5C9744F11111114326.*/))
+			{
+				body.cardChipId = '';
+				body.accessCode = '';
+			}
 
             // Get the user from the database
 			let user = await prisma.user.findFirst({
@@ -69,7 +76,7 @@ export default class UserModule extends Module {
 				}
 
 				// Check if new card registration is allowed or not
-				let newCardsBanned = Config.getConfig().gameOptions.newCardsBanned;
+				let newCardsBanned = Config.getConfig().gameOptions.newCardsBanned || 0;
 
 				// New card registration is allowed
 				if (newCardsBanned === 0)
