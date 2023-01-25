@@ -1,4 +1,4 @@
-import { prisma } from "../..";
+import { prisma } from "../../..";
 
 // Import Proto
 import * as ghost_ocm_area from "./ghost_ocm_area";

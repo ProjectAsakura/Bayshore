@@ -8,8 +8,8 @@ import * as wm from "../wmmt/wm.proto";
 
 // Import Util
 import * as common from "./util/common";
-import * as ghost_ocm from "../util/ghost/ghost_ocm";
-import * as ghost_ocm_area from "../util/ghost/ghost_ocm_area";
+import * as ghost_ocm from "./ghost/ghost_ocm";
+import * as ghost_ocm_area from "./ghost/ghost_util/ghost_ocm_area";
 
 
 export default class GhostModule extends Module {

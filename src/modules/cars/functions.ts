@@ -216,7 +216,7 @@ export async function getOpponentsTarget(carId: number, registeredargetAvailable
             }
 
             // Get Number of Challengers
-            numOfChallengers = opponentTarget.length + 1;
+            numOfChallengers = opponentTargetCount + 1;
         }
     }
     

@@ -3,7 +3,6 @@ import { Module } from "module";
 import { prisma } from "..";
 import { CarPathandTuning } from "@prisma/client";
 import Long from "long";
-import { Config } from "../config";
 
 // Import Proto
 import * as wm from "../wmmt/wm.proto";
@@ -11,9 +10,10 @@ import * as wmsrv from "../wmmt/service.proto";
 
 // Import Util
 import * as common from "./util/common";
-import * as ghost_save_trail from "../util/ghost/ghost_save_trail";
-import * as ghost_trail from "../util/ghost/ghost_trail";
-import * as ghost_area from "../util/ghost/ghost_area";
+import * as ghostFunctions from "./ghost/functions";
+import * as ghost_save_trail from "./ghost/ghost_save_trail";
+import * as ghost_trail from "./ghost/ghost_util/ghost_trail";
+import * as ghost_area from "./ghost/ghost_util/ghost_area";
 
 
 export default class GhostModule extends Module {
@@ -33,152 +33,35 @@ export default class GhostModule extends Module {
 					gtWing: true,
 					lastPlayedPlace: true
 				}
-			})
+			});
 
-			// Car History
-			let findChallenger = await prisma.carChallenger.findMany({
-				where: {
-					challengerCarId: body.carId
-				},
-				orderBy:{
-					lastPlayedAt: 'desc'
-				},
-				take: 10
-			})
+			// Get Challenged Opponent History
+			let getStampTargets = await ghostFunctions.getOpponentHistory(body.carId);
+			let opponentHistory = getStampTargets.opponentHistory;
 
-			let carsHistory: wm.wm.protobuf.Car[] = [];
-			if(findChallenger.length > 0)
-			{
-				for(let i=0; i<findChallenger.length; i++)
-				{
-					let car = await prisma.car.findFirst({
-						where: {
-							carId: findChallenger[i].carId
-						},
-						include:{
-							gtWing: true,
-							lastPlayedPlace: true
-						},
-						orderBy: {
-							carId: 'asc'
-						},
-						take: 10
-					});
-
-					carsHistory.push(wm.wm.protobuf.Car.create({
-						...car!
-					}))
-				}
-			}
-
-			let carsStamp: wm.wm.protobuf.StampTargetCar[] = [];
-			let carsChallenger: wm.wm.protobuf.ChallengerCar[] = [];
-
-            // Get all of the friend cars for the carId provided
-            let stampTargets = await prisma.carStampTarget.findMany({
-                where: {
-                    stampTargetCarId: body.carId,
-					recommended: true
-                },
-				orderBy:{
-					locked: 'desc'
-				}
-            });
-
-			if(stampTargets)
-			{
-				for(let i=0; i<stampTargets.length; i++)
-				{
-					let carTarget = await prisma.car.findFirst({
-						where:{
-							carId: stampTargets[i].carId
-						},
-						include:{
-							gtWing: true,
-							lastPlayedPlace: true
-						}
-					})
-
-					carsStamp.push(
-						wm.wm.protobuf.StampTargetCar.create({
-							car: carTarget!,
-							returnCount: stampTargets[i].returnCount, 
-							locked: stampTargets[i].locked, 
-							recommended: stampTargets[i].recommended
-						})
-					);
-				}
-			}
-
-			// Get all of the challenger car for the carId provided except beated car
-			let checkBeatedCar = await prisma.carStampTarget.findMany({
-                where: {
-                    stampTargetCarId: body.carId,
-					recommended: false
-                },
-				orderBy:{
-					carId: 'asc'
-				}
-            });
-
-			let arrChallengerCarId = [];
-			for(let i=0; i<checkBeatedCar.length; i++)
-			{
-				arrChallengerCarId.push(checkBeatedCar[i].carId);
-			}
-
-            let challengers = await prisma.carChallenger.findMany({
-                where: {
-                    carId: body.carId,
-					NOT: {
-						challengerCarId: { in: arrChallengerCarId }, // Except beated challenger id
-					},
-                }
-            });
-
-			if(challengers)
-			{
-				for(let i=0; i<challengers.length; i++)
-				{
-					let carTarget = await prisma.car.findFirst({
-						where:{
-							carId: challengers[i].challengerCarId
-						},
-						include:{
-							gtWing: true,
-							lastPlayedPlace: true
-						}
-					})
-
-					let result = 0;
-					if(challengers[i].result > 0)
-					{
-						result = -Math.abs(challengers[i].result);
-					}
-					else{
-						result = Math.abs(challengers[i].result);
-					}
-
-					carsChallenger.push(
-						wm.wm.protobuf.ChallengerCar.create({
-							car: carTarget!,
-							stamp: challengers[i].stamp,
-                            result: result, 
-                            area: challengers[i].area
-						})
-					);
-				}
-			}
+			// Get Stamp Target
+            let getStampTarget = await ghostFunctions.getStampTarget(body.carId);
+			let stampTarget = getStampTarget.stampTarget;
+			
+			// Get Challengers
+            let getChallengers = await ghostFunctions.getChallengers(body.carId);
+			let challengers = getChallengers.challengers;
 
             // Response data
 			let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
-				stampTargetCars: carsStamp || null,
-				challengers: carsChallenger || null,
-				stampSheetCount: car!.stampSheetCount,
+
+				// Challengers
+				challengers: challengers || null,
+				stampTargetCars: stampTarget || null,
+
+				// History
+				history: opponentHistory || null,
+				
+				// Stamp
+				stampSheetCount: car?.stampSheetCount || 0,
                 stampSheet: car?.stampSheet || null, 
                 stampReturnStats: car?.stampSheet || null,
-				history: carsHistory || null,
 			};
 
             // Encode the response
@@ -193,93 +76,21 @@ export default class GhostModule extends Module {
 		app.post('/method/load_stamp_target', async (req, res) => {
 
             // Get the request body for the load stamp target request
-			let body = wm.wm.protobuf.LoadStampTargetRequest.decode(req.body); 
+			let body = wm.wm.protobuf.LoadStampTargetRequest.decode(req.body);
 
-			let carsStamp: wm.wm.protobuf.StampTargetCar[] = [];
-			let carsChallenger: wm.wm.protobuf.ChallengerCar[] = [];
+			// Get Stamp Target
+            let getStampTarget = await ghostFunctions.getStampTarget(body.carId);
+			let stampTarget = getStampTarget.stampTarget;
 
-            // Get all of the friend cars for the carId provided
-            let stampTargets = await prisma.carStampTarget.findMany({
-                where: {
-                    stampTargetCarId: body.carId,
-					recommended: true
-                },
-				orderBy:{
-					locked: 'asc'
-				}
-            });
-
-			if(stampTargets)
-			{
-				for(let i=0; i<stampTargets.length; i++)
-				{
-					let carTarget = await prisma.car.findFirst({
-						where:{
-							carId: stampTargets[i].carId
-						},
-						include:{
-							gtWing: true,
-							lastPlayedPlace: true
-						}
-					})
-
-					carsStamp.push(
-						wm.wm.protobuf.StampTargetCar.create({
-							car: carTarget!,
-							returnCount: stampTargets[i].returnCount, 
-							locked: stampTargets[i].locked, 
-							recommended: stampTargets[i].recommended
-						})
-					);
-				}
-			}
-
-			// Get all of the friend cars for the carId provided
-            let challengers = await prisma.carChallenger.findMany({
-                where: {
-                    carId: body.carId
-                }
-            });
-
-			if(stampTargets)
-			{
-				for(let i=0; i<challengers.length; i++)
-				{
-					let carTarget = await prisma.car.findFirst({
-						where:{
-							carId: challengers[i].challengerCarId
-						},
-						include:{
-							gtWing: true,
-							lastPlayedPlace: true
-						}
-					})
-
-					let result = 0;
-					if(challengers[i].result > 0)
-					{
-						result = -Math.abs(challengers[i].result);
-					}
-					else{
-						result = Math.abs(challengers[i].result);
-					}
-
-					carsChallenger.push(
-						wm.wm.protobuf.ChallengerCar.create({
-							car: carTarget!,
-							stamp: challengers[i].stamp,
-                            result: result, 
-                            area: challengers[i].area
-						})
-					);
-				}
-			}
+			// Get Challengers
+            let getChallengers = await ghostFunctions.getChallengers(body.carId);
+			let challengers = getChallengers.challengers;
 
             // Response data
 			let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
-				cars: carsStamp,
-				challengers: carsChallenger
+				cars: stampTarget,
+				challengers: challengers
 			};
 
 			// Encode the response
@@ -290,7 +101,7 @@ export default class GhostModule extends Module {
 		})
 
 
-        // Ghost Mode
+        // Search Cars by Level
         app.post('/method/search_cars_by_level', async (req, res) => {
 
             // Get the request body for the search cars by level request
@@ -326,221 +137,36 @@ export default class GhostModule extends Module {
 				});
 			}
 
-			// Randomizing the starting ramp and path based on selected area
-			let rampVal = 0;
-			let pathVal = 0;
-
 			// Get the ramp and path id
 			let ghost_areas = await ghost_area.GhostArea(body.area);
 
 			// Set the value
-			rampVal = ghost_areas.rampVal;
-			pathVal = ghost_areas.pathVal;
+			let rampVal = ghost_areas.rampVal;
+			let pathVal = ghost_areas.pathVal;
 
-			// Empty list of ghost car records
-			let lists_ghostcar: wm.wm.protobuf.GhostCar[] = [];
-			let arr = [];
-			let maxNumber = 0;
-
-            // If all user car data available is more than 10 for certain level
-			if(car.length > 10)
-			{ 
-				maxNumber = 10 // Limit to 10 (game default)
-			}
-            // If no more than 10
-			else
-			{
-				maxNumber = car.length;
-			}
-
-            // Choose the user's car data randomly to appear
-			while(arr.length < maxNumber)
-			{ 
-				// Randomize pick
-				let random: number = 1;
-
-				// Randomize it 5 times
-				for(let i=0; i<5; i++)
-				{
-					random = Math.floor(Math.random() * car.length);
-				}
-		
-				// Try randomize it again if it's 1
-				if(random === 1)
-				{
-					random = Math.floor(Math.random() * car.length);
-				}
-				
-				
-				if(arr.indexOf(random) === -1)
-				{
-                    // Push current number to array
-					arr.push(random); 
-
-                    // Check if ghost trail for certain car is available
-					let ghost_trails = await prisma.ghostTrail.findFirst({
-						where: {
-							carId: car[random].carId,
-							area: body.area,
-							crownBattle: false
-						},
-						orderBy: {
-							playedAt: 'desc'
-						}
-					});
-
-                    // Push user's car data without ghost trail
-					if(!(ghost_trails))
-					{ 
-						lists_ghostcar.push(wm.wm.protobuf.GhostCar.create({
-							car: car[random]
-						}));
-					}
-                    // Push user's car data with ghost trail
-					else
-					{
-                        // Set the tunePower used when playing certain area
-						car[random].tunePower = ghost_trails!.tunePower;
-
-                        // Set the tuneHandling used when playing certain area
-						car[random].tuneHandling = ghost_trails!.tuneHandling;
-
-                        // Push data to Ghost car proto
-						lists_ghostcar.push(wm.wm.protobuf.GhostCar.create({
-							car: car[random],
-							nonhuman: false,
-							type: wm.wm.protobuf.GhostType.GHOST_NORMAL,
-							trailId: ghost_trails!.dbId!
-						}));
-					}
-				}
-			}
+			// Get Ghost Car
+			let getGhostCar = await ghostFunctions.getGhostCar(car, body.area, rampVal, pathVal);
+			let lists_ghostcar = getGhostCar.lists_ghostcar;
 
 			// Check again if car list for that selected region is available of not
 			if(body.regionId !== null && body.regionId !== undefined && body.regionId !== 0)
 			{
-				if(car.length < 1)
-				{
-					// Get current date
-					let date = Math.floor(new Date().getTime() / 1000);
-					
-					let playedPlace = wm.wm.protobuf.Place.create({ 
-						placeId: Config.getConfig().placeId,
-						regionId: Config.getConfig().regionId,
-						shopName: Config.getConfig().shopName,
-						country: Config.getConfig().country
-					});
-
-					let tunePowerDefault = 0
-					let tuneHandlingDefault = 0;
-					if(body.ghostLevel === 1)
-					{
-						tunePowerDefault = 1;
-						tuneHandlingDefault = 4;
-					}
-					else if(body.ghostLevel === 2)
-					{
-						tunePowerDefault = 5;
-						tuneHandlingDefault = 5;
-					}
-					else if(body.ghostLevel === 3)
-					{
-						tunePowerDefault = 8;
-						tuneHandlingDefault = 7;
-					}
-					else if(body.ghostLevel === 4)
-					{
-						tunePowerDefault = 10;
-						tuneHandlingDefault = 10;
-					}
-					else if(body.ghostLevel === 5)
-					{
-						tunePowerDefault = 15;
-						tuneHandlingDefault = 10;
-					}
-					else if(body.ghostLevel === 6)
-					{
-						tunePowerDefault = 18;
-						tuneHandlingDefault = 10;
-					}
-					else if(body.ghostLevel === 7)
-					{
-						tunePowerDefault = 20;
-						tuneHandlingDefault = 10;
-					}
-					else if(body.ghostLevel === 8)
-					{
-						tunePowerDefault = 21;
-						tuneHandlingDefault = 10;
-					}
-					else if(body.ghostLevel === 9)
-					{
-						tunePowerDefault = 22;
-						tuneHandlingDefault = 10;
-					}
-					else if(body.ghostLevel === 10)
-					{
-						tunePowerDefault = 24;
-						tuneHandlingDefault = 10;
-					}
-					else if(body.ghostLevel === 11)
-					{
-						tunePowerDefault = 24;
-						tuneHandlingDefault = 24;
-					}
-
-					// Generate default S660 car data
-					car = wm.wm.protobuf.Car.create({ 
-						carId: 999999999, // Don't change this
-						name: 'Ｓ６６０',
-						regionId: body.regionId, // IDN (福井)
-						manufacturer: 12, // HONDA
-						model: 105, // S660 [JW5]
-						visualModel: 130, // S660 [JW5]
-						defaultColor: 0,
-						customColor: 0,
-						wheel: 20,
-						wheelColor: 0,
-						aero: 0,
-						bonnet: 0,
-						wing: 0,
-						mirror: 0,
-						neon: 0,
-						trunk: 0,
-						plate: 0,
-						plateColor: 0,
-						plateNumber: 0,
-						tunePower: tunePowerDefault,
-						tuneHandling: tuneHandlingDefault,
-						rivalMarker: 32,
-						aura: 551,
-						windowSticker: true,
-						windowStickerString: 'ＢＡＹＳＨＯＲＥ',
-						windowStickerFont: 0,
-						title: 'No Ghost for this Region',
-						level: 65, // SSSSS
-						lastPlayedAt: date,
-						country: 'JPN',
-						lastPlayedPlace: playedPlace
-					});
-
-					// Push data to Ghost car proto
-					lists_ghostcar.push(wm.wm.protobuf.GhostCar.create({
-						car: car,
-						nonhuman: true,
-						type: wm.wm.protobuf.GhostType.GHOST_DEFAULT,
-					}));
-				}
-
-				// else{} have car list
+				let checkGhostSearchByRegion = await ghostFunctions.checkGhostSearchByRegion(car, body.ghostLevel, body.regionId);
+				lists_ghostcar = checkGhostSearchByRegion.lists_ghostcar;
 			}
 
             // Response data
 			let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
+
+				// Area Value
 				ramp: rampVal,
 				path: pathVal,
+
+				// Ghost Car List
 				ghosts: lists_ghostcar,
+
+				// Ghost Selection Method
 				selectionMethod: Number(wm.wm.protobuf.GhostSelectionMethod.GHOST_SELECT_BY_LEVEL)
 			};
 
@@ -581,7 +207,8 @@ export default class GhostModule extends Module {
 				// ---Get the user and opponent ghost trail data---
 				let ghostType: number = wm.wm.protobuf.GhostType.GHOST_NORMAL;
 				let lists_binarydriveData;
-				if(ghost_trails?.driveData !== null && ghost_trails?.driveData !== undefined){
+				if(ghost_trails?.driveData !== null && ghost_trails?.driveData !== undefined)
+				{
 					lists_binarydriveData = wm.wm.protobuf.BinaryData.create({
 						data: ghost_trails!.driveData!,
 						mergeSerial: ghost_trails!.driveDMergeSerial!
@@ -589,7 +216,8 @@ export default class GhostModule extends Module {
 				}
 
 				let lists_binaryByArea
-				if(ghost_trails?.trendBinaryByArea !== null && ghost_trails?.trendBinaryByArea !== undefined){
+				if(ghost_trails?.trendBinaryByArea !== null && ghost_trails?.trendBinaryByArea !== undefined)
+				{
 					lists_binaryByArea = wm.wm.protobuf.BinaryData.create({
 						data:  ghost_trails!.trendBinaryByArea!,
 						mergeSerial: ghost_trails!.byAreaMergeSerial!
@@ -597,7 +225,8 @@ export default class GhostModule extends Module {
 				}
 
 				let lists_binaryByCar
-				if(ghost_trails?.trendBinaryByCar !== null && ghost_trails?.trendBinaryByCar !== undefined){
+				if(ghost_trails?.trendBinaryByCar !== null && ghost_trails?.trendBinaryByCar !== undefined)
+				{
 					lists_binaryByCar = wm.wm.protobuf.BinaryData.create({
 						data: ghost_trails!.trendBinaryByCar!,
 						mergeSerial: ghost_trails!.byCarMergeSerial!
@@ -605,7 +234,8 @@ export default class GhostModule extends Module {
 				}
 
 				let lists_binaryByUser
-				if(ghost_trails?.trendBinaryByUser !== null && ghost_trails?.trendBinaryByUser !== undefined){
+				if(ghost_trails?.trendBinaryByUser !== null && ghost_trails?.trendBinaryByUser !== undefined)
+				{
 					lists_binaryByUser = wm.wm.protobuf.BinaryData.create({
 						data: ghost_trails!.trendBinaryByUser!,
 						mergeSerial: ghost_trails!.byUserMergeSerial!
@@ -656,6 +286,7 @@ export default class GhostModule extends Module {
                 actualSessionId = common.getBigIntFromLong(body.ghostSessionId);
             }
 
+			// -----------------------------------------------------------------------------------------
             // OCM game mode session id
 			if(actualSessionId > 100 && actualSessionId < 201)
 			{ 
@@ -686,6 +317,7 @@ export default class GhostModule extends Module {
 					await ghost_save_trail.savePathAndTuning(body);
 				}
 			}
+			// -----------------------------------------------------------------------------------------
 	
             // Response data
 			let msg = {
