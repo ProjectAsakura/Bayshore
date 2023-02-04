@@ -53,23 +53,21 @@ export async function getCrownList()
                 car!.tunePower = car_crown[counter].tunePower; 
                 car!.tuneHandling = car_crown[counter].tuneHandling; 
 
-                // Error handling if played At timestamp value is current date and timestamp is bigger than 9 July 2022 (using GMT+7 timestamp)
-                if(car_crown[counter].playedAt !== 0 && car_crown[counter].playedAt >= 1657299600)
-                {
-                    // Acquired crown timestamp - 1 day
-                    car!.lastPlayedAt = car_crown[counter].playedAt - 172800;
+                // Acquired crown timestamp - 1 day (prevent locking)
+                car!.lastPlayedAt = car_crown[counter].playedAt - 172800;
 
-                    // Acquired crown timestamp - 1 day
-                    car_crown[counter].playedAt = car_crown[counter].playedAt - 172800;
+                // Acquired crown timestamp - 1 day (prevent locking)
+                car_crown[counter].playedAt = car_crown[counter].playedAt - 172800;
+
+                // PlayedAt still bigger than current date (prevent locking)
+                if(car_crown[counter].playedAt > date)
+                {
+                    car_crown[counter].playedAt = date;
                 }
-                // Error handling if played At timestamp value is 0 or timestamp is less than 9 July 2022 (using GMT+7 timestamp)
-                else if(car_crown[counter].playedAt === 0 || car_crown[counter].playedAt < 1657299600)
+                // PlayedAt still smaller than 1674579600
+                else if(car_crown[counter].playedAt < 1674579600)
                 {
-                    // Acquired crown timestamp become 9 July 2022 (using GMT+7 timestamp)
-                    car!.lastPlayedAt = 1657299600;
-
-                    // Acquired crown timestamp become 9 July 2022 (using GMT+7 timestamp)
-                    car_crown[counter].playedAt = 1657299600;
+                    car_crown[counter].playedAt = 1674579600;
                 }
 
                 // Push the car data to the crown holder data
@@ -97,7 +95,6 @@ export async function getCrownList()
                     }));
                 }
                 
-
                 if(counter < car_crown.length-1)
                 {
                     counter++;
