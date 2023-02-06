@@ -96,16 +96,10 @@ export async function OCMArea(competition_id: number)
         areaVal = 18;
 
         // GID_RAMP_HIROSHIMA_SHINONOME
-        //rampVal = 37;
-
-        // GID_RAMP_HIROSHIMA_UJINA
-        rampVal = 38;
+        rampVal = 37;
 
         // GID_PATH_HS_SHINONOME
-        //pathVal = 56;
-
-        // GID_PATH_HS_UJINA
-        pathVal = 57;
+        pathVal = 56;
     }
     // 8th - Hakone
     else if(competition_id === 9) 

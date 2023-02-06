@@ -216,7 +216,7 @@ export async function getOpponentsTarget(carId: number, registeredargetAvailable
             }
 
             // Get Number of Challengers
-            numOfChallengers = opponentTarget.length + 1;
+            numOfChallengers = opponentTargetCount + 1;
         }
     }
     
@@ -337,10 +337,10 @@ export async function createCar(body: wm.protobuf.CreateCarRequest)
         regionId = Math.floor(Math.random() * 47) + 1;
     }
 
-    // Error handling if regionId is above 47
-    if(regionId > 47)
+    // Error handling if regionId is below 1 or above 47
+    if(regionId < 1 || regionId > 47)
     {
-        regionId = 47
+        regionId = Math.floor(Math.random() * 10) + 10;
     }
 
     // Default car values

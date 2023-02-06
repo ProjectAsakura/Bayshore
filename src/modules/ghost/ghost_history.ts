@@ -4,9 +4,9 @@ import { Config } from "../../config";
 import { wm } from "../../wmmt/wm.proto";
 
 // Import Util
-import * as common from "../../modules/util/common";
-import * as ghost_stamp from "../ghost/ghost_stamp";
-import * as ghost_get_area_from_path from "../ghost/ghost_util/ghost_get_area_from_path";
+import * as common from "../util/common";
+import * as ghost_stamp from "./ghost_stamp";
+import * as ghost_get_area_from_path from "./ghost_util/ghost_get_area_from_path";
 
 
 // Save ghost history battle

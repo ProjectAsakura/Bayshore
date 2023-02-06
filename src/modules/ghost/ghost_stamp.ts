@@ -4,7 +4,7 @@ import { prisma } from "../..";
 import { wm } from "../../wmmt/wm.proto";
 
 // Import Util
-import * as ghost_get_area_from_path from "../ghost/ghost_util/ghost_get_area_from_path";
+import * as ghost_get_area_from_path from "./ghost_util/ghost_get_area_from_path";
 
 
 export async function sendStamp(body: wm.protobuf.SaveGameResultRequest)
