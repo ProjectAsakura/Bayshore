@@ -37,6 +37,12 @@ export async function getOpponentHistory(carId: number)
                 take: 10
             });
 
+            // Error handling if regionId is below 1 or above 47
+            if(car!.regionId < 1 || car!.regionId > 47)
+            {
+                car!.regionId = Math.floor(Math.random() * 10) + 10;
+            }
+
             opponentHistory.push(wmproto.wm.protobuf.Car.create({
                 ...car!
             }))
@@ -74,7 +80,13 @@ export async function getStampTarget(carId: number)
                     gtWing: true,
                     lastPlayedPlace: true
                 }
-            })
+            });
+
+            // Error handling if regionId is below 1 or above 47
+            if(carTarget!.regionId < 1 || carTarget!.regionId > 47)
+            {
+                carTarget!.regionId = Math.floor(Math.random() * 10) + 10;
+            }
 
             stampTarget.push(
                 wmproto.wm.protobuf.StampTargetCar.create({
@@ -142,6 +154,12 @@ export async function getChallengers(carId: number)
             }
             else{
                 result = Math.abs(getChallengers[i].result);
+            }
+
+            // Error handling if regionId is below 1 or above 47
+            if(carTarget!.regionId < 1 || carTarget!.regionId > 47)
+            {
+                carTarget!.regionId = Math.floor(Math.random() * 10) + 10;
             }
 
             challengers.push(
@@ -213,6 +231,12 @@ export async function getGhostCar(car: any, area: number, ramp: number, path: nu
                     playedAt: 'desc'
                 }
             });
+
+            // Error handling if regionId is below 1 or above 47
+            if(car!.regionId < 1 || car!.regionId > 47)
+            {
+                car!.regionId = Math.floor(Math.random() * 10) + 10;
+            }
 
             // Push user's car data without ghost trail
             if(!(ghost_trails))

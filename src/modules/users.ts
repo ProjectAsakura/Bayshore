@@ -60,7 +60,7 @@ export default class UserModule extends Module {
 				if (!body.cardChipId || !body.accessCode) 
 				{
 					let msg = {
-						error: wm.wm.protobuf.ErrorCode.ERR_ID_BANNED,
+						error: wm.wm.protobuf.ErrorCode.ERR_USER_SUCCEEDED,
 						numOfOwnedCars: 0,
 						spappState: wm.wm.protobuf.SmartphoneAppState.SPAPP_UNREGISTERED,
 						transferState: wm.wm.protobuf.TransferState.NOT_REGISTERED
@@ -81,6 +81,25 @@ export default class UserModule extends Module {
 				// New card registration is allowed
 				if (newCardsBanned === 0)
 				{
+					let checkUser = await prisma.user.findFirst({
+						where:{
+							chipId: body.cardChipId
+						}
+					});
+
+					if(checkUser)
+					{
+						msg.error = wm.wm.protobuf.ErrorCode.ERR_USER_LOCKED;
+
+						// Encode the response
+						let message = wm.wm.protobuf.LoadUserResponse.encode(msg);
+
+						// Send the response to the client
+						common.sendResponse(message, res);
+
+						return;
+					}
+
 					let user = await prisma.user.create({
 						data: {
 							chipId: body.cardChipId,

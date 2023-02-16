@@ -70,6 +70,12 @@ export async function getCrownList()
                     car_crown[counter].playedAt = 1674579600;
                 }
 
+                // Error handling if regionId is below 1 or above 47
+                if(car!.regionId < 1 || car!.regionId > 47)
+                {
+                    car!.regionId = Math.floor(Math.random() * 10) + 10;
+                }
+
                 // Push the car data to the crown holder data
                 // GID_RUNAREA_HIROSHIMA
                 if(car_crown[counter].area === 18)
