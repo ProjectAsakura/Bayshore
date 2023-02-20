@@ -20,8 +20,8 @@ export default class UserModule extends Module {
             // Get the request body for the load user request
 			let body = wm.wm.protobuf.LoadUserRequest.decode(req.body);
 			
-			// Block blank card.ini data
-			if(body.cardChipId.match(/7F5C9744F11111114326.*/))
+			// Block blank card.ini data and vanilla TP blank card data
+			if(body.cardChipId.match(/7F5C9744F11111114326.*/) || body.cardChipId.match(/0000000000.*/))
 			{
 				body.cardChipId = '';
 				body.accessCode = '';
@@ -59,12 +59,7 @@ export default class UserModule extends Module {
 
 				if (!body.cardChipId || !body.accessCode) 
 				{
-					let msg = {
-						error: wm.wm.protobuf.ErrorCode.ERR_USER_SUCCEEDED,
-						numOfOwnedCars: 0,
-						spappState: wm.wm.protobuf.SmartphoneAppState.SPAPP_UNREGISTERED,
-						transferState: wm.wm.protobuf.TransferState.NOT_REGISTERED
-					}
+					msg.error = wm.wm.protobuf.ErrorCode.ERR_USER_SUCCEEDED;
 
 					// Encode the response
 					let message = wm.wm.protobuf.LoadUserResponse.encode(msg);
