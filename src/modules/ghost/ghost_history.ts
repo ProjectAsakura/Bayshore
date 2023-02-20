@@ -195,7 +195,6 @@ export async function saveOCMGhostHistory(body: wm.protobuf.SaveGameResultReques
             where:{
                 carId: saveExGhostHistory.carId,
                 ocmMainDraw: saveExGhostHistory.ocmMainDraw,
-                area: saveExGhostHistory.area,
                 competitionId: ocmEventDate!.competitionId,
                 periodId: 0
             }
@@ -207,7 +206,7 @@ export async function saveOCMGhostHistory(body: wm.protobuf.SaveGameResultReques
     if(countGBR)
     { 
         // Check if the newest advantage distance is bigger than the older advantage distance
-        if(countGBR!.result < saveExGhostHistory.result)
+        if(countGBR.result < saveExGhostHistory.result)
         {
             console.log('OCM Ghost Tally found');
 
@@ -217,7 +216,6 @@ export async function saveOCMGhostHistory(body: wm.protobuf.SaveGameResultReques
                 // Get OCM Period ID
                 let OCM_periodId = await prisma.oCMPeriod.findFirst({ 
                     where:{
-                        competitionDbId: ocmEventDate!.dbId,
                         competitionId: ocmEventDate!.competitionId,
                         startAt: 
                         {
@@ -248,7 +246,6 @@ export async function saveOCMGhostHistory(body: wm.protobuf.SaveGameResultReques
                     let getGBR = await prisma.oCMGhostBattleRecord.findFirst({ 
                         where:{
                             carId: saveExGhostHistory.carId,
-                            area: saveExGhostHistory.area,
                             competitionId: ocmEventDate!.competitionId,
                         }
                     });
@@ -323,7 +320,7 @@ export async function saveOCMGhostHistory(body: wm.protobuf.SaveGameResultReques
     else
     { 
         console.log('OCM Ghost Battle Record not found');
-        console.log('Creating new OOCM Ghost Battle Record entry');
+        console.log('Creating new OCM Ghost Battle Record entry');
 
         // Current date is OCM Main Draw
         if(ocmEventDate!.competitionStartAt < date && ocmEventDate!.competitionCloseAt > date)
