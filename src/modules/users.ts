@@ -39,6 +39,9 @@ export default class UserModule extends Module {
 							state: true,
 							gtWing: true,
 							lastPlayedPlace: true
+						},
+						where:{
+							state: { toBeDeleted: false } // except deleted car
 						}
 					}
 				}
