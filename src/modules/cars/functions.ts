@@ -147,7 +147,7 @@ export async function getOpponentsTarget(carId: number, registeredargetAvailable
             }
 
             // Randomize it 5 times
-            while(randomArray.length < 5)
+            while(randomArray.length < maxNumber)
             { 
                 // Pick random car Id
                 random = Math.floor(Math.random() * opponentTargetCount + 0.9);
