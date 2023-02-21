@@ -1,4 +1,5 @@
 import { Application } from "express";
+import { Config } from "../config";
 import { Module } from "module";
 import { prisma } from "..";
 
@@ -28,6 +29,19 @@ export default class CarModule extends Module {
 			// Get Challenger Data
 			let opponentsTarget = await carFunctions.getOpponentsTarget(body.carId, registeredTarget.registeredargetAvailable);
 
+			// Set Screenshot Count
+			let screenshotCount = 0;
+
+			// Check if screenshot feature enabled or not
+			let enableScreenshot = Config.getConfig().gameOptions.enableScreenshot || 0;
+
+			// Screenshot feature enabled
+			if(enableScreenshot === 1)
+			{
+				// Set the screnshot chance count
+				screenshotCount = 99;
+			}
+
             // Response data
 			let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
@@ -43,7 +57,7 @@ export default class CarModule extends Module {
 				rgPreviousVersionPlayCount: 0,
 				stCompleted_100Episodes: car!.stCompleted100Episodes,
 				auraMotifAutoChange: false,
-				screenshotCount: 0,
+				screenshotCount: screenshotCount,
 				transferred: false,
 
 				// Stamp or Challenger
@@ -136,32 +150,51 @@ export default class CarModule extends Module {
 			// Get the request body for the update car request
 			let body = wm.wm.protobuf.UpdateCarRequest.decode(req.body);
 
-			// Update the car
-			await carFunctions.updateCar(body);
-
-			// Update the car setting
-			await carFunctions.updateCarSetting(body);
-
-            // Update the car window Sticker
-			await carFunctions.updateCarWindowSticker(body);
-
-			// Update the car Custom Wing
-			await carFunctions.updateCarCustomWing(body);
-
-			// Get car item (custom color or discarded card)
-			if(body.earnedItems.length !== 0)
+			// Not deleting car
+			if(body.toBeDeleted === false || body.toBeDeleted === undefined || body.toBeDeleted === null)
 			{
-				console.log('Car Item reward available, continuing ...');
-				for(let i=0; i<body.earnedItems.length; i++){
-					await prisma.carItem.create({
-						data: {
-							carId: body.carId,
-							category: body.earnedItems[i].category,
-							itemId: body.earnedItems[i].itemId,
-							amount: 1
-						}
-					});
+				// Update the car
+				await carFunctions.updateCar(body);
+
+				// Update the car setting
+				await carFunctions.updateCarSetting(body);
+
+				// Update the car window Sticker
+				await carFunctions.updateCarWindowSticker(body);
+
+				// Update the car Custom Wing
+				await carFunctions.updateCarCustomWing(body);
+
+				// Get car item (custom color or discarded card)
+				if(body.earnedItems.length !== 0)
+				{
+					console.log('Car Item reward available, continuing ...');
+					for(let i=0; i<body.earnedItems.length; i++){
+						await prisma.carItem.create({
+							data: {
+								carId: body.carId,
+								category: body.earnedItems[i].category,
+								itemId: body.earnedItems[i].itemId,
+								amount: 1
+							}
+						});
+					}
 				}
+			}
+			// Deleting car
+			else
+			{
+				console.log('Deleting Car ID : ' + body.carId);
+
+				// Mark Deleted Car
+				await prisma.carState.update({
+					where:{
+						dbId: body.carId
+					},
+					data:{
+						toBeDeleted: body.toBeDeleted
+					}
+				})
 			}
 
 			// Response data

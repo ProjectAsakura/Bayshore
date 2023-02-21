@@ -230,22 +230,22 @@ export default class GameModule extends Module {
 		// Save Screenshot
 		app.post('/method/save_screenshot', async (req, res) => {
 
-			// Get the information from the request
+			// Get the request body
 			let body = wm.wm.protobuf.SaveScreenshotRequest.decode(req.body);
-
-			// TODO: Actual stuff here
-            // This is literally just bare-bones so the shit boots
+			
+			// Perform the save screenshot request for the car
+			await gameFunction.saveScreenshot(body);
 
 			// Response data
             let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
 			};
 
-            // Encode the response
+			// Encode the response
 			let message = wm.wm.protobuf.SaveScreenshotResponse.encode(msg);
-
+			
 			// Send the response to the client
             common.sendResponse(message, res);
-		});
+        })
     }
 }

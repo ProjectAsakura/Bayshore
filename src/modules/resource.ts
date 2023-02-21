@@ -25,10 +25,13 @@ export default class ResourceModule extends Module {
             // Empty list of place records
             let places: wm.wm.protobuf.Place[] = [];
 
+            // Region ID must not 0
+            let regionId = common.sanitizeInputNotZero(Number(Config.getConfig().regionId)) || 1;
+
             // Response data
             places.push(new wm.wm.protobuf.Place({
                 placeId: Config.getConfig().placeId || 'JPN0123',
-                regionId: Number(Config.getConfig().regionId) || 1,
+                regionId: regionId,
                 shopName: Config.getConfig().shopName || 'Bayshore',
                 country: Config.getConfig().country || 'JPN'
             }));
@@ -46,7 +49,7 @@ export default class ResourceModule extends Module {
                 await prisma.placeList.create({
                     data:{
                         placeId: Config.getConfig().placeId || 'JPN0123',
-                        regionId: Number(Config.getConfig().regionId) || 1,
+                        regionId: regionId,
                         shopName: Config.getConfig().shopName || 'Bayshore',
                         country: Config.getConfig().country || 'JPN'
                     }
@@ -61,7 +64,7 @@ export default class ResourceModule extends Module {
                             id: checkPlaceList.id
                         },
                         data:{
-                            regionId: Number(Config.getConfig().regionId),
+                            regionId: regionId,
                             shopName: Config.getConfig().shopName,
                             country: Config.getConfig().country
                         }

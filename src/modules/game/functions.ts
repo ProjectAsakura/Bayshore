@@ -1,4 +1,7 @@
 import { prisma } from "../..";
+import { Config } from "../../config";
+import path from "path";
+import fs from "fs";
 
 // Import Proto
 import { wm } from "../../wmmt/wm.proto";
@@ -407,4 +410,41 @@ export async function getGhostBattleRecord(body: wm.protobuf.LoadGameHistoryRequ
     }
 
     return { ghostBattle_records }
+}
+
+
+// Save Screenshot
+export async function saveScreenshot(body: wm.protobuf.SaveScreenshotRequest)
+{
+    // Check if screenshot feature enabled or not
+    let enableScreenshot = Config.getConfig().gameOptions.enableScreenshot || 0;
+
+    // Screenshot feature enabled
+    if(enableScreenshot === 1)
+    {
+        let filename: string | undefined = undefined;
+
+        filename = `${body.timestamp}_${body.carId}_${body.imageType}.png`;
+
+        let dir = path.join('screenshot');
+
+        if (!fs.existsSync(dir)){
+            fs.mkdirSync(dir);
+        }
+
+        // Combine the filename with the save location
+        let fullname = path.join('screenshot', filename);
+
+        // Attempt to write to the file
+        fs.writeFile(fullname, body.image, (err) => {
+            if (err)
+            {
+                console.log(err);
+            }   
+            else 
+            {
+                console.log(`Screenshot saved successfully as '${filename}'`)
+            }
+        });
+    }
 }

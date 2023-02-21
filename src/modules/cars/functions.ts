@@ -138,18 +138,37 @@ export async function getOpponentsTarget(carId: number, registeredargetAvailable
 
             // Randomize pick
             let random: number = 1;
+            let randomArray: number[] = [];
+            let maxNumber = 5;
+
+            if(opponentTargetCount < 5)
+            { 
+                maxNumber = opponentTargetCount;
+            }
 
             // Randomize it 5 times
-            for(let i=0; i<5; i++)
-            {
-                random = Math.floor(Math.random() * opponentTargetCount);
+            while(randomArray.length < 5)
+            { 
+                // Pick random car Id
+                random = Math.floor(Math.random() * opponentTargetCount + 0.9);
+
+                // Try randomize it again if it's 0, and fix if more than car length
+                if(random < 1 || random >= opponentTargetCount)
+                {
+                    random = Math.floor(Math.random() * opponentTargetCount + 0.9);
+                }
+
+                // Random Number not yet selected
+                if(randomArray.indexOf(random) === -1)
+                {
+                    // Push current number to array
+                    randomArray.push(random);
+                }
             }
 
-            // Try randomize it again if it's 1
-            if(random === 1)
-            {
-                random = Math.floor(Math.random() * opponentTargetCount);
-            }
+            // Pick the array number
+            let pickRandom = Math.floor(Math.random() * randomArray.length + 0.9);
+            random = randomArray[pickRandom];
 
             // Check opponents target
             let opponentTarget = await prisma.carStampTarget.findMany({
@@ -157,9 +176,14 @@ export async function getOpponentsTarget(carId: number, registeredargetAvailable
                     stampTargetCarId: carId,
                     recommended: true,
                 },
-                orderBy:{
-                    locked: 'desc'
-                },
+                orderBy: [
+                    {
+                        id: 'asc'
+                    },
+                    {
+                        recommended: 'desc'
+                    }   
+                ],
                 skip: random,
                 take: 1,
             });
@@ -203,6 +227,12 @@ export async function getOpponentsTarget(carId: number, registeredargetAvailable
                     }
                     else{
                         result = Math.abs(carChallengers.result);
+                    }
+
+                    // Error handling if regionId is below 1 or above 47
+                    if(carTarget!.regionId < 1 || carTarget!.regionId > 47)
+                    {
+                        carTarget!.regionId = Math.floor(Math.random() * 10) + 10;
                     }
 
                     // Push the data
@@ -322,26 +352,33 @@ export async function createCar(body: wm.protobuf.CreateCarRequest)
         }
     }
 
-    // Randomize regionId
-    let regionId: number = 18;
+    // Randomize pick
+    let random: number = 1;
+    let randomArray: number[] = [];
 
     // Randomize it 5 times
-    for(let i=0; i<5; i++)
-    {
-        regionId = Math.floor(Math.random() * 47) + 1;
+    while(randomArray.length < 5)
+    { 
+        // Pick random car Id
+        random = Math.floor(Math.random() * 47 + 0.9) + 1;
+
+        // Try randomize it again if it's 0, and fix if more than car length
+        if(random < 1 || random > 47)
+        {
+            random = Math.floor(Math.random() * 47 + 0.9) + 1;
+        }
+
+        // Random Number not yet selected
+        if(randomArray.indexOf(random) === -1)
+        {
+            // Push current number to array
+            randomArray.push(random);
+        }
     }
 
-    // Try randomize it again if it's 1
-    if(regionId === 1)
-    {
-        regionId = Math.floor(Math.random() * 47) + 1;
-    }
-
-    // Error handling if regionId is below 1 or above 47
-    if(regionId < 1 || regionId > 47)
-    {
-        regionId = Math.floor(Math.random() * 10) + 10;
-    }
+    // Pick the array number
+    let pickRandom = Math.floor(Math.random() * randomArray.length + 0.9);
+    random = randomArray[pickRandom];
 
     // Default car values
     let carInsert = {
@@ -358,7 +395,7 @@ export async function createCar(body: wm.protobuf.CreateCarRequest)
         carSettingsDbId: settings.dbId,
         carStateDbId: state.dbId,
         carGTWingDbId: gtWing.dbId,
-        regionId: regionId,
+        regionId: random,
         lastPlayedAt: date,
         lastPlayedPlaceId: 1, // Server Default
     };
