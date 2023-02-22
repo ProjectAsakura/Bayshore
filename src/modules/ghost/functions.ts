@@ -64,7 +64,8 @@ export async function getStampTarget(carId: number)
         },
         orderBy:{
             locked: 'desc'
-        }
+        },
+        take: 10
     });
     let stampTarget: wmproto.wm.protobuf.StampTargetCar[] = [];
 
@@ -119,18 +120,21 @@ export async function getChallengers(carId: number)
     let challengers: wmproto.wm.protobuf.ChallengerCar[] = [];
     let arrChallengerCarId = [];
 
+    // Push beated carId to array
     for(let i=0; i<checkBeatedCar.length; i++)
     {
         arrChallengerCarId.push(checkBeatedCar[i].carId);
     }
 
+    // Find Opponent Challengers except beated car
     let getChallengers = await prisma.carChallenger.findMany({
         where: {
             carId: carId,
             NOT: {
                 challengerCarId: { in: arrChallengerCarId }, // Except beated challenger id
-            },
-        }
+            }
+        },
+        take: 10
     });
 
     if(getChallengers)
