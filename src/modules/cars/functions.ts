@@ -150,12 +150,12 @@ export async function getOpponentsTarget(carId: number, registeredargetAvailable
             while(randomArray.length < maxNumber)
             { 
                 // Pick random car Id
-                random = Math.floor(Math.random() * opponentTargetCount + 0.9);
+                random = Math.floor(Math.random() * opponentTargetCount);
 
                 // Try randomize it again if it's 0, and fix if more than car length
                 if(random < 1 || random >= opponentTargetCount)
                 {
-                    random = Math.floor(Math.random() * opponentTargetCount + 0.9);
+                    random = Math.floor(Math.random() * opponentTargetCount);
                 }
 
                 // Random Number not yet selected
@@ -167,7 +167,7 @@ export async function getOpponentsTarget(carId: number, registeredargetAvailable
             }
 
             // Pick the array number
-            let pickRandom = Math.floor(Math.random() * randomArray.length + 0.9);
+            let pickRandom = Math.floor(Math.random() * randomArray.length);
             random = randomArray[pickRandom];
 
             // Check opponents target
@@ -360,12 +360,12 @@ export async function createCar(body: wm.protobuf.CreateCarRequest)
     while(randomArray.length < 5)
     { 
         // Pick random car Id
-        random = Math.floor(Math.random() * 47 + 0.9) + 1;
+        random = Math.floor(Math.random() * 47) + 1;
 
         // Try randomize it again if it's 0, and fix if more than car length
         if(random < 1 || random > 47)
         {
-            random = Math.floor(Math.random() * 47 + 0.9) + 1;
+            random = Math.floor(Math.random() * 47) + 1;
         }
 
         // Random Number not yet selected
@@ -377,7 +377,7 @@ export async function createCar(body: wm.protobuf.CreateCarRequest)
     }
 
     // Pick the array number
-    let pickRandom = Math.floor(Math.random() * randomArray.length + 0.9);
+    let pickRandom = Math.floor(Math.random() * randomArray.length);
     random = randomArray[pickRandom];
 
     // Default car values

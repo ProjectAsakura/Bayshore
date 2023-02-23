@@ -635,32 +635,36 @@ export default class TerminalModule extends Module {
 								periodId: 'desc'
 							}   
 						],
+						include:{
+							car: true
+						},
+						distinct: ["carId"],
 					})
 
 					numOfParticipants = ocmParticipant.length;
 					periodId = 0;
 					let ranking = 0;
+					let maxNumber = 150;
 
-					if(ocmParticipant)
+					if(numOfParticipants < 151)
 					{
+						maxNumber = numOfParticipants;
+					}
+
+					if(numOfParticipants > 0)
+					{	
 						periodId = ocmParticipant[0].periodId;
 						
-						for(let i=0; i<ocmParticipant.length; i++)
+						for(let i=0; i<maxNumber; i++)
 						{
-							let cars = await prisma.car.findFirst({
-								where:{
-									carId: ocmParticipant[i].carId
-								},
-								include:{
-									gtWing: true,
-									lastPlayedPlace: true
-								}
-							});
-
 							let ocmGhostrecord = await prisma.oCMGhostBattleRecord.findFirst({
 								where:{
 									carId: ocmParticipant[0].carId,
 									competitionId: ocmEventDate!.competitionId,
+								},
+								select:{
+									playedShopName: true,
+									playedAt: true
 								}
 							});
 
@@ -676,14 +680,14 @@ export default class TerminalModule extends Module {
 									rank: i + 1,
 									result: ocmParticipant[i].result,
 									carId: ocmParticipant[i].carId,
-									name: cars!.name,
-									regionId: cars!.regionId,
-									model: cars!.model,
-									visualModel: cars!.visualModel,
-									defaultColor: cars!.defaultColor,
-									title: cars!.title,
-									level: cars!.level,
-									windowStickerString: cars!.windowStickerString,
+									name: ocmParticipant[i].car.name,
+									regionId: ocmParticipant[i].car.regionId,
+									model: ocmParticipant[i].car.model,
+									visualModel: ocmParticipant[i].car.visualModel,
+									defaultColor: ocmParticipant[i].car.defaultColor,
+									title: ocmParticipant[i].car.title,
+									level: ocmParticipant[i].car.level,
+									windowStickerString: ocmParticipant[i].car.windowStickerString,
 									playedShopName: playedShopName,
 									playedAt: ocmGhostrecord!.playedAt
 								});
@@ -696,17 +700,55 @@ export default class TerminalModule extends Module {
 								rank: i + 1,
 								result: ocmParticipant[i].result,
 								carId: ocmParticipant[i].carId,
-								name: cars!.name,
-								regionId: cars!.regionId,
-								model: cars!.model,
-								visualModel: cars!.visualModel,
-								defaultColor: cars!.defaultColor,
-								title: cars!.title,
-								level: cars!.level,
-								windowStickerString: cars!.windowStickerString,
+								name: ocmParticipant[i].car.name,
+								regionId: ocmParticipant[i].car.regionId,
+								model: ocmParticipant[i].car.model,
+								visualModel: ocmParticipant[i].car.visualModel,
+								defaultColor: ocmParticipant[i].car.defaultColor,
+								title: ocmParticipant[i].car.title,
+								level: ocmParticipant[i].car.level,
+								windowStickerString: ocmParticipant[i].car.windowStickerString,
 								playedShopName: playedShopName,
 								playedAt: ocmGhostrecord!.playedAt
 							}));
+						}
+
+						if(!(ownRecords))
+						{
+							for(let i=150; i<numOfParticipants; i++)
+							{
+								if(ocmParticipant[i].carId === body.carId)
+								{
+									let ocmGhostrecord = await prisma.oCMGhostBattleRecord.findFirst({
+										where:{
+											carId: body.carId,
+											competitionId: ocmEventDate!.competitionId,
+										},
+										select:{
+											playedAt: true
+										}
+									});
+
+									// User car setting
+									ownRecords = wm.wm.protobuf.LoadGhostCompetitionRankingResponse.Entry.create({
+										rank: i + 1,
+										result: ocmParticipant[i].result,
+										carId: ocmParticipant[i].carId,
+										name: ocmParticipant[i].car.name,
+										regionId: ocmParticipant[i].car.regionId,
+										model: ocmParticipant[i].car.model,
+										visualModel: ocmParticipant[i].car.visualModel,
+										defaultColor: ocmParticipant[i].car.defaultColor,
+										title: ocmParticipant[i].car.title,
+										level: ocmParticipant[i].car.level,
+										windowStickerString: ocmParticipant[i].car.windowStickerString,
+										playedShopName: playedShopName,
+										playedAt: ocmGhostrecord!.playedAt
+									});
+
+									break;
+								}
+							}
 						}
 					}
 				}
@@ -721,27 +763,21 @@ export default class TerminalModule extends Module {
 						},
 						orderBy: {
 							result: 'desc'
-						}
+						},
+						include:{
+							car: true
+						},
+						distinct: ["carId"],
 					})
 
 					numOfParticipants = ocmParticipant.length;
 					periodId = 0;
 					let ranking = 0;
 
-					if(ocmParticipant)
+					if(numOfParticipants > 0)
 					{
-						for(let i=0; i<ocmParticipant.length; i++)
+						for(let i=0; i<numOfParticipants; i++)
 						{
-							let cars = await prisma.car.findFirst({
-								where:{
-									carId: ocmParticipant[i].carId
-								},
-								include:{
-									gtWing: true,
-									lastPlayedPlace: true
-								}
-							})
-
 							if(ocmParticipant[i].carId === body.carId && ranking === 0)
 							{
 								// User car setting
@@ -749,37 +785,21 @@ export default class TerminalModule extends Module {
 									rank: i + 1,
 									result: ocmParticipant[i].result,
 									carId: ocmParticipant[i].carId,
-									name: cars!.name,
-									regionId: cars!.regionId,
-									model: cars!.model,
-									visualModel: cars!.visualModel,
-									defaultColor: cars!.defaultColor,
-									title: cars!.title,
-									level: cars!.level,
-									windowStickerString: cars!.windowStickerString,
-									playedShopName: ocmParticipant[i].playedShopName,
+									name: ocmParticipant[i].car.name,
+									regionId: ocmParticipant[i].car.regionId,
+									model: ocmParticipant[i].car.model,
+									visualModel: ocmParticipant[i].car.visualModel,
+									defaultColor: ocmParticipant[i].car.defaultColor,
+									title: ocmParticipant[i].car.title,
+									level: ocmParticipant[i].car.level,
+									windowStickerString: ocmParticipant[i].car.windowStickerString,
+									playedShopName: playedShopName,
 									playedAt: ocmParticipant[i].playedAt
 								});
 
 								ranking++;
+								break;
 							}
-
-							// Generate OCM Top Records
-							topRecords.push(wm.wm.protobuf.LoadGhostCompetitionRankingResponse.Entry.create({
-								rank: i + 1,
-								result: ocmParticipant[i].result,
-								carId: ocmParticipant[i].carId,
-								name: cars!.name,
-								regionId: cars!.regionId,
-								model: cars!.model,
-								visualModel: cars!.visualModel,
-								defaultColor: cars!.defaultColor,
-								title: cars!.title,
-								level: cars!.level,
-								windowStickerString: cars!.windowStickerString,
-								playedShopName: ocmParticipant[i].playedShopName,
-								playedAt: ocmParticipant[i].playedAt
-							}));
 						}
 					}
 				}
@@ -795,31 +815,35 @@ export default class TerminalModule extends Module {
 						},
 						orderBy: {
 							result: 'desc'
-						}
+						},
+						include:{
+							car: true
+						},
+						distinct: ["carId"]
 					})
 
 					numOfParticipants = ocmParticipant.length;
 					periodId = 0;
 					let ranking = 0;
+					let maxNumber = 150;
 
-					if(ocmParticipant)
+					if(numOfParticipants < 151)
 					{
-						for(let i=0; i<ocmParticipant.length; i++)
-						{
-							let cars = await prisma.car.findFirst({
-								where:{
-									carId: ocmParticipant[i].carId
-								},
-								include:{
-									gtWing: true,
-									lastPlayedPlace: true
-								}
-							});
+						maxNumber = numOfParticipants;
+					}
 
+					if(numOfParticipants > 0)
+					{
+						for(let i=0; i<maxNumber; i++)
+						{
 							let ocmGhostrecord = await prisma.oCMGhostBattleRecord.findFirst({
 								where:{
-									carId: ocmParticipant[0].carId,
+									carId: ocmParticipant[i].carId,
 									competitionId: ocmEventDate!.competitionId,
+								},
+								select:{
+									playedShopName: true,
+									playedAt: true
 								}
 							});
 
@@ -830,14 +854,14 @@ export default class TerminalModule extends Module {
 									rank: i + 1,
 									result: ocmParticipant[i].result,
 									carId: ocmParticipant[i].carId,
-									name: cars!.name,
-									regionId: cars!.regionId,
-									model: cars!.model,
-									visualModel: cars!.visualModel,
-									defaultColor: cars!.defaultColor,
-									title: cars!.title,
-									level: cars!.level,
-									windowStickerString: cars!.windowStickerString,
+									name: ocmParticipant[i].car.name,
+									regionId: ocmParticipant[i].car.regionId,
+									model: ocmParticipant[i].car.model,
+									visualModel: ocmParticipant[i].car.visualModel,
+									defaultColor: ocmParticipant[i].car.defaultColor,
+									title: ocmParticipant[i].car.title,
+									level: ocmParticipant[i].car.level,
+									windowStickerString: ocmParticipant[i].car.windowStickerString,
 									playedShopName: ocmGhostrecord!.playedShopName,
 									playedAt: ocmGhostrecord!.playedAt
 								});
@@ -850,17 +874,55 @@ export default class TerminalModule extends Module {
 								rank: i + 1,
 								result: ocmParticipant[i].result,
 								carId: ocmParticipant[i].carId,
-								name: cars!.name,
-								regionId: cars!.regionId,
-								model: cars!.model,
-								visualModel: cars!.visualModel,
-								defaultColor: cars!.defaultColor,
-								title: cars!.title,
-								level: cars!.level,
-								windowStickerString: cars!.windowStickerString,
+								name: ocmParticipant[i].car.name,
+								regionId: ocmParticipant[i].car.regionId,
+								model: ocmParticipant[i].car.model,
+								visualModel: ocmParticipant[i].car.visualModel,
+								defaultColor: ocmParticipant[i].car.defaultColor,
+								title: ocmParticipant[i].car.title,
+								level: ocmParticipant[i].car.level,
+								windowStickerString: ocmParticipant[i].car.windowStickerString,
 								playedShopName: ocmGhostrecord!.playedShopName,
 								playedAt: ocmGhostrecord!.playedAt
 							}));
+						}
+
+						if(!(ownRecords))
+						{
+							for(let i=maxNumber; i<numOfParticipants; i++)
+							{
+								if(ocmParticipant[i].carId === body.carId)
+								{
+									let ocmGhostrecord = await prisma.oCMGhostBattleRecord.findFirst({
+										where:{
+											carId: body.carId,
+											competitionId: ocmEventDate!.competitionId,
+										},
+										select:{
+											playedAt: true
+										}
+									});
+
+									// User car setting
+									ownRecords = wm.wm.protobuf.LoadGhostCompetitionRankingResponse.Entry.create({
+										rank: i + 1,
+										result: ocmParticipant[i].result,
+										carId: ocmParticipant[i].carId,
+										name: ocmParticipant[i].car.name,
+										regionId: ocmParticipant[i].car.regionId,
+										model: ocmParticipant[i].car.model,
+										visualModel: ocmParticipant[i].car.visualModel,
+										defaultColor: ocmParticipant[i].car.defaultColor,
+										title: ocmParticipant[i].car.title,
+										level: ocmParticipant[i].car.level,
+										windowStickerString: ocmParticipant[i].car.windowStickerString,
+										playedShopName: playedShopName,
+										playedAt: ocmGhostrecord!.playedAt
+									});
+
+									break;
+								}
+							}
 						}
 					}
 				}
