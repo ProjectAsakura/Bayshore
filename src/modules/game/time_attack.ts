@@ -58,8 +58,8 @@ export async function saveTimeAttackResult(body: wm.protobuf.SaveGameResultReque
             // Record already exists 
             if (currentRecord)
             {
-                // If the existing record is faster, do not continue
-                if (body.taResult!.time < currentRecord.time)
+                // Current time record is faster than previous time record and time record is below 20 minutes
+                if (body.taResult!.time < currentRecord.time && body.taResult!.time < 1200000)
                 {
                     console.log('Updating time attack record...');
 
