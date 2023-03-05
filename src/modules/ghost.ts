@@ -149,9 +149,9 @@ export default class GhostModule extends Module {
 			let lists_ghostcar = getGhostCar.lists_ghostcar;
 
 			// Check again if car list for that selected region is available of not
-			if(body.regionId !== null && body.regionId !== undefined && body.regionId !== 0)
+			if(body.regionId !== null && body.regionId !== undefined && body.regionId !== 0 && car.length < 1)
 			{
-				let checkGhostSearchByRegion = await ghostFunctions.checkGhostSearchByRegion(car, body.ghostLevel, body.regionId);
+				let checkGhostSearchByRegion = await ghostFunctions.checkGhostSearchByRegion(body.ghostLevel, body.regionId);
 				lists_ghostcar = checkGhostSearchByRegion.lists_ghostcar;
 			}
 
