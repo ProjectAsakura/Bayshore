@@ -15,9 +15,10 @@ export async function getOpponentHistory(carId: number)
         orderBy:{
             lastPlayedAt: 'desc'
         },
-        take: 10
-    })
+        take: 20
+    });
     let opponentHistory: wmproto.wm.protobuf.Car[] = [];
+    let inserted = 0;
     
     if(findChallenger.length > 0)
     {
@@ -30,22 +31,28 @@ export async function getOpponentHistory(carId: number)
                 include:{
                     gtWing: true,
                     lastPlayedPlace: true
-                },
-                orderBy: {
-                    carId: 'asc'
-                },
-                take: 10
+                }
             });
 
-            // Error handling if regionId is below 1 or above 47
-            if(car!.regionId < 1 || car!.regionId > 47)
+            if(car)
             {
-                car!.regionId = Math.floor(Math.random() * 10) + 10;
+                // Error handling if regionId is below 1 or above 47
+                if(car!.regionId < 1 || car!.regionId > 47)
+                {
+                    car!.regionId = Math.floor(Math.random() * 10) + 10;
+                }
+
+                opponentHistory.push(wmproto.wm.protobuf.Car.create({
+                    ...car!
+                }));
+
+                inserted++;
             }
 
-            opponentHistory.push(wmproto.wm.protobuf.Car.create({
-                ...car!
-            }))
+            if(inserted > 10)
+            {
+                break;
+            }
         }
     }
 
