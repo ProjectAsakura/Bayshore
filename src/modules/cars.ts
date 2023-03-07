@@ -23,7 +23,7 @@ export default class CarModule extends Module {
             // Get the car (required data only) with the given id
 			let car = await carFunctions.getCar(body.carId);
 
-			// Get Challenger Data
+			// Get Registered HoF Data
 			let registeredTarget = await carFunctions.getRegisteredTarget(body.carId);
 
 			// Get Challenger Data

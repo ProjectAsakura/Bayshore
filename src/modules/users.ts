@@ -236,8 +236,8 @@ export default class UserModule extends Module {
 			if (user.carOrder.length > 0)
 			{
 				// Sort the player's car list using the car order property
-				user.cars = user.cars.sort(function(a, b){
-
+				user.cars = user.cars.sort(function(a, b)
+				{
 					// User, and both car IDs exist
 					if (user)
 					{

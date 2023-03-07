@@ -101,7 +101,20 @@ export async function competitionSchedule(date: any, competitionId: any)
         // It's previous Competition (OCM) event
         if(pastEvent === 1)
         {
-            lastCompetitionId = ghostCompetitionSchedule.competitionId;
+            // Get current date
+			let dates = Math.floor(new Date().getTime() / 1000);
+
+            let lastScheduleCompetitionId = await prisma.oCMEvent.findFirst({
+                where: {
+                    competitionCloseAt: { lte: dates }
+                },
+                orderBy:{
+                    competitionId: 'desc'
+                }
+            });
+    
+
+            lastCompetitionId = lastScheduleCompetitionId?.competitionId || 0;
         }
 
         // Competition (OCM) Response Message

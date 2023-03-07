@@ -588,10 +588,10 @@ export async function ocmGiveNamePlateReward(competitionId: number)
 
         let participantLength = getCarParticipant.length;
     
-        // Participant is more than 100
-        if(participantLength > 100)
+        // Participant is more than certain number (100 is default)
+        if(participantLength > 25)
         {
-            participantLength = 100
+            participantLength = 25;
         }
 
         // 16th - C1

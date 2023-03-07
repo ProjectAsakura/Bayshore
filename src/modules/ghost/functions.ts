@@ -15,9 +15,10 @@ export async function getOpponentHistory(carId: number)
         orderBy:{
             lastPlayedAt: 'desc'
         },
-        take: 10
-    })
+        take: 20
+    });
     let opponentHistory: wmproto.wm.protobuf.Car[] = [];
+    let inserted = 0;
     
     if(findChallenger.length > 0)
     {
@@ -30,22 +31,28 @@ export async function getOpponentHistory(carId: number)
                 include:{
                     gtWing: true,
                     lastPlayedPlace: true
-                },
-                orderBy: {
-                    carId: 'asc'
-                },
-                take: 10
+                }
             });
 
-            // Error handling if regionId is below 1 or above 47
-            if(car!.regionId < 1 || car!.regionId > 47)
+            if(car)
             {
-                car!.regionId = Math.floor(Math.random() * 10) + 10;
+                // Error handling if regionId is below 1 or above 47
+                if(car!.regionId < 1 || car!.regionId > 47)
+                {
+                    car!.regionId = Math.floor(Math.random() * 10) + 10;
+                }
+
+                opponentHistory.push(wmproto.wm.protobuf.Car.create({
+                    ...car!
+                }));
+
+                inserted++;
             }
 
-            opponentHistory.push(wmproto.wm.protobuf.Car.create({
-                ...car!
-            }))
+            if(inserted > 10)
+            {
+                break;
+            }
         }
     }
 
@@ -64,7 +71,8 @@ export async function getStampTarget(carId: number)
         },
         orderBy:{
             locked: 'desc'
-        }
+        },
+        take: 10
     });
     let stampTarget: wmproto.wm.protobuf.StampTargetCar[] = [];
 
@@ -119,18 +127,21 @@ export async function getChallengers(carId: number)
     let challengers: wmproto.wm.protobuf.ChallengerCar[] = [];
     let arrChallengerCarId = [];
 
+    // Push beated carId to array
     for(let i=0; i<checkBeatedCar.length; i++)
     {
         arrChallengerCarId.push(checkBeatedCar[i].carId);
     }
 
+    // Find Opponent Challengers except beated car
     let getChallengers = await prisma.carChallenger.findMany({
         where: {
             carId: carId,
             NOT: {
                 challengerCarId: { in: arrChallengerCarId }, // Except beated challenger id
-            },
-        }
+            }
+        },
+        take: 10
     });
 
     if(getChallengers)
@@ -270,122 +281,118 @@ export async function getGhostCar(car: any, area: number, ramp: number, path: nu
 
 
 // Check Ghost Car when using Search by Region
-export async function checkGhostSearchByRegion(car: any, ghostLevel: number, regionId: number)
+export async function checkGhostSearchByRegion(ghostLevel: number, regionId: number)
 {
-    let lists_ghostcar: any;
+    // Get current date
+    let date = Math.floor(new Date().getTime() / 1000);
+    
+    let playedPlace = wmproto.wm.protobuf.Place.create({ 
+        placeId: Config.getConfig().placeId,
+        regionId: Config.getConfig().regionId,
+        shopName: Config.getConfig().shopName,
+        country: Config.getConfig().country
+    });
 
-    if(car.length < 1)
+    let tunePowerDefault = 0
+    let tuneHandlingDefault = 0;
+    if(ghostLevel === 1)
     {
-        // Get current date
-        let date = Math.floor(new Date().getTime() / 1000);
-        
-        let playedPlace = wmproto.wm.protobuf.Place.create({ 
-            placeId: Config.getConfig().placeId,
-            regionId: Config.getConfig().regionId,
-            shopName: Config.getConfig().shopName,
-            country: Config.getConfig().country
-        });
-
-        let tunePowerDefault = 0
-        let tuneHandlingDefault = 0;
-        if(ghostLevel === 1)
-        {
-            tunePowerDefault = 1;
-            tuneHandlingDefault = 4;
-        }
-        else if(ghostLevel === 2)
-        {
-            tunePowerDefault = 5;
-            tuneHandlingDefault = 5;
-        }
-        else if(ghostLevel === 3)
-        {
-            tunePowerDefault = 8;
-            tuneHandlingDefault = 7;
-        }
-        else if(ghostLevel === 4)
-        {
-            tunePowerDefault = 10;
-            tuneHandlingDefault = 10;
-        }
-        else if(ghostLevel === 5)
-        {
-            tunePowerDefault = 15;
-            tuneHandlingDefault = 10;
-        }
-        else if(ghostLevel === 6)
-        {
-            tunePowerDefault = 18;
-            tuneHandlingDefault = 10;
-        }
-        else if(ghostLevel === 7)
-        {
-            tunePowerDefault = 20;
-            tuneHandlingDefault = 10;
-        }
-        else if(ghostLevel === 8)
-        {
-            tunePowerDefault = 21;
-            tuneHandlingDefault = 10;
-        }
-        else if(ghostLevel === 9)
-        {
-            tunePowerDefault = 22;
-            tuneHandlingDefault = 10;
-        }
-        else if(ghostLevel === 10)
-        {
-            tunePowerDefault = 24;
-            tuneHandlingDefault = 10;
-        }
-        else if(ghostLevel === 11)
-        {
-            tunePowerDefault = 24;
-            tuneHandlingDefault = 24;
-        }
-
-        // Generate default S660 car data
-        car = wmproto.wm.protobuf.Car.create({ 
-            carId: 999999999, // Don't change this
-            name: 'Ｓ６６０',
-            regionId: regionId, // IDN (福井)
-            manufacturer: 12, // HONDA
-            model: 105, // S660 [JW5]
-            visualModel: 130, // S660 [JW5]
-            defaultColor: 0,
-            customColor: 0,
-            wheel: 20,
-            wheelColor: 0,
-            aero: 0,
-            bonnet: 0,
-            wing: 0,
-            mirror: 0,
-            neon: 0,
-            trunk: 0,
-            plate: 0,
-            plateColor: 0,
-            plateNumber: 0,
-            tunePower: tunePowerDefault,
-            tuneHandling: tuneHandlingDefault,
-            rivalMarker: 32,
-            aura: 551,
-            windowSticker: true,
-            windowStickerString: 'ＢＡＹＳＨＯＲＥ',
-            windowStickerFont: 0,
-            title: 'No Ghost for this Region',
-            level: 65, // SSSSS
-            lastPlayedAt: date,
-            country: 'JPN',
-            lastPlayedPlace: playedPlace
-        });
-
-        // Push data to Ghost car proto
-        lists_ghostcar.push(wmproto.wm.protobuf.GhostCar.create({
-            car: car,
-            nonhuman: true,
-            type: wmproto.wm.protobuf.GhostType.GHOST_DEFAULT,
-        }));
+        tunePowerDefault = 1;
+        tuneHandlingDefault = 4;
     }
+    else if(ghostLevel === 2)
+    {
+        tunePowerDefault = 5;
+        tuneHandlingDefault = 5;
+    }
+    else if(ghostLevel === 3)
+    {
+        tunePowerDefault = 8;
+        tuneHandlingDefault = 7;
+    }
+    else if(ghostLevel === 4)
+    {
+        tunePowerDefault = 10;
+        tuneHandlingDefault = 10;
+    }
+    else if(ghostLevel === 5)
+    {
+        tunePowerDefault = 15;
+        tuneHandlingDefault = 10;
+    }
+    else if(ghostLevel === 6)
+    {
+        tunePowerDefault = 18;
+        tuneHandlingDefault = 10;
+    }
+    else if(ghostLevel === 7)
+    {
+        tunePowerDefault = 20;
+        tuneHandlingDefault = 10;
+    }
+    else if(ghostLevel === 8)
+    {
+        tunePowerDefault = 21;
+        tuneHandlingDefault = 10;
+    }
+    else if(ghostLevel === 9)
+    {
+        tunePowerDefault = 22;
+        tuneHandlingDefault = 10;
+    }
+    else if(ghostLevel === 10)
+    {
+        tunePowerDefault = 24;
+        tuneHandlingDefault = 10;
+    }
+    else if(ghostLevel === 11)
+    {
+        tunePowerDefault = 24;
+        tuneHandlingDefault = 24;
+    }
+
+    // Generate default S660 car data
+    let car = wmproto.wm.protobuf.Car.create({ 
+        carId: 999999999, // Don't change this
+        name: 'Ｓ６６０',
+        regionId: regionId, // IDN (福井)
+        manufacturer: 12, // HONDA
+        model: 105, // S660 [JW5]
+        visualModel: 130, // S660 [JW5]
+        defaultColor: 0,
+        customColor: 0,
+        wheel: 20,
+        wheelColor: 0,
+        aero: 0,
+        bonnet: 0,
+        wing: 0,
+        mirror: 0,
+        neon: 0,
+        trunk: 0,
+        plate: 0,
+        plateColor: 0,
+        plateNumber: 0,
+        tunePower: tunePowerDefault,
+        tuneHandling: tuneHandlingDefault,
+        rivalMarker: 32,
+        aura: 551,
+        windowSticker: true,
+        windowStickerString: 'ＢＡＹＳＨＯＲＥ',
+        windowStickerFont: 0,
+        title: 'No Ghost for this Region',
+        level: 65, // SSSSS
+        lastPlayedAt: date,
+        country: 'JPN',
+        lastPlayedPlace: playedPlace
+    });
+
+    // Push data to Ghost car proto
+    let lists_ghostcar: wmproto.wm.protobuf.GhostCar[] = [];
+    lists_ghostcar.push(wmproto.wm.protobuf.GhostCar.create({
+        car: car,
+        nonhuman: true,
+        type: wmproto.wm.protobuf.GhostType.GHOST_DEFAULT,
+    }));
 
     return { lists_ghostcar }
 }
