@@ -725,7 +725,7 @@ export default class TerminalModule extends Module {
 									}
 								});
 
-								let userPlayedAt = await prisma.ghostBattleRecord.findFirst({
+								let userPlayedAt = await prisma.oCMGhostBattleRecord.findFirst({
 									where:{
 										carId: body.carId
 									},
@@ -915,7 +915,7 @@ export default class TerminalModule extends Module {
 									}
 								});
 
-								let userPlayedAt = await prisma.ghostBattleRecord.findFirst({
+								let userPlayedAt = await prisma.oCMGhostBattleRecord.findFirst({
 									where:{
 										carId: body.carId
 									},
