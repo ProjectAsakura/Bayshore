@@ -727,7 +727,8 @@ export default class TerminalModule extends Module {
 
 								let userPlayedAt = await prisma.oCMGhostBattleRecord.findFirst({
 									where:{
-										carId: body.carId
+										carId: body.carId,
+										competitionId: body.competitionId
 									},
 									select:{
 										playedAt: true
@@ -917,7 +918,8 @@ export default class TerminalModule extends Module {
 
 								let userPlayedAt = await prisma.oCMGhostBattleRecord.findFirst({
 									where:{
-										carId: body.carId
+										carId: body.carId,
+										competitionId: body.competitionId
 									},
 									select:{
 										playedAt: true
