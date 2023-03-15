@@ -52,6 +52,12 @@ export async function saveTimeAttackResult(body: wm.protobuf.SaveGameResultReque
             cheatedTime = true;
         }
 
+        // Check the time again
+        if (body.taResult!.time <= 0 || body.taResult!.time >= 1200000 || body.taResult!.time.toString() == "-2147483648")
+        {
+            cheatedTime = true;
+        }
+
         // Not Cheated Time
         if(cheatedTime === false)
         {
@@ -84,28 +90,32 @@ export async function saveTimeAttackResult(body: wm.protobuf.SaveGameResultReque
                     });
                 }
             }
-            else // Creating a new record
+            // Creating a new record
+            else 
             {
-                console.log('Creating new time attack record');
+                if (body.taResult!.time < 1200000)
+                {
+                    console.log('Creating new time attack record');
 
-                await prisma.timeAttackRecord.create({
-                    data: {
-                        carId: body.carId,
-                        model: body.car!.model!,
-                        time: body.taResult!.time,
-                        isMorning: body.taResult!.isMorning,
-                        course: body.taResult!.course,
-                        section1Time: body!.taResult!.section_1Time,
-                        section2Time: body!.taResult!.section_2Time,
-                        section3Time: body!.taResult!.section_3Time,
-                        section4Time: body!.taResult!.section_4Time,
-                        section5Time: body!.taResult!.section_5Time,
-                        section6Time: body!.taResult!.section_6Time,
-                        section7Time: body!.taResult!.section_7Time,
-                        tunePower: body!.car!.tunePower, 
-                        tuneHandling: body!.car!.tuneHandling
-                    }
-                });
+                    await prisma.timeAttackRecord.create({
+                        data: {
+                            carId: body.carId,
+                            model: body.car!.model!,
+                            time: body.taResult!.time,
+                            isMorning: body.taResult!.isMorning,
+                            course: body.taResult!.course,
+                            section1Time: body!.taResult!.section_1Time,
+                            section2Time: body!.taResult!.section_2Time,
+                            section3Time: body!.taResult!.section_3Time,
+                            section4Time: body!.taResult!.section_4Time,
+                            section5Time: body!.taResult!.section_5Time,
+                            section6Time: body!.taResult!.section_6Time,
+                            section7Time: body!.taResult!.section_7Time,
+                            tunePower: body!.car!.tunePower, 
+                            tuneHandling: body!.car!.tuneHandling
+                        }
+                    });
+                }
             }
         }
         // else {} cheated time, ignore it
