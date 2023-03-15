@@ -186,7 +186,9 @@ export default class TerminalModule extends Module {
 
 			// Get the query from the request
 			let query = req.query;
-			let cars;
+			let cars: wm.wm.protobuf.Car[] = [];
+			let car;
+			let arr = [];
 
 			// Check the query limit
 			let queryLimit = 10
@@ -210,22 +212,23 @@ export default class TerminalModule extends Module {
 					queryLastPlayedPlaceId = getLastPlayedPlaceId.id;
 				}
 
-				cars = await prisma.car.findMany({
-					take: queryLimit, 
+				car = await prisma.car.findMany({
 					where: {
 						lastPlayedPlaceId: queryLastPlayedPlaceId
 					},
 					include:{
 						gtWing: true,
 						lastPlayedPlace: true
+					},
+					orderBy: {
+						carId: "asc"
 					}
 				});
 			}
 			else
 			{
 				// Get all of the cars matching the query
-				cars = await prisma.car.findMany({
-					take: queryLimit, 
+				car = await prisma.car.findMany({
 					where: {
 						OR:[
 							{
@@ -244,8 +247,48 @@ export default class TerminalModule extends Module {
 					include:{
 						gtWing: true,
 						lastPlayedPlace: true
+					},
+					orderBy: {
+						carId: "asc"
 					}
 				});
+			}
+
+			if(car.length > 0)
+			{
+				if(car.length < queryLimit)
+				{
+					queryLimit = car.length;
+				}
+
+				// Choose the user's car data randomly to appear
+				while(arr.length < queryLimit)
+				{
+					// Randomize pick
+					let random: number = 1;
+
+					// Randomize it 5 times
+					for(let i=0; i<5; i++)
+					{
+						random = Math.floor(Math.random() * car.length);
+					}
+			
+					// Try randomize it again if it's 1
+					if(random === 1)
+					{
+						random = Math.floor(Math.random() * car.length);
+					}
+					
+					if(arr.indexOf(random) === -1)
+        			{
+						// Push current number to array
+						arr.push(random); 
+
+						cars.push(wm.wm.protobuf.Car.create({
+							...car[random]
+						}));
+					}
+				}
 			}
 			
 			let msg = {
