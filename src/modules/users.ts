@@ -123,9 +123,9 @@ export default class UserModule extends Module {
 								false, // TUTORIAL_ID_UNUSED_17 = 17,
 								false, // TUTORIAL_ID_UNUSED_18 = 18,
 								false, // TUTORIAL_ID_UNUSED_19 = 19,
-								false, // TUTORIAL_ID_GHOST_STAMP = 20,
-								false, // TUTORIAL_ID_GHOST_STAMP_DECLINED = 21,
-								false, // TUTORIAL_ID_GHOST_STAMP_FRIENDS = 22,
+								true, // TUTORIAL_ID_GHOST_STAMP = 20,
+								true, // TUTORIAL_ID_GHOST_STAMP_DECLINED = 21,
+								true, // TUTORIAL_ID_GHOST_STAMP_FRIENDS = 22,
 								false, // TUTORIAL_ID_TERMINAL_SCRATCH = 23,
 								false, // TUTORIAL_ID_TURN_SCRATCH_SHEET = 24,
 								false, // TUTORIAL_ID_INVITE_FRIEND_CAMPAIGN = 25,
@@ -159,7 +159,7 @@ export default class UserModule extends Module {
 						}
 					});
 
-					console.log('user made')
+					console.log('user made');
 
 					if (!user) 
 					{
@@ -179,7 +179,7 @@ export default class UserModule extends Module {
 									userId: user.id,
 									category: wm.wm.protobuf.ItemCategory.CAT_CAR_TICKET_FREE,
 									itemId: 5, 
-									type: 0 // Car Ticket
+									type: Number(0) // Car Ticket
 								}
 							});
 						}
@@ -211,15 +211,15 @@ export default class UserModule extends Module {
 				}
 			})
 
-			console.log("Current sheet count:", scratchSheetCount);
+			console.log("Current sheet count: ", scratchSheetCount);
 
 			// If the user has no scratch sheets
-			if (scratchSheetCount == 0)
+			if (scratchSheetCount === 0)
 			{
 				console.log("Generating first sheet ...");
 
 				// Generate a new scratch sheet for the user
-				await scratch.generateScratchSheet(user!.id, 1);
+				await scratch.generateScratchSheet(user!.id, Number(1));
 
 				// Set the current scratch sheet to 1
 				await prisma.user.update({
@@ -227,7 +227,7 @@ export default class UserModule extends Module {
 						id: user!.id
 					}, 
 					data: {
-						currentSheet: 1
+						currentSheet: Number(1)
 					}
 				});
 			}

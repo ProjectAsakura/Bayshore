@@ -10,7 +10,7 @@
         "grantFullTuneTicketToNewUsers": 5, 
         "giftCarsFullyTuned": 0, 
         "scratchEnabled": 1, 
-        "scratchType": 1, 
+        "scratchType": 0, 
         "giveMeterReward": 0,
 		"newCardsBanned": 0,
 		"enableScreenshot": 0
