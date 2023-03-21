@@ -482,13 +482,6 @@ export default class TerminalModule extends Module {
 			// Get the current date/time (unix epoch)
 			let date = Math.floor(new Date().getTime() / 1000)
 
-			// Get all of the info for the user
-			let user = await prisma.user.findFirst({
-				where: {
-					id: body.userId
-				}
-			});
-
 			// Get all of the scratch sheets for the user
 			let scratchSheets = await prisma.scratchSheet.findMany({
 				where: {
@@ -559,11 +552,24 @@ export default class TerminalModule extends Module {
 					}
 				}); 
 				
-				// If the box we uncovered is the car
-				if (scratchSquare.category == 201)
+				// If the box we uncovered is the car... hehe boi
+				if (scratchSquare.category === 201)
 				{
+					// Get user last scratch sheet number
+					let lastUserSheet = await prisma.scratchSheet.findFirst({
+						where:{
+							userId: body.userId
+						},
+						orderBy:{
+							sheetNo: 'desc'
+						}
+					});
+
+					// Last scratch sheet plus 1
+					let targetSheet:number = Number(lastUserSheet?.sheetNo) + 1 || Number(body.targetSheet) + 1;
+
 					// Generate a new scratch sheet for the user
-					await scratch.generateScratchSheet(body.userId, body.targetSheet + 1)
+					await scratch.generateScratchSheet(body.userId, targetSheet);
 				}
 			} 
 			catch (error) // Failed to update scratch sheet

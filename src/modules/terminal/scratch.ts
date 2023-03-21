@@ -294,13 +294,14 @@ function shuffleScratchSheet (array: number[][])
 // 1 Random Scratch Car
 // 25 Random Scratch Stickers
 // 24 Random Scratch Versus Markers
-function getRandomScratchSheet (carId: number) 
+function getRandomScratchSheet (sheetNo: number) 
 {
     // Scratch items list
     let items : number[][] = [];
+    let sheetNumber:number = Number(sheetNo % scratchCars.length);
     
     // Add the scratch car for the given index
-    items.push([201, scratchCars[carId % scratchCars.length]]);
+    items.push([201, scratchCars[sheetNumber]]);
 
     // Add the random scratch stickers
 
