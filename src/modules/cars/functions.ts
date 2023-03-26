@@ -667,3 +667,141 @@ export async function updateCarCustomWing(body: wm.protobuf.UpdateCarRequest)
         }
     }
 }
+
+
+// Remove Used Ticket
+export async function checkCreatedCar(body: wm.protobuf.CreateCarRequest, car: any)
+{
+    let cheated: boolean = false;
+
+    let allCarVisualModel = [
+        1, // ZR1T
+        3, // CAMARO_MAT
+        38, // Z31ANIV
+        44, // R964
+        45, // R997
+        46, // RKC
+        80, // MF10_MAT
+        93, // R991
+        99, // MXG
+        100, // E89P
+        102, // CAMAROT
+        103, // R127P
+        116, // ND5RC
+        120, // RCT
+        122, // R60
+        125, // P400S
+        126, // DIABLO
+        130, // JW5
+        131, // AP2
+        133, // PS13
+        137, // NDERC
+        138, // UF31
+        139, // GS130
+        143, // 928GT
+    ];
+
+    let carVisualModelWithoutItem = [
+        1, // ZR1T
+        3, // CAMARO_MAT
+        38, // Z31ANIV
+        44, // R964
+        45, // R997
+        46, // RKC
+        80, // MF10_MAT
+        93, // R991
+        99, // MXG
+        100, // E89P
+        102, // CAMAROT
+        103, // R127P
+        116, // ND5RC
+        120, // RCT
+        125, // P400S
+        126, // DIABLO
+        133, // PS13
+        137, // NDERC
+        138, // UF31
+        139, // GS130
+        143, // 928GT
+    ];
+
+    // Check if user item id is not set and its a special car
+    for(let i=0; i<allCarVisualModel.length; i++)
+    {
+        if(!(body.userItemId) && car.visualModel === allCarVisualModel[i])
+        {
+            cheated = true;
+
+            return { cheated }
+        }
+    }
+
+    // Check if user item id is set and its a special car cannot be created from ticket
+    for(let i=0; i<carVisualModelWithoutItem.length; i++)
+    {
+        if(body.userItemId && car.visualModel === carVisualModelWithoutItem[i])
+        {
+            cheated = true;
+
+            return { cheated }
+        }
+    }
+
+    // Get the item id
+    let item = await prisma.userItem.findFirst({
+        where: {
+            userItemId: body.userItemId
+        }
+    });
+    let itemId = item?.itemId || -1;
+
+    // Check if user item id is set and its a special car created from ticket
+    if(car.visualModel === 130)
+    {
+        if(itemId < 22 || itemId > 27)
+        {
+            cheated = true;
+        }
+    }
+    else if(car.visualModel === 131)
+    {
+        if(itemId < 28 || itemId > 36)
+        {
+            cheated = true;
+        }
+    }
+    else if(car.visualModel === 122)
+    {
+        if(itemId < 7 || itemId > 15)
+        {
+            cheated = true;
+        }
+    }
+    else if(car.visualModel === 137)
+    {
+        if(itemId !== 37)
+        {
+            cheated = true;
+        }
+    }
+    else if(car.visualModel === 138)
+    {
+        if(itemId !== 38)
+        {
+            cheated = true;
+        }
+    }
+    else if(car.visualModel === 139)
+    {
+        if(itemId !== 39)
+        {
+            cheated = true;
+        }
+    }
+    else if(car.visualModel > 144)
+    {
+        cheated = true;
+    }
+
+    return { cheated }
+}

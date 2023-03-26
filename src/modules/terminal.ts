@@ -688,10 +688,16 @@ export default class TerminalModule extends Module {
 							car: true
 						},
 						distinct: ["carId"],
-						take: 50
-					})
+						take: 100
+					});
 
-					numOfParticipants = ocmParticipant.length;
+					let numOfParticipantsLength = [{ count: 0 }];
+
+					numOfParticipantsLength = await prisma.$queryRaw`
+							select count(*) as "count" from 
+							"OCMTally" where "competitionId" = ${body.competitionId}`;
+
+					numOfParticipants = Number(numOfParticipantsLength[0].count);
 					periodId = 0;
 					let ranking = 0;
 
@@ -822,7 +828,7 @@ export default class TerminalModule extends Module {
 							car: true
 						},
 						distinct: ["carId"],
-					})
+					});
 
 					numOfParticipants = ocmParticipant.length;
 					periodId = 0;
@@ -879,10 +885,16 @@ export default class TerminalModule extends Module {
 							car: true
 						},
 						distinct: ["carId"],
-						take: 10
-					})
+						take: 25
+					});
 
-					numOfParticipants = ocmParticipant.length;
+					let numOfParticipantsLength = [{ count: 0 }];
+
+					numOfParticipantsLength = await prisma.$queryRaw`
+							select count(*) as "count" from 
+							"OCMTally" where "competitionId" = ${body.competitionId}`;
+
+					numOfParticipants = Number(numOfParticipantsLength[0].count);
 					periodId = 0;
 					let ranking = 0;
 
