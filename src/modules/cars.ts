@@ -104,6 +104,26 @@ export default class CarModule extends Module {
 			let getCarTune = await carFunctions.getCarTune(tune, carInsert);
 			let additionalInsert = getCarTune.additionalInsert;
 
+			// Check created car and item used
+			let checkCreatedCars = await carFunctions.checkCreatedCar(body, carInsert);
+			if(checkCreatedCars.cheated === true)
+			{
+				let msg = {
+					error: wm.wm.protobuf.ErrorCode.ERR_FORBIDDEN,
+					carId: -1,
+					userId: -1,
+					rgStamp: -1
+				}
+
+				// Generate the load car response message
+				let message = wm.wm.protobuf.CreateCarResponse.encode(msg);
+
+				// Send the response
+				common.sendResponse(message, res);
+
+				return;
+			}
+
 			// Insert the car into the database
 			let car = await prisma.car.create({
 				data: {
