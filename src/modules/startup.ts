@@ -49,7 +49,7 @@ export default class StartupModule extends Module {
             let message = wm.wm.protobuf.RegisterSystemInfoResponse.encode(msg);
 
             // Send the response to the client
-            common.sendResponse(message, res);
+            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
         })
 
 
@@ -70,7 +70,7 @@ export default class StartupModule extends Module {
             let message = wm.wm.protobuf.UpdateUserSessionResponse.encode(msg);
             
             // Send the response to the client
-            common.sendResponse(message, res);
+            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
         });
 
 
@@ -89,7 +89,7 @@ export default class StartupModule extends Module {
             let message = wm.wm.protobuf.PingResponse.encode(ping);
 
             // Send the response to the client
-            common.sendResponse(message, res);
+            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
         })
 
         
@@ -110,7 +110,7 @@ export default class StartupModule extends Module {
 			let message = wm.wm.protobuf.RegisterSystemStatsResponse.encode(msg);
 
 			// Send the response to the client
-            common.sendResponse(message, res);
+            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
 		})
 
 
@@ -135,7 +135,7 @@ export default class StartupModule extends Module {
 			let message = wm.wm.protobuf.UpdateEventModeSerialResponse.encode(msg);
 
 			// Send the response to the client
-            common.sendResponse(message, res);
+            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
 		})
 
 
@@ -156,7 +156,7 @@ export default class StartupModule extends Module {
 			let message = wm.wm.protobuf.SubmitClientLogResponse.encode(msg);
 
 			// Send the response to the client
-            common.sendResponse(message, res);
+            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
 		})
     }
 }

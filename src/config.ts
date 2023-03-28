@@ -55,6 +55,11 @@ export interface GameOptions {
     newCardsBanned: number; // 1 is on, 0 is off
 
     // revision check
+    // set this option to 1 will block not matched revision
+    // and from connecting to the server
+    revisionCheck: number; // 1 is on, 0 is off
+
+    // revision check
     // set this option to 1 to enable screenshot feature
     enableScreenshot: number; // 1 is on, 0 is off
 }

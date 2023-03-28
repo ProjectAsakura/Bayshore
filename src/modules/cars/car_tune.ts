@@ -17,6 +17,7 @@ export async function createCarWithItem(userItemId: number)
         }
     });
     let tune = 0;
+    let itemId = item.itemId;
 
     console.log('Item deleted!');
 
@@ -80,7 +81,7 @@ export async function createCarWithItem(userItemId: number)
             }
             break;
     }
-    console.log(`Item category was ${item.category} and item game ID was ${item.itemId}`);
+    console.log(`Item category was ${item.category} and item game ID was ${itemId}`);
 
-    return { tune }
+    return { tune, itemId }
 }
