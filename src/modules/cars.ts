@@ -125,12 +125,30 @@ export default class CarModule extends Module {
 				return;
 			}
 
+			// Generate blank car settings object
+			let settings = await prisma.carSettings.create({
+				data: {}
+			});
+		
+			// Generate blank car state object
+			let state = await prisma.carState.create({
+				data: {}
+			});
+		
+			let gtWing = await prisma.carGTWing.create({
+				data: {}
+			});
+
 			// Insert the car into the database
 			let car = await prisma.car.create({
 				data: {
 					...carInsert,
 					...additionalInsert,
-					...additionalWindowStickerInsert
+					...additionalWindowStickerInsert,
+
+					carSettingsDbId: settings.dbId,
+					carStateDbId: state.dbId,
+					carGTWingDbId: gtWing.dbId,
 				}
 			});
 

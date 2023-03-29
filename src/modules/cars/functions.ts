@@ -287,20 +287,6 @@ export async function createCar(body: wm.protobuf.CreateCarRequest)
     // User not found, terminate
     if (!user) throw new Error();
 
-    // Generate blank car settings object
-    let settings = await prisma.carSettings.create({
-        data: {}
-    });
-
-    // Generate blank car state object
-    let state = await prisma.carState.create({
-        data: {}
-    });
-
-    let gtWing = await prisma.carGTWing.create({
-        data: {}
-    });
-
     // Sets if full tune is used or not
     // let fullyTuned = false;
 

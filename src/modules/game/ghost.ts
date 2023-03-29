@@ -536,7 +536,6 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
     // Retiring Ghost Battle
     else if(body.rgResult!.selectionMethod === wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SEARCH_BY_REGION ||
         body.rgResult!.selectionMethod === wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SELECT_BY_LEVEL ||
-        body.rgResult!.selectionMethod === wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SELECT_CROWN_MATCH ||
         body.rgResult!.selectionMethod === wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SELECT_STAMP_MATCH || 
         body.rgResult!.selectionMethod === wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SELECT_FROM_HISTORY ||
         body.rgResult!.selectionMethod === wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SEARCH_BY_SHOP || 
@@ -658,6 +657,12 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                 ...dataGhost
             }
         }); 
+    }
+    // Retiring Crown Mode
+    else if(body.rgResult!.selectionMethod === wmproto.wm.protobuf.GhostSelectionMethod.GHOST_SELECT_CROWN_MATCH)
+    {
+        // TODO
+        console.log('Crown Ghost Mode Found but Retiring');
     }
 
     // Return the value to 'BASE_PATH/src/modules/game.ts'
