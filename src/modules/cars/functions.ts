@@ -380,9 +380,6 @@ export async function createCar(body: wm.protobuf.CreateCarRequest)
         level: body.car.level!,
         tunePower: body.car.tunePower!,
         tuneHandling: body.car.tuneHandling!,
-        carSettingsDbId: settings.dbId,
-        carStateDbId: state.dbId,
-        carGTWingDbId: gtWing.dbId,
         regionId: random,
         lastPlayedAt: date,
         lastPlayedPlaceId: 1, // Server Default
