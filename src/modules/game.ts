@@ -259,6 +259,8 @@ export default class GameModule extends Module {
 
 					if(timestamp <= 120)
 					{
+						console.log('Crown Force Finish Detected');
+
 						// Update the user status
 						await prisma.carCrownDetect.update({
 							where:{
@@ -324,7 +326,14 @@ export default class GameModule extends Module {
 								}
 							});
 						}
-						
+					}
+					else
+					{
+						await prisma.carCrownDetect.delete({
+							where:{
+								id: getCarCrown.id
+							}
+						});
 					}
 				}
 			}
