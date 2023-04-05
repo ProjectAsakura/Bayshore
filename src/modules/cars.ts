@@ -9,6 +9,7 @@ import * as wm from "../wmmt/wm.proto";
 // Import Util
 import * as common from "./util/common";
 import * as carFunctions from "./cars/functions";
+import * as terminal from "./terminal/check_car";
 
 
 export default class CarModule extends Module {
@@ -151,6 +152,9 @@ export default class CarModule extends Module {
 					carGTWingDbId: gtWing.dbId,
 				}
 			});
+
+			// Check if created car is from terminal scratch car
+			await terminal.checkScratchCar(body.userId, body.car.visualModel!)
 
 			// Get the user's current car order
 			let carOrder = createCar.user.carOrder;

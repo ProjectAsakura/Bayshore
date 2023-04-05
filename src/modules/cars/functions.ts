@@ -10,7 +10,6 @@ import * as wmproto from "../../wmmt/wm.proto";
 // Import Util
 import * as common from "../util/common";
 import * as car_tune from "./car_tune";
-import * as terminal from "../terminal/check_car";
 
 
 // Get Car Data
@@ -310,9 +309,6 @@ export async function createCar(body: wm.protobuf.CreateCarRequest)
     {
         // Car is fully tuned
         tune = 2;
-
-        // Check if created car is from terminal scratch car
-        await terminal.checkScratchCar(body.userId, body.car.visualModel!)
     }
     // User item not used, but car has 600 HP by default
     else if (body.car && body.car.tunePower == 10 && body.car.tuneHandling == 10)
