@@ -378,7 +378,7 @@ export default class GhostModule extends Module {
 			let message = wm.wm.protobuf.LoadGhostCompetitionInfoResponse.encode(msg);
 
             // Send the response to the client
-            common.sendResponse(message, res);
+            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
 		})
 
 
@@ -699,7 +699,7 @@ export default class GhostModule extends Module {
 			let message = wm.wm.protobuf.GhostCompetitionTarget.encode(msg);
 
             // Send the response to the client
-            common.sendResponse(message, res);
+            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
 		})
     }
 }

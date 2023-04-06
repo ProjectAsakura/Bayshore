@@ -10,7 +10,6 @@ import * as wmproto from "../../wmmt/wm.proto";
 // Import Util
 import * as common from "../util/common";
 import * as car_tune from "./car_tune";
-import * as terminal from "../terminal/check_car";
 
 
 // Get Car Data
@@ -287,20 +286,6 @@ export async function createCar(body: wm.protobuf.CreateCarRequest)
     // User not found, terminate
     if (!user) throw new Error();
 
-    // Generate blank car settings object
-    let settings = await prisma.carSettings.create({
-        data: {}
-    });
-
-    // Generate blank car state object
-    let state = await prisma.carState.create({
-        data: {}
-    });
-
-    let gtWing = await prisma.carGTWing.create({
-        data: {}
-    });
-
     // Sets if full tune is used or not
     // let fullyTuned = false;
 
@@ -308,6 +293,7 @@ export async function createCar(body: wm.protobuf.CreateCarRequest)
     // 1: Basic Tune (600 HP)
     // 2: Fully Tuned (840 HP)
     let tune = 0;
+    let itemId = 0;
 
     // If a user item has been used
     if (body.userItemId) 
@@ -315,6 +301,7 @@ export async function createCar(body: wm.protobuf.CreateCarRequest)
         let carUtilFunctions = await car_tune.createCarWithItem(body.userItemId);
 
         tune = carUtilFunctions.tune;
+        itemId = carUtilFunctions.itemId;
     }
     // Other cases, may occur if item is not detected as 'used'
     // User item not used, but car has 740 HP by default
@@ -322,9 +309,6 @@ export async function createCar(body: wm.protobuf.CreateCarRequest)
     {
         // Car is fully tuned
         tune = 2;
-
-        // Check if created car is from terminal scratch car
-        await terminal.checkScratchCar(body.userId, body.car.visualModel!)
     }
     // User item not used, but car has 600 HP by default
     else if (body.car && body.car.tunePower == 10 && body.car.tuneHandling == 10)
@@ -392,15 +376,12 @@ export async function createCar(body: wm.protobuf.CreateCarRequest)
         level: body.car.level!,
         tunePower: body.car.tunePower!,
         tuneHandling: body.car.tuneHandling!,
-        carSettingsDbId: settings.dbId,
-        carStateDbId: state.dbId,
-        carGTWingDbId: gtWing.dbId,
         regionId: random,
         lastPlayedAt: date,
         lastPlayedPlaceId: 1, // Server Default
     };
 
-    return { carInsert, tune, user }
+    return { carInsert, tune, user, itemId }
 }
 
 
@@ -670,7 +651,7 @@ export async function updateCarCustomWing(body: wm.protobuf.UpdateCarRequest)
 
 
 // Remove Used Ticket
-export async function checkCreatedCar(body: wm.protobuf.CreateCarRequest, car: any)
+export async function checkCreatedCar(body: wm.protobuf.CreateCarRequest, car: any, itemId: number)
 {
     let cheated: boolean = false;
 
@@ -698,7 +679,6 @@ export async function checkCreatedCar(body: wm.protobuf.CreateCarRequest, car: a
         137, // NDERC
         138, // UF31
         139, // GS130
-        143, // 928GT
     ];
 
     let carVisualModelWithoutItem = [
@@ -719,10 +699,6 @@ export async function checkCreatedCar(body: wm.protobuf.CreateCarRequest, car: a
         125, // P400S
         126, // DIABLO
         133, // PS13
-        137, // NDERC
-        138, // UF31
-        139, // GS130
-        143, // 928GT
     ];
 
     // Check if user item id is not set and its a special car
@@ -747,16 +723,15 @@ export async function checkCreatedCar(body: wm.protobuf.CreateCarRequest, car: a
         }
     }
 
-    // Get the item id
-    let item = await prisma.userItem.findFirst({
-        where: {
-            userItemId: body.userItemId
-        }
-    });
-    let itemId = item?.itemId || -1;
-
     // Check if user item id is set and its a special car created from ticket
-    if(car.visualModel === 130)
+    if(car.visualModel === 122)
+    {
+        if(itemId < 7 || itemId > 15)
+        {
+            cheated = true;
+        }
+    }
+    else if(car.visualModel === 130)
     {
         if(itemId < 22 || itemId > 27)
         {
@@ -770,13 +745,6 @@ export async function checkCreatedCar(body: wm.protobuf.CreateCarRequest, car: a
             cheated = true;
         }
     }
-    else if(car.visualModel === 122)
-    {
-        if(itemId < 7 || itemId > 15)
-        {
-            cheated = true;
-        }
-    }
     else if(car.visualModel === 137)
     {
         if(itemId !== 37)
@@ -786,14 +754,14 @@ export async function checkCreatedCar(body: wm.protobuf.CreateCarRequest, car: a
     }
     else if(car.visualModel === 138)
     {
-        if(itemId !== 38)
+        if(itemId !== 39)
         {
             cheated = true;
         }
     }
     else if(car.visualModel === 139)
     {
-        if(itemId !== 39)
+        if(itemId !== 38)
         {
             cheated = true;
         }

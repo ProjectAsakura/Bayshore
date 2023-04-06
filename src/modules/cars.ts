@@ -9,6 +9,7 @@ import * as wm from "../wmmt/wm.proto";
 // Import Util
 import * as common from "./util/common";
 import * as carFunctions from "./cars/functions";
+import * as terminal from "./terminal/check_car";
 
 
 export default class CarModule extends Module {
@@ -81,7 +82,7 @@ export default class CarModule extends Module {
 			let message = wm.wm.protobuf.LoadCarResponse.encode(msg);
 
 			// Send the response
-            common.sendResponse(message, res);
+            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
 		});
 
 
@@ -94,6 +95,7 @@ export default class CarModule extends Module {
 			// Create the Car
 			let createCar = await carFunctions.createCar(body);
 			let tune = createCar.tune;
+			let itemId = createCar.itemId;
 			let carInsert = createCar.carInsert;
 
 			// Check if user's other car have unique window sticker
@@ -105,7 +107,7 @@ export default class CarModule extends Module {
 			let additionalInsert = getCarTune.additionalInsert;
 
 			// Check created car and item used
-			let checkCreatedCars = await carFunctions.checkCreatedCar(body, carInsert);
+			let checkCreatedCars = await carFunctions.checkCreatedCar(body, carInsert, itemId);
 			if(checkCreatedCars.cheated === true)
 			{
 				let msg = {
@@ -119,19 +121,40 @@ export default class CarModule extends Module {
 				let message = wm.wm.protobuf.CreateCarResponse.encode(msg);
 
 				// Send the response
-				common.sendResponse(message, res);
+				common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
 
 				return;
 			}
+
+			// Generate blank car settings object
+			let settings = await prisma.carSettings.create({
+				data: {}
+			});
+		
+			// Generate blank car state object
+			let state = await prisma.carState.create({
+				data: {}
+			});
+		
+			let gtWing = await prisma.carGTWing.create({
+				data: {}
+			});
 
 			// Insert the car into the database
 			let car = await prisma.car.create({
 				data: {
 					...carInsert,
 					...additionalInsert,
-					...additionalWindowStickerInsert
+					...additionalWindowStickerInsert,
+
+					carSettingsDbId: settings.dbId,
+					carStateDbId: state.dbId,
+					carGTWingDbId: gtWing.dbId,
 				}
 			});
+
+			// Check if created car is from terminal scratch car
+			await terminal.checkScratchCar(body.userId, body.car.visualModel!)
 
 			// Get the user's current car order
 			let carOrder = createCar.user.carOrder;
@@ -160,7 +183,7 @@ export default class CarModule extends Module {
             let message = wm.wm.protobuf.CreateCarResponse.encode(msg);
 
             // Send the response
-            common.sendResponse(message, res);
+            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
         })
 
 
@@ -226,7 +249,7 @@ export default class CarModule extends Module {
             let message = wm.wm.protobuf.UpdateCarResponse.encode(msg);
 
             // Send the response
-            common.sendResponse(message, res);
+            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
         })
     }
 }

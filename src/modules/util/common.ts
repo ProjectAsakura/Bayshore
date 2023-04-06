@@ -1,11 +1,12 @@
 import { Response } from "express";
-import Long from "long";
 import { Writer } from "protobufjs";
+import { Config } from "../../config";
+import Long from "long";
 
 
 // sendResponse(message, res): Void
 // Sends the server response to the client
-export function sendResponse(message: Writer, res: Response)
+export function sendResponse(message: Writer, res: Response, rawHeaders: string, rawHeaders2: string)
 {
     // Get the end of the message
     let end = message.finish();
@@ -17,8 +18,39 @@ export function sendResponse(message: Writer, res: Response)
         .header('Content-Length', end.length.toString())
         .status(200);
 
-    // Send the response to the client
-    r.send(Buffer.from(end));
+    // Revision Check
+    let revisionCheck = Config.getConfig().gameOptions.revisionCheck || 1;
+
+    // Revision Check is enabled
+    if(revisionCheck === 1)
+    {
+        // Get the Revision
+        let getProtobufRev;
+        if(rawHeaders.includes('application/x-protobuf')) // application/x-protobuf; revision=number_here
+        {
+            getProtobufRev = rawHeaders.split('; ');
+        }
+        else
+        {
+            getProtobufRev = rawHeaders2.split('; ');
+        }
+        
+        let protobufRev = getProtobufRev[1].split('='); // array 0 = content type, array 1 = protobuf revision
+
+        // Connect to the server if the Revision is match
+        if(protobufRev[1] === "8053")
+        {
+            // Send the response to the client
+            r.send(Buffer.from(end));
+        }
+        // else{} Prevent connecting to the server
+    }
+    // Just send it
+    else
+    {
+        // Send the response to the client
+        r.send(Buffer.from(end));
+    }
 }
 
 

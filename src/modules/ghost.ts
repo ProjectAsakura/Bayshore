@@ -64,11 +64,31 @@ export default class GhostModule extends Module {
                 stampReturnStats: car?.stampSheet || null,
 			};
 
-            // Encode the response
-			let message = wm.wm.protobuf.LoadGhostBattleInfoResponse.encode(msg);
+			let getUserId = await prisma.user.findFirst({
+				where:{
+					id: car!.userId
+				}
+			});
 
-            // Send the response to the client
-            common.sendResponse(message, res);
+			if(getUserId)
+			{
+				if(getUserId.userBanned === false)
+				{
+					// Encode the response
+					let message = wm.wm.protobuf.LoadGhostBattleInfoResponse.encode(msg);
+
+					// Send the response to the client
+					common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+				}
+			} 
+			else
+			{
+				// Encode the response
+				let message = wm.wm.protobuf.LoadGhostBattleInfoResponse.encode(msg);
+
+				// Send the response to the client
+				common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+			}
         })
 
 
@@ -97,7 +117,7 @@ export default class GhostModule extends Module {
             let message = wm.wm.protobuf.LoadStampTargetResponse.encode(msg);
 
             // Send the response to the client
-            common.sendResponse(message, res);
+            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
 		})
 
 
@@ -174,7 +194,7 @@ export default class GhostModule extends Module {
             let message = wm.wm.protobuf.SearchCarsByLevelResponse.encode(msg);
 
             // Send the response to the client
-            common.sendResponse(message, res);
+            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
         })
 
 
@@ -266,7 +286,7 @@ export default class GhostModule extends Module {
 			let message = wm.wm.protobuf.LoadGhostDriveDataResponse.encode(msg);
             
             // Send the response to the client
-            common.sendResponse(message, res);
+            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
         })
 
 
@@ -328,7 +348,7 @@ export default class GhostModule extends Module {
             let message = wm.wm.protobuf.RegisterGhostTrailResponse.encode(msg);
 
             // Send the response to the client
-            common.sendResponse(message, res);
+            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
 		})
 
 
@@ -390,7 +410,7 @@ export default class GhostModule extends Module {
             let message = wm.wm.protobuf.GhostTrail.encode(msg);
 
             // Send the response to the client
-            common.sendResponse(message, res);
+            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
 		})
 
 
@@ -496,7 +516,7 @@ export default class GhostModule extends Module {
 			let message = wm.wm.protobuf.LoadPathsAndTuningsResponse.encode(msg);
 
 			// Send the response to the client
-            common.sendResponse(message, res);
+            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
 		})
 
 
@@ -515,7 +535,7 @@ export default class GhostModule extends Module {
 			let message = wmsrv.wm.protobuf.LockCrownResponse.encode(msg);
 
 			// Send the response to the client
-            common.sendResponse(message, res);
+            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
         })
     }
 }

@@ -158,7 +158,7 @@ export default class GameModule extends Module {
 			let message = wm.wm.protobuf.SaveGameResultResponse.encode(msg);
 
             // Send the response to the client
-            common.sendResponse(message, res);
+            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
 		})
 		
 
@@ -207,7 +207,7 @@ export default class GameModule extends Module {
             let message = wm.wm.protobuf.LoadGameHistoryResponse.encode(msg);
             
 			// Send the response to the client
-            common.sendResponse(message, res);
+            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
         })
 
 
@@ -223,7 +223,7 @@ export default class GameModule extends Module {
 			let message = wm.wm.protobuf.SaveChargeResponse.encode(msg);
 			
 			// Send the response to the client
-            common.sendResponse(message, res);
+            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
         })
 
 
@@ -236,6 +236,108 @@ export default class GameModule extends Module {
 			// Perform the save screenshot request for the car
 			await gameFunction.saveScreenshot(body);
 
+			// Check retire crown
+			let getCarCrown = await prisma.carCrownDetect.findFirst({
+				where:{
+					carId: body.carId
+				}
+			});
+
+			if(getCarCrown)
+			{
+				if(getCarCrown.status === 'retire')
+				{
+					await prisma.carCrownDetect.delete({
+						where:{
+							id: getCarCrown.id
+						}
+					});
+				}
+				else if(getCarCrown.status === 'finish')
+				{
+					let timestamp = body.playedAt - body.timestamp;
+
+					if(timestamp <= 120)
+					{
+						console.log('Crown Force Finish Detected');
+
+						// Update the user status
+						await prisma.carCrownDetect.update({
+							where:{
+								id: getCarCrown.id
+							},
+							data:{
+								status: 'forcefinish'
+							}
+						});
+
+						// Restore the old crown
+						await prisma.carCrown.update({
+							where:{
+								area: getCarCrown.area!
+							},
+							data:{
+								carId: getCarCrown.opponentCarId!,
+								area: getCarCrown.area!,
+								ramp: getCarCrown.ramp!,
+								path: getCarCrown.path!,
+								playedAt: getCarCrown.playedAt!,
+								tunePower: getCarCrown.tunePower!,
+								tuneHandling: getCarCrown.tuneHandling!,
+							}
+						});
+
+						await prisma.ghostTrail.updateMany({
+							where:{
+								area: getCarCrown.area!,
+								crownBattle: true
+							},
+							data:{
+								carId: getCarCrown.opponentCarId!,
+								area: getCarCrown.area!,
+								ramp: getCarCrown.ramp!,
+								path: getCarCrown.path!,
+								playedAt: getCarCrown.playedAt!,
+								tunePower: getCarCrown.tunePower!,
+								tuneHandling: getCarCrown.tuneHandling!,
+								trail: getCarCrown.trail!
+							}
+						});
+
+
+						// Banned the user
+						let getUserId = await prisma.car.findFirst({
+							where:{
+								carId: body.carId
+							},
+							select:{
+								userId: true
+							}
+						})
+
+						if(getUserId)
+						{
+							await prisma.user.update({
+								where:{
+									id: getUserId.userId
+								},
+								data:{
+									userBanned: true
+								}
+							});
+						}
+					}
+					else
+					{
+						await prisma.carCrownDetect.delete({
+							where:{
+								id: getCarCrown.id
+							}
+						});
+					}
+				}
+			}
+
 			// Response data
             let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
@@ -245,7 +347,7 @@ export default class GameModule extends Module {
 			let message = wm.wm.protobuf.SaveScreenshotResponse.encode(msg);
 			
 			// Send the response to the client
-            common.sendResponse(message, res);
+            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
         })
     }
 }
