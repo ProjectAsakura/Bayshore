@@ -96,3 +96,25 @@ export function getTimeStamp(date: Date = new Date())
     // Return a timestamp string for the current / provided time
     return String("[" + date.toLocaleString() + "]");
 }
+
+
+// Write Log
+export async function writeLog(message: string)
+{
+    try {
+        // Get the current timestamp
+        const timestamp: string = getTimeStamp();
+
+        // Full message placeholder
+        let fullMessage: string;
+
+        // Generate the message content, write to console
+        fullMessage = timestamp + ': ' + message;
+
+        // Log
+        console.log(fullMessage);
+    }
+    catch {
+        // Failed
+    }
+}

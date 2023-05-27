@@ -96,17 +96,17 @@ if (useSentry) {
 }
 
 app.use((req, res, next) => {
-    console.log(timestamp+` [  MAIN] ${req.method} ${req.url}`);
+    common.writeLog(`[  MAIN] ${req.method} ${req.url}`);
     next()
 });
 
 muchaApp.use((req, res, next) => {
-    console.log(timestamp+` [ MUCHA] ${req.method} ${req.url}`);
+    common.writeLog(`[ MUCHA] ${req.method} ${req.url}`);
     next()
 });
 
 allnetApp.use((req, res, next) => {
-    console.log(timestamp+` [ALLNET] ${req.method} ${req.url}`);
+    common.writeLog(`[ALLNET] ${req.method} ${req.url}`);
     next()
 });
 
@@ -134,7 +134,7 @@ app.use('/', appRouter);
 app.use('/wmmt6/', appRouter);
 
 app.all('*', (req, res) => {
-    console.log(timestamp+` [  MAIN] ${req.method} ${req.url} is unhandled`);
+    common.writeLog(`[  MAIN] ${req.method} ${req.url} is unhandled`);
     res.status(200).end();
 })
 

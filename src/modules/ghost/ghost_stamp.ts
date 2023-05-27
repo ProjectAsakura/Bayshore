@@ -16,15 +16,23 @@ export async function sendStamp(body: wm.protobuf.SaveGameResultRequest)
 
     if(rgResult)
     {
-        // Stamp must bigger than 0
-        let rgStamp = rgResult.rgStamp;
+        // Get Sender Stamp Data
+        let carStamp = await prisma.car.findFirst({
+            where:{
+                carId: body.carId
+            },
+            select:{
+                rgStamp: true
+            }
+        });
+        let rgStamp:number = carStamp!.rgStamp;
         if(rgStamp === 0)
         {
             rgStamp = 1;
         }
 
         // Get the area
-        let area: Number = 0;
+        let area:number = 0;
         if(rgResult.path)
         {
             let getArea = await ghost_get_area_from_path.getArea(rgResult.path);
@@ -110,20 +118,29 @@ export async function shuttleReturnStamp(body: wm.protobuf.SaveGameResultRequest
 
     if(rgResult)
     {
-        // Stamp must bigger than 0
-        let rgStamp = rgResult.rgStamp;
+        // Get Sender Stamp Data
+        let carStamp = await prisma.car.findFirst({
+            where:{
+                carId: body.carId
+            },
+            select:{
+                rgStamp: true
+            }
+        })
+
+        let rgStamp:number = carStamp!.rgStamp;
         if(rgStamp === 0)
         {
             rgStamp = 1;
         }
 
         // Get the area
-        let area;
+        let area:number = 0;
         if(rgResult.path)
         {
             let getArea = await ghost_get_area_from_path.getArea(rgResult.path);
 
-            area = getArea.area;
+            area = Number(getArea.area);
         }
 
         // Check how many opponents available
