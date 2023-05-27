@@ -87,9 +87,6 @@ if (process.env.OPENTELEMETRY_ENABLED === "true") {
     ]);
 }
 
-// Get the current timestamp
-let timestamp: string = common.getTimeStamp();
-
 if (useSentry) {
     app.use(Sentry.Handlers.requestHandler());
     app.use(Sentry.Handlers.tracingHandler());

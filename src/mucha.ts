@@ -4,7 +4,7 @@ import moment from "moment";
 import { Config } from "./config";
 import { Module } from "./module";
 
-const PORT = 10082;
+const PORT = process.env.MUCHA_PORT !== undefined ? parseInt(process.env.MUCHA_PORT) : 10082;
 
 export default class MuchaModule extends Module {
     register(app: Application): void {
