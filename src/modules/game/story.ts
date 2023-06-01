@@ -57,7 +57,7 @@ export async function saveStoryResult(body: wm.protobuf.SaveGameResultRequest, c
             }
 
             // Calling check step function (BASE_PATH/src/util/games/games_util/check_step.ts)
-            let check_steps = await check_step.checkCurrentStep(body);
+            let check_steps = await check_step.checkCurrentStep(body, car);
 
             // Set the ghost level to the correct level
             data.ghostLevel = check_steps.ghostLevel;
