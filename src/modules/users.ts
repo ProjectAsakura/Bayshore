@@ -68,7 +68,7 @@ export default class UserModule extends Module {
 					let message = wm.wm.protobuf.LoadUserResponse.encode(msg);
 
 					// Send the response to the client
-					common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+					common.sendResponse(message, res, req.rawHeaders);
 
 					return;
 				}
@@ -93,7 +93,7 @@ export default class UserModule extends Module {
 						let message = wm.wm.protobuf.LoadUserResponse.encode(msg);
 
 						// Send the response to the client
-						common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+						common.sendResponse(message, res, req.rawHeaders);
 
 						return;
 					}
@@ -199,7 +199,7 @@ export default class UserModule extends Module {
 				let message = wm.wm.protobuf.LoadUserResponse.encode(msg);
 
 				// Send the response to the client
-				common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+				common.sendResponse(message, res, req.rawHeaders);
 
 				return;
 			}
@@ -587,7 +587,7 @@ export default class UserModule extends Module {
 			let message = wm.wm.protobuf.LoadUserResponse.encode(msg);
 
             // Send the response to the client
-            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+            common.sendResponse(message, res, req.rawHeaders);
 		})
 
 
@@ -643,7 +643,7 @@ export default class UserModule extends Module {
 			let message = wm.wm.protobuf.CreateUserResponse.encode(msg);
 
             // Send response to client
-            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+            common.sendResponse(message, res, req.rawHeaders);
 		});
 
 
@@ -694,7 +694,7 @@ export default class UserModule extends Module {
             let message = wm.wm.protobuf.LoadDriveInformationResponse.encode(msg);
             
             // Send the response to the client
-            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+            common.sendResponse(message, res, req.rawHeaders);
         })
 
         
@@ -710,7 +710,7 @@ export default class UserModule extends Module {
             let message = wm.wm.protobuf.UpdateUserSessionResponse.encode(msg);
 
             // Send the response to the client
-            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+            common.sendResponse(message, res, req.rawHeaders);
         })
 
 
@@ -730,7 +730,7 @@ export default class UserModule extends Module {
 			let message = wmsrv.wm.protobuf.StartTransferResponse.encode(msg);
 
 			// Send the response to the client
-            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+            common.sendResponse(message, res, req.rawHeaders);
         });
 
 
@@ -749,7 +749,7 @@ export default class UserModule extends Module {
 			let message = wmsrv.wm.protobuf.GrantCarRightResponse.encode(msg);
 
 			// Send the response to the client
-            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+            common.sendResponse(message, res, req.rawHeaders);
         });
 
 
@@ -768,7 +768,7 @@ export default class UserModule extends Module {
 			let message = wmsrv.wm.protobuf.AskAccessCodeResponse.encode(msg);
 
 			// Send the response to the client
-            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+            common.sendResponse(message, res, req.rawHeaders);
         });
 
         
@@ -787,7 +787,7 @@ export default class UserModule extends Module {
 			let message = wmsrv.wm.protobuf.ParticipateInInviteFriendCampaignResponse.encode(msg);
 
 			// Send the response to the client
-            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+            common.sendResponse(message, res, req.rawHeaders);
         });
 
 
@@ -805,7 +805,7 @@ export default class UserModule extends Module {
 			let message = wmsrv.wm.protobuf.ConsumeUserItemResponse.encode(msg);
 
 			// Send the response to the client
-            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+            common.sendResponse(message, res, req.rawHeaders);
 		})
         */
     }

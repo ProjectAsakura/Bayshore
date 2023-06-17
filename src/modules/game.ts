@@ -158,7 +158,7 @@ export default class GameModule extends Module {
 			let message = wm.wm.protobuf.SaveGameResultResponse.encode(msg);
 
             // Send the response to the client
-            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+            common.sendResponse(message, res, req.rawHeaders);
 		})
 		
 
@@ -207,7 +207,7 @@ export default class GameModule extends Module {
             let message = wm.wm.protobuf.LoadGameHistoryResponse.encode(msg);
             
 			// Send the response to the client
-            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+            common.sendResponse(message, res, req.rawHeaders);
         })
 
 
@@ -223,7 +223,7 @@ export default class GameModule extends Module {
 			let message = wm.wm.protobuf.SaveChargeResponse.encode(msg);
 			
 			// Send the response to the client
-            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+            common.sendResponse(message, res, req.rawHeaders);
         })
 
 
@@ -347,7 +347,7 @@ export default class GameModule extends Module {
 			let message = wm.wm.protobuf.SaveScreenshotResponse.encode(msg);
 			
 			// Send the response to the client
-            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+            common.sendResponse(message, res, req.rawHeaders);
         })
     }
 }

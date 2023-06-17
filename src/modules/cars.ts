@@ -82,7 +82,7 @@ export default class CarModule extends Module {
 			let message = wm.wm.protobuf.LoadCarResponse.encode(msg);
 
 			// Send the response
-            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+            common.sendResponse(message, res, req.rawHeaders);
 		});
 
 
@@ -121,7 +121,7 @@ export default class CarModule extends Module {
 				let message = wm.wm.protobuf.CreateCarResponse.encode(msg);
 
 				// Send the response
-				common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+				common.sendResponse(message, res, req.rawHeaders);
 
 				return;
 			}
@@ -183,7 +183,7 @@ export default class CarModule extends Module {
             let message = wm.wm.protobuf.CreateCarResponse.encode(msg);
 
             // Send the response
-            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+            common.sendResponse(message, res, req.rawHeaders);
         })
 
 
@@ -249,7 +249,7 @@ export default class CarModule extends Module {
             let message = wm.wm.protobuf.UpdateCarResponse.encode(msg);
 
             // Send the response
-            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+            common.sendResponse(message, res, req.rawHeaders);
         })
     }
 }
