@@ -76,7 +76,7 @@ export default class ResourceModule extends Module {
             let message = wm.wm.protobuf.PlaceList.encode({places});
 
              // Send the response to the client
-             common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+             common.sendResponse(message, res, req.rawHeaders);
         })
 
         // Get Ranking data for attract screen (TA, Ghost, VS)
@@ -103,7 +103,7 @@ export default class ResourceModule extends Module {
 			let message = wmsrv.wm.protobuf.Ranking.encode({lists});
 
             // Send the response to the client
-            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+            common.sendResponse(message, res, req.rawHeaders);
         })
 
 
@@ -123,7 +123,7 @@ export default class ResourceModule extends Module {
             let message = wmsrv.wm.protobuf.CrownList.encode( {crowns} );
 
             // Send the response to the client
-            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+            common.sendResponse(message, res, req.rawHeaders);
         })
 
 
@@ -184,7 +184,7 @@ export default class ResourceModule extends Module {
 			let message = wm.wm.protobuf.FileList.encode(msg);
 
 			// Send the response to the client
-            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+            common.sendResponse(message, res, req.rawHeaders);
 		})
 
         
@@ -206,7 +206,7 @@ export default class ResourceModule extends Module {
 			let message = wmsrv.wm.protobuf.GhostList.encode(msg);
 
 			// Send the response to the client
-            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+            common.sendResponse(message, res, req.rawHeaders);
 		})
     }
 }

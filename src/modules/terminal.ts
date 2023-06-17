@@ -36,7 +36,7 @@ export default class TerminalModule extends Module {
 			let message = wm.wm.protobuf.LoadTerminalInformationResponse.encode(msg);
 
 			// Send the response to the client
-            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+            common.sendResponse(message, res, req.rawHeaders);
 		})
 
 
@@ -91,7 +91,7 @@ export default class TerminalModule extends Module {
 			let message = wm.wm.protobuf.LoadBookmarksResponse.encode(msg);
 			
             // Send the response to the client
-            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+            common.sendResponse(message, res, req.rawHeaders);
 		})
 
 
@@ -148,7 +148,7 @@ export default class TerminalModule extends Module {
 			let message = wm.wm.protobuf.LoadBookmarksResponse.encode(msg);
 
 			// Send the response to the client
-            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+            common.sendResponse(message, res, req.rawHeaders);
 		})
 
 
@@ -177,7 +177,7 @@ export default class TerminalModule extends Module {
 			let message = wm.wm.protobuf.LoadBookmarksResponse.encode(msg);
 
 			// Send the response to the client
-            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+            common.sendResponse(message, res, req.rawHeaders);
 		})
 
 		
@@ -300,7 +300,7 @@ export default class TerminalModule extends Module {
 			let message = wm.wm.protobuf.CarSummary.encode(msg);
 
 			// Send the response to the client
-            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+            common.sendResponse(message, res, req.rawHeaders);
 		})
 
 
@@ -360,7 +360,7 @@ export default class TerminalModule extends Module {
 			let message = wm.wm.protobuf.SaveTerminalResultResponse.encode(msg);
 
 			// Send the response to the client
-            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+            common.sendResponse(message, res, req.rawHeaders);
 		})
 
 
@@ -440,7 +440,7 @@ export default class TerminalModule extends Module {
 			let message = wm.wm.protobuf.LoadScratchInformationResponse.encode(msg);
 			
             // Send the response to the client
-            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+            common.sendResponse(message, res, req.rawHeaders);
 		});
 
 
@@ -469,7 +469,7 @@ export default class TerminalModule extends Module {
 			let message = wm.wm.protobuf.TurnScratchSheetResponse.encode(msg);
 			
             // Send the response to the client
-            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+            common.sendResponse(message, res, req.rawHeaders);
 		})
 
 
@@ -598,7 +598,7 @@ export default class TerminalModule extends Module {
 			let message = wm.wm.protobuf.SaveScratchSheetResponse.encode(msg);
 
 			// Send the response to the client
-            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+            common.sendResponse(message, res, req.rawHeaders);
 		})
 
 		
@@ -1033,7 +1033,7 @@ export default class TerminalModule extends Module {
 			let message = wm.wm.protobuf.LoadGhostCompetitionRankingResponse.encode(msg);
 
 			// Send the response to the client
-            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+            common.sendResponse(message, res, req.rawHeaders);
 		})
 
 		
@@ -1098,7 +1098,7 @@ export default class TerminalModule extends Module {
 			let message = wm.wm.protobuf.RegisterOpponentGhostResponse.encode(msg);
 
 			// Send the response to the client
-            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+            common.sendResponse(message, res, req.rawHeaders);
 		})
 
 
@@ -1144,7 +1144,7 @@ export default class TerminalModule extends Module {
             });
 
             // Send the response to the client
-            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+            common.sendResponse(message, res, req.rawHeaders);
         });
 
 
@@ -1163,7 +1163,7 @@ export default class TerminalModule extends Module {
 			let message = wmsrv.wm.protobuf.LoadUnreceivedUserItemsResponse.encode(msg);
 
 			// Send the response to the client
-            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+            common.sendResponse(message, res, req.rawHeaders);
 		})
 
 
@@ -1181,7 +1181,7 @@ export default class TerminalModule extends Module {
 			let message = wmsrv.wm.protobuf.CheckItemReceivableCarsResponse.encode(msg);
 
 			// Send the response to the client
-            common.sendResponse(message, res, req.rawHeaders[5], req.rawHeaders[7]);
+            common.sendResponse(message, res, req.rawHeaders);
 		})
 		*/
     }	
