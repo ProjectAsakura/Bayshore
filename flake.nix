@@ -26,7 +26,7 @@
                 in rec {
                     packages.bayshore = pkgs.buildNpmPackage {
                         pname = "bayshore";
-                        version = "1.0.1";
+                        version = "1.0.2";
                         src = ./.;
                         npmDepsHash = "sha256-7iVoTJv5rvdiUWyhrDOGEboOo1sdQ7YvZOqbgvz/mF8=";
 
@@ -44,6 +44,7 @@
                             runHook preInstall
 
                             mkdir -p $out
+                            cp -r dist $out/dist
                             cp -r prisma $out/prisma
 
                             mkdir -p $out/bin
