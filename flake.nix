@@ -26,7 +26,7 @@
                 in rec {
                     packages.bayshore = pkgs.buildNpmPackage {
                         pname = "bayshore";
-                        version = "1.0.2";
+                        version = "1.0.3";
                         src = ./.;
                         npmDepsHash = "sha256-7iVoTJv5rvdiUWyhrDOGEboOo1sdQ7YvZOqbgvz/mF8=";
 
@@ -46,6 +46,7 @@
                             mkdir -p $out
                             cp -r dist $out/dist
                             cp -r prisma $out/prisma
+                            ln -s node_modules $out/node_modules
 
                             mkdir -p $out/bin
                             cat > $out/bin/bayshore <<EOF
