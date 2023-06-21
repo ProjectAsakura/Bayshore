@@ -9,8 +9,9 @@
   "private": false,
   "scripts": {
     "dev": "tsc && node dist",
-    "build": "tsc",
-    "build_protos": "tsc -p ./tsconfig.proto.json"
+    "build": "tsc -p ./tsconfig.proto.json && tsc",
+    "build_protos": "tsc -p ./tsconfig.proto.json",
+    "prisma-generate": "prisma generate"
   },
   "devDependencies": {
     "@types/express": "^4.17.13",
