@@ -26,9 +26,9 @@
                 in rec {
                     packages.bayshore = pkgs.buildNpmPackage {
                         pname = "bayshore";
-                        version = "1.0.8";
+                        version = "1.0.9";
                         src = ./.;
-                        npmDepsHash = "sha256-7iVoTJv5rvdiUWyhrDOGEboOo1sdQ7YvZOqbgvz/mF8=";
+                        npmDepsHash = "sha256-VbFdHmPF9we1MS8OibpJY51WKFUK3Iq9xNyb8GiBgL0=";
 
                         nativeBuildInputs = inputs;
                         buildInputs = inputs;
