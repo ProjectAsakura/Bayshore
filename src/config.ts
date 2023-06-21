@@ -1,4 +1,5 @@
 import fs from 'fs';
+import process from 'process';
 
 export interface ConfigFile {
     placeId: string;
@@ -69,7 +70,10 @@ export class Config {
 
     static load() {
         console.log('Loading config file...');
-        let cfg = fs.readFileSync('./config.json', 'utf-8');
+        let cfgPath = process.env['BAYSHORE_CONFIG_PATH'];
+        if (!cfgPath)
+            cfgPath = './config.json';
+        let cfg = fs.readFileSync(cfgPath, 'utf-8');
         let json = JSON.parse(cfg);
         this.cfg = json as ConfigFile;
     }

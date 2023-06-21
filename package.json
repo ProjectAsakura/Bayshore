@@ -9,6 +9,7 @@
   "private": false,
   "scripts": {
     "dev": "tsc && node dist",
+    "build": "tsc",
     "build_protos": "tsc -p ./tsconfig.proto.json"
   },
   "devDependencies": {
