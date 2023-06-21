@@ -107,7 +107,7 @@
                             description = "Wangan Midnight Maximum Tune 6 private server";
                             wantedBy = ["multi-user.target"];
                             # We need to wait for PSQL to be up before starting!
-                            after = ["network.target" "postgres.target"];
+                            after = ["network.target" "postgresql.target"];
 
                             preStart = ''
                             export DATABASE_URL="${cfg.postgresUrl}"
