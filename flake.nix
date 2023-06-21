@@ -2,7 +2,7 @@
     description = "Wangan Midnight Maximum Tune 6 private server";
 
     inputs = {
-        nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+        nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs/6806b63e824f84b0f0e60b6d660d4ae753de0477";
         flake-utils.url = "github:numtide/flake-utils";
     };
 
