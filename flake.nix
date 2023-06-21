@@ -26,7 +26,7 @@
                 in rec {
                     packages.bayshore = pkgs.buildNpmPackage {
                         pname = "bayshore";
-                        version = "1.0.6";
+                        version = "1.0.7";
                         src = ./.;
                         npmDepsHash = "sha256-7iVoTJv5rvdiUWyhrDOGEboOo1sdQ7YvZOqbgvz/mF8=";
 
