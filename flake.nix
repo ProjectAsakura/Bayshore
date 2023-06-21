@@ -26,7 +26,7 @@
                 in rec {
                     packages.bayshore = pkgs.buildNpmPackage {
                         pname = "bayshore";
-                        version = "1.0.9";
+                        version = "1.0.10";
                         src = ./.;
                         npmDepsHash = "sha256-VbFdHmPF9we1MS8OibpJY51WKFUK3Iq9xNyb8GiBgL0=";
 
@@ -142,6 +142,14 @@
 
                             ${pkg}/bin/bayshore
                             '';
+
+                            serviceConfig.Restart = "always";
+                            serviceConfig.RestartSec = "5s";
+
+                            unitConfig = {
+                                StartLimitIntervalSec = "500";
+                                StartLimitBurst = "5";
+                            };
                         };
 
                         # Don't create a user - we *want* to run as root
