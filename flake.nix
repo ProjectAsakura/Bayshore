@@ -26,7 +26,7 @@
                 in rec {
                     packages.bayshore = pkgs.buildNpmPackage {
                         pname = "bayshore";
-                        version = "1.0.0";
+                        version = "1.0.1";
                         src = ./.;
                         npmDepsHash = "sha256-7iVoTJv5rvdiUWyhrDOGEboOo1sdQ7YvZOqbgvz/mF8=";
 
@@ -111,6 +111,8 @@
 
                             preStart = ''
                             export DATABASE_URL="${cfg.postgresUrl}"
+                            export POSTGRES_URL="${cfg.postgresUrl}"
+                            export BAYSHORE_NIX="true"
                             ${pkg}/bin/prisma migrate deploy --schema=${pkg}/prisma/schema.prisma
                             '';
 
@@ -122,6 +124,7 @@
                             export DATABASE_URL="${cfg.postgresUrl}"
                             export POSTGRES_URL="${cfg.postgresUrl}"
                             export BAYSHORE_CONFIG_PATH="${cfg.configFile}"
+                            export BAYSHORE_NIX="true"
 
                             # The ports will always be on default
                             # because they're set through env-vars here.

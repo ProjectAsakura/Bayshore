@@ -3,7 +3,11 @@
 
 import process from 'process';
 import * as dotenv from "dotenv";
-dotenv.config({path: __dirname + '/.env'});
+
+if (!process.env.BAYSHORE_NIX)
+{
+    dotenv.config({path: __dirname + '/.env'});
+}
 
 let tracing: any = {};
 
