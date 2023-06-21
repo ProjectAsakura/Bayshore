@@ -29,6 +29,7 @@ import { Config } from './config';
 import * as Sentry from '@sentry/node';
 import * as Tracing from '@sentry/tracing';
 import * as common from './modules/util/common';
+import path from 'path';
 
 globalAgent.options.keepAlive = true;
 
@@ -112,7 +113,7 @@ allnetApp.use((req, res, next) => {
 });
 
 // Get all of the files in the modules directory
-let dirs = fs.readdirSync('dist/modules');
+let dirs = fs.readdirSync(path.join(path.dirname(__filename), 'modules'));
 // Loop over the files
 for (let i of dirs) 
 {
