@@ -1,1 +1,1 @@
-yarn build_protos
+npm run build_protos
