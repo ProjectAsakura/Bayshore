@@ -152,8 +152,14 @@ if (useSentry)
 }
 
 // Get the wangan key / certificate file
-let key = fs.readFileSync('./server_wangan.key');
-let cert = fs.readFileSync('./server_wangan.crt');
+let dataPathBase = process.env.BAYSHORE_NIX ? process.env.BAYSHORE_DATA_PATH : '.';
+if (!dataPathBase)
+{
+    throw new Error('Please set BAYSHORE_DATA_PATH.');
+}
+
+let key = fs.readFileSync(path.join(dataPathBase, 'server_wangan.key'));
+let cert = fs.readFileSync(path.join(dataPathBase, 'server_wangan.crt'));
 
 // Create the (ALL.Net) server
 http.createServer(allnetApp).listen(PORT_ALLNET, '0.0.0.0', 511, () => {

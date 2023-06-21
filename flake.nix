@@ -26,7 +26,7 @@
                 in rec {
                     packages.bayshore = pkgs.buildNpmPackage {
                         pname = "bayshore";
-                        version = "1.0.5";
+                        version = "1.0.6";
                         src = ./.;
                         npmDepsHash = "sha256-7iVoTJv5rvdiUWyhrDOGEboOo1sdQ7YvZOqbgvz/mF8=";
 
@@ -50,6 +50,9 @@
                             # SLOW AND TAKES UP TOO MUCH DISK!
                             # THIS IS A MASSIVE BODGE!
                             cp -r node_modules $out/node_modules
+
+                            mkdir -p $out/data
+                            cp server_wangan.* $out/data
 
                             mkdir -p $out/bin
                             cat > $out/bin/bayshore <<EOF
@@ -129,6 +132,7 @@
                             export DATABASE_URL="${cfg.postgresUrl}"
                             export POSTGRES_URL="${cfg.postgresUrl}"
                             export BAYSHORE_CONFIG_PATH="${cfg.configFile}"
+                            export BAYSHORE_DATA_PATH="${pkg}/data"
                             export BAYSHORE_NIX="true"
 
                             # The ports will always be on default
