@@ -28,7 +28,7 @@
                         pname = "bayshore";
                         version = "1.0.0";
                         src = ./.;
-                        npmDepsHash = lib.fakeSha256;
+                        npmDepsHash = flake-utils.lib.fakeSha256;
 
                         nativeBuildInputs = inputs;
                         buildInputs = inputs;
