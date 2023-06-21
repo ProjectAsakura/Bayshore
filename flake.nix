@@ -12,7 +12,7 @@
                 let
                     pkgs = nixpkgs.legacyPackages."${system}";
 
-                    inputs = with pkgs; [ pkg-config python3 ];
+                    inputs = with pkgs; [ pkg-config python3 prisma-engines ];
 
                     # This likely sucks ass
                     # https://github.com/prisma/prisma/issues/3026
