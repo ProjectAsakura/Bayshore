@@ -71,12 +71,12 @@
                             license = licenses.agpl3Only;
                         };
 
-                        apps.bayshore = flake-utils.lib.mkApp {
-                            name = "bayshore";
-                            drv = packages.bayshore;
-                        };
+                        # We don't need a devshell lol
+                    };
 
-                        # We don't need a
+                    apps.bayshore = flake-utils.lib.mkApp {
+                        name = "bayshore";
+                        drv = packages.bayshore;
                     };
                 }
             );
