@@ -28,7 +28,7 @@
                         pname = "bayshore";
                         version = "1.0.0";
                         src = ./.;
-                        npmDepsHash = pkgs.lib.fakeSha256;
+                        npmDepsHash = pkgs.lib.fakeHash;
 
                         nativeBuildInputs = inputs;
                         buildInputs = inputs;
