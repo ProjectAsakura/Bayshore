@@ -442,16 +442,12 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
             {
                 console.log('OCM Ghost Mode Found - Appointment (VS HoF Ghost)');
 
-                // Defeated HoF Ghost
-                if(body.rgResult!.opponents![0].result >= 0)
-                {
-                    // Delete all the records
-                    await prisma.ghostRegisteredFromTerminal.deleteMany({
-                        where:{
-                            carId: Number(body.carId)
-                        }
-                    });
-                } 
+                // Delete all the records
+                await prisma.ghostRegisteredFromTerminal.deleteMany({
+                    where:{
+                        carId: Number(body.carId)
+                    }
+                });
 
                 break;
             }
