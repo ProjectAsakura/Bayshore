@@ -62,6 +62,7 @@ export function sendResponse(message: Writer, res: Response, headers: string[]) 
 
         // Get config
         const config = Config.getConfig();
+        let revisionCheck = config.gameOptions.revisionCheck || 1;
 
         // Get the end of the message
         let end = message.finish();
@@ -74,7 +75,7 @@ export function sendResponse(message: Writer, res: Response, headers: string[]) 
             .status(200);
 
         // If revision check is enabled
-        if (config.gameOptions.revisionCheck) {
+        if (revisionCheck == 1) {
 
             // Get the protobuf revision from the headers
             let revision = getProtobufRevision(headers);
