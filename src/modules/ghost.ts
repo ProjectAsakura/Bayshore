@@ -39,13 +39,17 @@ export default class GhostModule extends Module {
 			let getStampTargets = await ghostFunctions.getOpponentHistory(body.carId);
 			let opponentHistory = getStampTargets.opponentHistory;
 
-			// Get Stamp Target
-            let getStampTarget = await ghostFunctions.getStampTarget(body.carId);
-			let stampTarget = getStampTarget.stampTarget;
-			
+			// ------------- STAMP STUFF -------------
+			// Must declare both
 			// Get Challengers
             let getChallengers = await ghostFunctions.getChallengers(body.carId);
 			let challengers = getChallengers.challengers;
+			let arrayCarId = getChallengers.arrayCarId
+
+			// Get Stamp Target
+            let getStampTarget = await ghostFunctions.getStampTarget(body.carId, arrayCarId);
+			let stampTarget = getStampTarget.stampTarget;
+			// ---------------------------------------
 
             // Response data
 			let msg = {
@@ -98,14 +102,17 @@ export default class GhostModule extends Module {
             // Get the request body for the load stamp target request
 			let body = wm.wm.protobuf.LoadStampTargetRequest.decode(req.body);
 
-			// Get Stamp Target
-            let getStampTarget = await ghostFunctions.getStampTarget(body.carId);
-			let stampTarget = getStampTarget.stampTarget;
-
+			// ------------- STAMP STUFF -------------
+			// Must declare both
 			// Get Challengers
             let getChallengers = await ghostFunctions.getChallengers(body.carId);
 			let challengers = getChallengers.challengers;
+			let arrayCarId = getChallengers.arrayCarId
 
+			// Get Stamp Target
+            let getStampTarget = await ghostFunctions.getStampTarget(body.carId, arrayCarId);
+			let stampTarget = getStampTarget.stampTarget;
+			// ---------------------------------------
             // Response data
 			let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
