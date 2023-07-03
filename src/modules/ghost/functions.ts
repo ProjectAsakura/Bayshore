@@ -61,22 +61,22 @@ export async function getOpponentHistory(carId: number)
 
 
 // Get Stamp Target
-export async function getStampTarget(carId: number)
+export async function getStampTarget(carId: number, arrayCarId: number[])
 {
     // Get all of the friend cars for the carId provided
     let getStampTargets = await prisma.carStampTarget.findMany({
         where: {
             stampTargetCarId: carId,
-            recommended: true
+            recommended: true,
+            carId: { in: arrayCarId },
         },
         orderBy:{
             locked: 'desc'
         },
-        take: 10
     });
     let stampTarget: wmproto.wm.protobuf.StampTargetCar[] = [];
 
-    if(getStampTargets)
+    if(getStampTargets.length > 0)
     {
         for(let i=0; i<getStampTargets.length; i++)
         {
@@ -104,6 +104,8 @@ export async function getStampTarget(carId: number)
                     recommended: getStampTargets[i].recommended
                 })
             );
+
+            
         }
     }
 
@@ -126,6 +128,7 @@ export async function getChallengers(carId: number)
     });
     let challengers: wmproto.wm.protobuf.ChallengerCar[] = [];
     let arrChallengerCarId = [];
+    let arrayCarId = [];
 
     // Push beated carId to array
     for(let i=0; i<checkBeatedCar.length; i++)
@@ -144,7 +147,7 @@ export async function getChallengers(carId: number)
         take: 10
     });
 
-    if(getChallengers)
+    if(getChallengers.length > 0)
     {
         for(let i=0; i<getChallengers.length; i++)
         {
@@ -181,10 +184,12 @@ export async function getChallengers(carId: number)
                     area: getChallengers[i].area
                 })
             );
+
+            arrayCarId.push(getChallengers[i].challengerCarId);
         }
     }
 
-    return { challengers }
+    return { challengers, arrayCarId }
 }
 
 
