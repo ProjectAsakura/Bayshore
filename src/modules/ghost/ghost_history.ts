@@ -231,6 +231,27 @@ export async function saveOCMGhostHistory(body: wm.protobuf.SaveGameResultReques
                     }
                 });
 
+                // Period ID not found
+                if(!(OCM_periodId))
+                {
+                    OCM_periodId = await prisma.oCMPeriod.findFirst({ 
+                        where:{
+                            competitionId: ocmEventDate!.competitionId,
+                            startAt: 
+                            {
+                                lte: date - ocmEventDate!.lengthOfInterval, // competitionStartAt is less than current date
+                            },
+                            closeAt:
+                            {
+                                gte: date - ocmEventDate!.lengthOfInterval, // competitionCloseAt is greater than current date
+                            }
+                        },
+                        select:{
+                            periodId: true
+                        }
+                    });
+                }
+
                 let checkGhost = await prisma.oCMGhostBattleRecord.findFirst({ 
                     where:{
                         carId: saveExGhostHistory.carId,
@@ -337,6 +358,27 @@ export async function saveOCMGhostHistory(body: wm.protobuf.SaveGameResultReques
                     periodId: true
                 }
             });
+
+            // Period ID not found
+            if(!(OCM_periodId))
+            {
+                OCM_periodId = await prisma.oCMPeriod.findFirst({ 
+                    where:{
+                        competitionId: ocmEventDate!.competitionId,
+                        startAt: 
+                        {
+                            lte: date - ocmEventDate!.lengthOfInterval, // competitionStartAt is less than current date
+                        },
+                        closeAt:
+                        {
+                            gte: date - ocmEventDate!.lengthOfInterval, // competitionCloseAt is greater than current date
+                        }
+                    },
+                    select:{
+                        periodId: true
+                    }
+                });
+            }
 
             // Update ghost battle record
             await prisma.oCMGhostBattleRecord.create({

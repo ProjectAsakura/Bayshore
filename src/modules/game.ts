@@ -257,7 +257,7 @@ export default class GameModule extends Module {
 				{
 					let timestamp = body.playedAt - body.timestamp;
 
-					if(timestamp <= 120)
+					if(timestamp <= 30)
 					{
 						console.log('Crown Force Finish Detected');
 
