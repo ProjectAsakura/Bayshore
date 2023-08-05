@@ -218,16 +218,6 @@ export async function saveCrownGhostTrail(body: wm.protobuf.RegisterGhostTrailRe
             console.log('Crown Trail history found');
             console.log('Updating crown trail to the newest trail');
 
-            await prisma.carCrownDetect.updateMany({
-                where:{
-                    carId: ghostResult.car.carId!
-                },
-                data: {
-                    trail: gtCount.trail,
-                    opponentCarId: gtCount.carId
-                }
-            })
-
             // Update the data
             await prisma.ghostTrail.update({
                 where: {

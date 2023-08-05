@@ -448,17 +448,3 @@ model FileList {
   notAfter              Int
   filePath              String
 }
-
-model CarCrownDetect {
-    id              Int         @id @default(autoincrement())
-    carId           Int
-    status          String      @default("")
-    area            Int?
-    ramp            Int?
-    path            Int?
-    trail           Bytes?
-    playedAt        Int?
-    tunePower       Int?
-    tuneHandling    Int?
-    opponentCarId   Int?
-}
