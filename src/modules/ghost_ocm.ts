@@ -12,7 +12,7 @@ import * as ghost_ocm from "./ghost/ghost_ocm";
 import * as ghost_ocm_area from "./ghost/ghost_util/ghost_ocm_area";
 
 
-export default class GhostModule extends Module {
+export default class GhostModule {
     register(app: Application): void {
 
         // Get OCM Battle event info

@@ -9,7 +9,7 @@ import * as common from "./util/common";
 import * as startupFunctions from "./startup/functions";
 
 
-export default class StartupModule extends Module {
+export default class StartupModule {
     register(app: Application): void {
 
         // Register system info upon booting

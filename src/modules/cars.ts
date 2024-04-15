@@ -12,7 +12,7 @@ import * as carFunctions from "./cars/functions";
 import * as terminal from "./terminal/check_car";
 
 
-export default class CarModule extends Module {
+export default class CarModule {
     register(app: Application): void {
 
         // Load Car

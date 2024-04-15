@@ -129,6 +129,17 @@ for (let i of dirs)
         // Register the module with the app
         inst.register(appRouter);
     }
+    if (i.endsWith('.ts')) 
+    {
+        // Require the module file
+        let mod = require(`./modules/${i.substring(0, i.length - 3)}`); // .js extension
+
+        // Create an instance of the module
+        let inst = new mod.default();
+
+        // Register the module with the app
+        inst.register(appRouter);
+    }
 }
 
 // Host on / and /wmmt6/ path

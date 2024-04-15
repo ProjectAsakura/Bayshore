@@ -14,7 +14,7 @@ import * as crown_list from "./resource/crown_list";
 import * as ranking from "./resource/ranking";
 
 
-export default class ResourceModule extends Module {
+export default class ResourceModule {
     register(app: Application): void {
 
         // Place List
@@ -74,7 +74,6 @@ export default class ResourceModule extends Module {
 
             // Encode the response
             let message = wm.wm.protobuf.PlaceList.encode({places});
-
              // Send the response to the client
              common.sendResponse(message, res, req.rawHeaders);
         })
