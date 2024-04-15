@@ -10,3 +10,6 @@ config.json
 ecosystem.config.js
 static/*
 screenshot/*
+*.vscode
+yarn.lock
+*.pgsql
