@@ -87,8 +87,7 @@ export function sendResponse(message: Writer, res: Response, headers: string[]) 
         }
 
         // Send the response to the client
-        var resp = Buffer.from(end);
-        r.send(resp);
+        r.send(Buffer.from(end));
         }
     catch (e) // Failed to send response
     {
