@@ -51,6 +51,7 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
 
             // Car update data
             dataCar = {
+                name: common.sanitizeInput(cars.name),
                 wheel: common.sanitizeInput(cars.wheel), 
                 wheelColor: common.sanitizeInput(cars.wheelColor), 
                 aero: common.sanitizeInput(cars.aero), 

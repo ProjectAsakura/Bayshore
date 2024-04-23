@@ -502,6 +502,7 @@ export async function updateCar(body: wm.protobuf.UpdateCarRequest)
     {
         // Car update data
         data = {
+            name: common.sanitizeInput(cars.name),
             customColor: common.sanitizeInput(cars.customColor),
             wheel: common.sanitizeInput(cars.wheel),
             wheelColor: common.sanitizeInput(cars.wheelColor), 

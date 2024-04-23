@@ -12,14 +12,29 @@ export async function saveVersusBattleResult(body: wm.protobuf.SaveGameResultReq
 {
     if (!(body.retired)) 
     {
+        // Get the car
+        let cars = body?.car;
+        
         // Get the vs result for the car
         let vsResult = body?.vsResult;
 
         // vs result is set
-        if (vsResult)
+        if (cars && vsResult)
         {
             // vs result update data
             let data : any = {
+                name: common.sanitizeInput(cars.name),
+                wheel: common.sanitizeInput(cars.wheel), 
+                wheelColor: common.sanitizeInput(cars.wheelColor), 
+                aero: common.sanitizeInput(cars.aero), 
+                bonnet: common.sanitizeInput(cars.bonnet),
+                wing: common.sanitizeInput(cars.wing),
+                mirror: common.sanitizeInput(cars.mirror),
+                neon: common.sanitizeInput(cars.neon),
+                trunk: common.sanitizeInput(cars.trunk),
+                plate: common.sanitizeInput(cars.plate),
+                plateColor: common.sanitizeInput(cars.plateColor),
+                plateNumber: common.sanitizeInput(cars.plateNumber),
                 vsPlayCount: common.sanitizeInput(vsResult.vsPlayCount), 
                 vsBurstCount: common.sanitizeInput(vsResult.vsBurstCount), 
                 vsStarCount: common.sanitizeInputNotZero(vsResult.vsStarCount), 
