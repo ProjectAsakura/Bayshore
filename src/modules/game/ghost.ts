@@ -49,6 +49,12 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                 }
             }
 
+            // Error handling for equiping GT Wing in game after race
+            if(cars.wing > 127)
+            {
+                cars.wing = 127
+            }
+
             // Car update data
             dataCar = {
                 name: common.sanitizeInput(cars.name),

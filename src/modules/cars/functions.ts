@@ -703,10 +703,26 @@ export async function updateCarCustomWing(body: wm.protobuf.UpdateCarRequest)
 }
 
 
-// Remove Used Ticket
+// Check Create Car
 export async function checkCreatedCar(body: wm.protobuf.CreateCarRequest, car: any, itemId: number)
 {
     let cheated: boolean = false;
+    let slurName: boolean = false;
+
+    let allSlurName = [
+        'ＣＵＮＮＹ',
+    ];
+
+    // Check if user item id is not set and its a special car
+    for(let i=0; i<allSlurName.length; i++)
+    {
+        if(car.name === allSlurName[i])
+        {
+            slurName = true;
+
+            return { slurName }
+        }
+    }
 
     let allCarVisualModel = [
         1, // ZR1T
@@ -824,5 +840,5 @@ export async function checkCreatedCar(body: wm.protobuf.CreateCarRequest, car: a
         cheated = true;
     }
 
-    return { cheated }
+    return { cheated, slurName }
 }

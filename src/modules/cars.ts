@@ -108,7 +108,7 @@ export default class CarModule extends Module {
 
 			// Check created car and item used
 			let checkCreatedCars = await carFunctions.checkCreatedCar(body, carInsert, itemId);
-			if(checkCreatedCars.cheated === true)
+			if((checkCreatedCars.cheated === true) || (checkCreatedCars.slurName === true))
 			{
 				let msg = {
 					error: wm.wm.protobuf.ErrorCode.ERR_FORBIDDEN,
