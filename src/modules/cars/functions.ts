@@ -709,8 +709,48 @@ export async function checkCreatedCar(body: wm.protobuf.CreateCarRequest, car: a
     let cheated: boolean = false;
     let slurName: boolean = false;
 
+    // Check if name is slur name and lots of combination
     let allSlurName = [
+        'ｃｕｎｎｙ',
         'ＣＵＮＮＹ',
+        'ＣＵＮＮｙ',
+        'ＣＵＮｎｙ',
+        'ＣＵｎｎｙ',
+        'Ｃｕｎｎｙ',
+        'ｃＵｎｎｙ',
+        'ｃｕＮｎｙ',
+        'ｃｕｎＮｙ',
+        'ｃｕｎｎＹ',
+        'ｃｕｎＮＹ',
+        'ｃｕＮＮＹ',
+        'ｃＵＮＮＹ',
+        'ＣｕＮＮＹ',
+        'ＣＵｎＮＹ',
+        'ＣＵＮｎＹ',
+        'ｃＵＮＮｙ',
+        'ｃｕＮＮｙ',
+        'ＣｕＮＮｙ',
+        'ＣｕｎＮｙ',
+        'ｃＵｎｎＹ',
+        'ｃｕＮｎＹ',
+        'ＣｕＮｎＹ',
+        'ＣｕｎｎＹ',
+        'ｃＵｎＮＹ',
+        'ｃＵｎＮｙ',
+        'ＣＵＮＴ',
+        'ＣＵＮｔ',
+        'ＣＵｎｔ',
+        'Ｃｕｎｔ',
+        'ｃＵｎｔ',
+        'ｃｕＮｔ',
+        'ｃｕｎＴ',
+        'ｃｕｎｔ',
+        'ＮＩＧＧＡ',
+        'ＮＩＧＧａ',
+        'ＮＩＧｇａ',
+        'ＮＩｇｇａ',
+        // '',
+        // need some sauce to get all possible combinations instead of manually think and type it out
     ];
 
     // Check if user item id is not set and its a special car
