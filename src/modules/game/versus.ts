@@ -5,6 +5,7 @@ import { wm } from "../../wmmt/wm.proto";
 
 // Import Util
 import * as common from "../util/common";
+import * as carFunctions from "../cars/functions";
 
 
 // Save versus battle result
@@ -21,6 +22,14 @@ export async function saveVersusBattleResult(body: wm.protobuf.SaveGameResultReq
         // vs result is set
         if (cars && vsResult)
         {
+            // check for car name before update new name
+            let isSlur = await carFunctions.checkNameInput(body);
+            if (isSlur.slurName === true) {
+                cars.name = car.name
+            } else {
+                cars.name = cars.name
+            }
+            
             // vs result update data
             let data : any = {
                 name: common.sanitizeInput(cars.name),
@@ -36,6 +45,7 @@ export async function saveVersusBattleResult(body: wm.protobuf.SaveGameResultReq
                 plateColor: common.sanitizeInput(cars.plateColor),
                 plateNumber: common.sanitizeInput(cars.plateNumber),
                 vsPlayCount: common.sanitizeInput(vsResult.vsPlayCount), 
+                aura: common.sanitizeInput(cars.aura),
                 vsBurstCount: common.sanitizeInput(vsResult.vsBurstCount), 
                 vsStarCount: common.sanitizeInputNotZero(vsResult.vsStarCount), 
                 vsCoolOrWild: common.sanitizeInput(vsResult.vsCoolOrWild),
@@ -58,6 +68,23 @@ export async function saveVersusBattleResult(body: wm.protobuf.SaveGameResultReq
                     carId: body.carId
                 },
                 data: data
+            });
+
+            // GT Wing stuff
+            let dataGTWing: any = {
+                pillar: common.sanitizeInput(body.car?.gtWing?.pillar), 
+                pillarMaterial: common.sanitizeInput(body.car?.gtWing?.pillarMaterial), 
+                mainWing: common.sanitizeInput(body.car?.gtWing?.mainWing), 
+                mainWingColor: common.sanitizeInput(body.car?.gtWing?.mainWingColor), 
+                wingTip: common.sanitizeInput(body.car?.gtWing?.wingTip), 
+                material: common.sanitizeInput(body.car?.gtWing?.material), 
+            };
+
+            await prisma.carGTWing.update({
+                where: {
+                    dbId: body.carId
+                }, 
+                data: dataGTWing
             });
         }
     }

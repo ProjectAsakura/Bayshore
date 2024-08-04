@@ -11,6 +11,49 @@ import * as wmproto from "../../wmmt/wm.proto";
 import * as common from "../util/common";
 import * as car_tune from "./car_tune";
 
+// Utility function to convert characters to full-width
+function toFullWidth(str: string): string {
+    return str.replace(/[A-Za-z0-9]/g, (char) => {
+        return String.fromCharCode(char.charCodeAt(0) + 0xFEE0);
+    });
+}
+
+// Utility function to generate all possible capitalization combinations
+function generateCombinations(word: string): string[] {
+    const combinations = [];
+    const length = word.length;
+    const totalCombinations = 1 << length; // 2^length combinations
+
+    for (let i = 0; i < totalCombinations; i++) {
+        let combination = '';
+        for (let j = 0; j < length; j++) {
+            if ((i & (1 << j)) !== 0) {
+                combination += word[j].toUpperCase();
+            } else {
+                combination += word[j].toLowerCase();
+            }
+        }
+        combinations.push(combination);
+    }
+
+    const alternating = Array.from(word).map((char, i) =>
+        i % 2 === 0 ? char.toUpperCase() : char.toLowerCase()
+    ).join('');
+    combinations.push(alternating);
+    const alternatingInverse = Array.from(word).map((char, i) =>
+        i % 2 === 0 ? char.toLowerCase() : char.toUpperCase()
+    ).join('');
+    combinations.push(alternatingInverse);
+
+    return combinations;
+}
+
+// Generate all full-width combinations
+function generateFullWidthCombinations(word: string): string[] {
+    const combinations = generateCombinations(word);
+    return combinations.map(toFullWidth);
+}
+
 
 // Get Car Data
 export async function getCar(carId: number)
@@ -704,65 +747,9 @@ export async function updateCarCustomWing(body: wm.protobuf.UpdateCarRequest)
 
 
 // Check Create Car
-export async function checkCreatedCar(body: wm.protobuf.CreateCarRequest, car: any, itemId: number)
+export async function checkCreatedCar(body: wm.protobuf.CreateCarRequest, itemId: number)
 {
     let cheated: boolean = false;
-    let slurName: boolean = false;
-
-    // Check if name is slur name and lots of combination
-    let allSlurName = [
-        'ｃｕｎｎｙ',
-        'ＣＵＮＮＹ',
-        'ＣＵＮＮｙ',
-        'ＣＵＮｎｙ',
-        'ＣＵｎｎｙ',
-        'Ｃｕｎｎｙ',
-        'ｃＵｎｎｙ',
-        'ｃｕＮｎｙ',
-        'ｃｕｎＮｙ',
-        'ｃｕｎｎＹ',
-        'ｃｕｎＮＹ',
-        'ｃｕＮＮＹ',
-        'ｃＵＮＮＹ',
-        'ＣｕＮＮＹ',
-        'ＣＵｎＮＹ',
-        'ＣＵＮｎＹ',
-        'ｃＵＮＮｙ',
-        'ｃｕＮＮｙ',
-        'ＣｕＮＮｙ',
-        'ＣｕｎＮｙ',
-        'ｃＵｎｎＹ',
-        'ｃｕＮｎＹ',
-        'ＣｕＮｎＹ',
-        'ＣｕｎｎＹ',
-        'ｃＵｎＮＹ',
-        'ｃＵｎＮｙ',
-        'ＣＵＮＴ',
-        'ＣＵＮｔ',
-        'ＣＵｎｔ',
-        'Ｃｕｎｔ',
-        'ｃＵｎｔ',
-        'ｃｕＮｔ',
-        'ｃｕｎＴ',
-        'ｃｕｎｔ',
-        'ＮＩＧＧＡ',
-        'ＮＩＧＧａ',
-        'ＮＩＧｇａ',
-        'ＮＩｇｇａ',
-        // '',
-        // need some sauce to get all possible combinations instead of manually think and type it out
-    ];
-
-    // Check if user item id is not set and its a special car
-    for(let i=0; i<allSlurName.length; i++)
-    {
-        if(car.name === allSlurName[i])
-        {
-            slurName = true;
-
-            return { slurName }
-        }
-    }
 
     let allCarVisualModel = [
         1, // ZR1T
@@ -813,7 +800,7 @@ export async function checkCreatedCar(body: wm.protobuf.CreateCarRequest, car: a
     // Check if user item id is not set and its a special car
     for(let i=0; i<allCarVisualModel.length; i++)
     {
-        if(!(body.userItemId) && car.visualModel === allCarVisualModel[i])
+        if(!(body.userItemId) && body.car.visualModel === allCarVisualModel[i])
         {
             cheated = true;
 
@@ -824,7 +811,7 @@ export async function checkCreatedCar(body: wm.protobuf.CreateCarRequest, car: a
     // Check if user item id is set and its a special car cannot be created from ticket
     for(let i=0; i<carVisualModelWithoutItem.length; i++)
     {
-        if(body.userItemId && car.visualModel === carVisualModelWithoutItem[i])
+        if(body.userItemId && body.car.visualModel! === carVisualModelWithoutItem[i])
         {
             cheated = true;
 
@@ -833,52 +820,90 @@ export async function checkCreatedCar(body: wm.protobuf.CreateCarRequest, car: a
     }
 
     // Check if user item id is set and its a special car created from ticket
-    if(car.visualModel === 122)
+    if(body.car.visualModel! === 122)
     {
         if(itemId < 7 || itemId > 15)
         {
             cheated = true;
         }
     }
-    else if(car.visualModel === 130)
+    else if(body.car.visualModel! === 130)
     {
         if(itemId < 22 || itemId > 27)
         {
             cheated = true;
         }
     }
-    else if(car.visualModel === 131)
+    else if(body.car.visualModel! === 131)
     {
         if(itemId < 28 || itemId > 36)
         {
             cheated = true;
         }
     }
-    else if(car.visualModel === 137)
+    else if(body.car.visualModel! === 137)
     {
         if(itemId !== 37)
         {
             cheated = true;
         }
     }
-    else if(car.visualModel === 138)
+    else if(body.car.visualModel! === 138)
     {
         if(itemId !== 39)
         {
             cheated = true;
         }
     }
-    else if(car.visualModel === 139)
+    else if(body.car.visualModel! === 139)
     {
         if(itemId !== 38)
         {
             cheated = true;
         }
     }
-    else if(car.visualModel > 144)
+    else if(body.car.visualModel! > 144)
     {
         cheated = true;
     }
 
-    return { cheated, slurName }
+    return { cheated }
+}
+
+
+// Check Create Car Name
+export async function checkNameInput(body: any) {
+    let slurName: boolean = false;
+
+    // List of slur names to check against
+    let allSlurName = [
+        'cunny',
+        'nigga',
+        'negro',
+        'nibba',
+        'n1bba',
+        'n1gga',
+        'n1gg4',
+        'n1bb4',
+        'n199a',
+        'n199@',
+        'n1994',
+        'cunt',
+        // Add other names here,
+    ];
+
+    // Generate all possible combinations and add to the list
+    let allCombinations: string[] = [];
+    allSlurName.forEach(slur => {
+        const normalCombinations = generateCombinations(slur);
+        const fullWidthCombinations = generateFullWidthCombinations(slur);
+        allCombinations = allCombinations.concat(normalCombinations, fullWidthCombinations);
+    });
+
+    // Check if car name matches any of the combinations
+    if (allCombinations.includes(body.car.name!)) {
+        slurName = true;
+    }
+
+    return { slurName };
 }
