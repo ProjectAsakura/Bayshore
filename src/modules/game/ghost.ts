@@ -8,6 +8,7 @@ import wmproto  from "../../wmmt/wm.proto";
 import * as common from "../util/common";
 import * as ghost_history from "../ghost/ghost_history";
 import * as ghost_stamp from "../ghost/ghost_stamp";
+import * as carFunctions from "../cars/functions";
 
 // Save ghost battle result
 export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequest, car: any)
@@ -53,6 +54,14 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
             if(cars.wing > 127)
             {
                 cars.wing = 127
+            }
+
+            // check for car name before update new name
+            let isSlur = await carFunctions.checkNameInput(body);
+            if (isSlur.slurName === true) {
+                cars.name = car.name
+            } else {
+                cars.name = cars.name
             }
 
             // Car update data
