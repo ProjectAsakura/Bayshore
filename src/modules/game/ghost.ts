@@ -56,14 +56,6 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                 cars.wing = 127
             }
 
-            // check for car name before update new name
-            let isSlur = await carFunctions.checkNameInput(body);
-            if (isSlur.slurName === true) {
-                cars.name = car.name
-            } else {
-                cars.name = cars.name
-            }
-
             // Car update data
             dataCar = {
                 name: common.sanitizeInput(cars.name),

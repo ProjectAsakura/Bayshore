@@ -22,14 +22,6 @@ export async function saveVersusBattleResult(body: wm.protobuf.SaveGameResultReq
         // vs result is set
         if (cars && vsResult)
         {
-            // check for car name before update new name
-            let isSlur = await carFunctions.checkNameInput(body);
-            if (isSlur.slurName === true) {
-                cars.name = car.name
-            } else {
-                cars.name = cars.name
-            }
-            
             // vs result update data
             let data : any = {
                 name: common.sanitizeInput(cars.name),

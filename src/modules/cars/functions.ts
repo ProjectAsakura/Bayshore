@@ -11,49 +11,6 @@ import * as wmproto from "../../wmmt/wm.proto";
 import * as common from "../util/common";
 import * as car_tune from "./car_tune";
 
-// Utility function to convert characters to full-width
-function toFullWidth(str: string): string {
-    return str.replace(/[A-Za-z0-9]/g, (char) => {
-        return String.fromCharCode(char.charCodeAt(0) + 0xFEE0);
-    });
-}
-
-// Utility function to generate all possible capitalization combinations
-function generateCombinations(word: string): string[] {
-    const combinations = [];
-    const length = word.length;
-    const totalCombinations = 1 << length; // 2^length combinations
-
-    for (let i = 0; i < totalCombinations; i++) {
-        let combination = '';
-        for (let j = 0; j < length; j++) {
-            if ((i & (1 << j)) !== 0) {
-                combination += word[j].toUpperCase();
-            } else {
-                combination += word[j].toLowerCase();
-            }
-        }
-        combinations.push(combination);
-    }
-
-    const alternating = Array.from(word).map((char, i) =>
-        i % 2 === 0 ? char.toUpperCase() : char.toLowerCase()
-    ).join('');
-    combinations.push(alternating);
-    const alternatingInverse = Array.from(word).map((char, i) =>
-        i % 2 === 0 ? char.toLowerCase() : char.toUpperCase()
-    ).join('');
-    combinations.push(alternatingInverse);
-
-    return combinations;
-}
-
-// Generate all full-width combinations
-function generateFullWidthCombinations(word: string): string[] {
-    const combinations = generateCombinations(word);
-    return combinations.map(toFullWidth);
-}
-
 
 // Get Car Data
 export async function getCar(carId: number)
@@ -867,42 +824,4 @@ export async function checkCreatedCar(body: wm.protobuf.CreateCarRequest, itemId
     }
 
     return { cheated }
-}
-
-
-// Check Create Car Name
-export async function checkNameInput(body: any) {
-    let slurName: boolean = false;
-
-    // List of slur names to check against
-    let allSlurName = [
-        'cunny',
-        'nigga',
-        'negro',
-        'nibba',
-        'n1bba',
-        'n1gga',
-        'n1gg4',
-        'n1bb4',
-        'n199a',
-        'n199@',
-        'n1994',
-        'cunt',
-        // Add other names here,
-    ];
-
-    // Generate all possible combinations and add to the list
-    let allCombinations: string[] = [];
-    allSlurName.forEach(slur => {
-        const normalCombinations = generateCombinations(slur);
-        const fullWidthCombinations = generateFullWidthCombinations(slur);
-        allCombinations = allCombinations.concat(normalCombinations, fullWidthCombinations);
-    });
-
-    // Check if car name matches any of the combinations
-    if (allCombinations.includes(body.car.name!)) {
-        slurName = true;
-    }
-
-    return { slurName };
 }
