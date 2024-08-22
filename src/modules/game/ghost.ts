@@ -49,8 +49,15 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                 }
             }
 
+            // Error handling for equiping GT Wing in game after race
+            if(cars.wing > 127)
+            {
+                cars.wing = 127
+            }
+
             // Car update data
             dataCar = {
+                name: common.sanitizeInput(cars.name),
                 wheel: common.sanitizeInput(cars.wheel), 
                 wheelColor: common.sanitizeInput(cars.wheelColor), 
                 aero: common.sanitizeInput(cars.aero), 
@@ -298,32 +305,76 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                         // Crown holder data available
                         if(carCrowns)
                         { 
-                            // Crown Finish Status
-                            await prisma.carCrownDetect.create({
-                                data:{
+                            // Look For Existing Car Record Based On Area
+                            let areaRecord = await prisma.carCrownDetect.findFirst({
+                                where: {
                                     carId: body.carId,
-                                    status: 'finish',
-                                    area: carCrowns.area,
-                                    ramp: carCrowns.ramp,
-                                    path: carCrowns.path,
-                                    playedAt: carCrowns.playedAt,
-                                    tunePower: carCrowns.tunePower,
-                                    tuneHandling: carCrowns.tuneHandling
+                                    area: area
                                 }
                             });
 
-                            // Update it to the new one
-                            await prisma.carCrown.update({ 
-                                where: {
-                                    dbId: carCrowns.dbId
-                                },
-                                data: {
-                                    ...dataCrown,
-                                    area: area,
-                                    ramp: ramp,
-                                    path: path
-                                }
-                            });
+                            // Record exist, update it
+                            if(areaRecord)
+                            {
+                                // Update the record to Crown Finish Status
+                                await prisma.carCrownDetect.update({
+                                    where: {
+                                        id: areaRecord.id
+                                    },
+                                    data: {
+                                        carId: body.carId,
+                                        status: 'finish',
+                                        area: carCrowns.area,
+                                        ramp: carCrowns.ramp,
+                                        path: carCrowns.path,
+                                        playedAt: carCrowns.playedAt,
+                                        tunePower: carCrowns.tunePower,
+                                        tuneHandling: carCrowns.tuneHandling
+                                    }
+                                });
+
+                                // Update it to the new one
+                                await prisma.carCrown.update({ 
+                                    where: {
+                                        dbId: carCrowns.dbId
+                                    },
+                                    data: {
+                                        ...dataCrown,
+                                        area: area,
+                                        ramp: ramp,
+                                        path: path
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                // Crown Finish Status
+                                await prisma.carCrownDetect.create({
+                                    data:{
+                                        carId: body.carId,
+                                        status: 'finish',
+                                        area: carCrowns.area,
+                                        ramp: carCrowns.ramp,
+                                        path: carCrowns.path,
+                                        playedAt: carCrowns.playedAt,
+                                        tunePower: carCrowns.tunePower,
+                                        tuneHandling: carCrowns.tuneHandling
+                                    }
+                                });
+
+                                // Update it to the new one
+                                await prisma.carCrown.update({ 
+                                    where: {
+                                        dbId: carCrowns.dbId
+                                    },
+                                    data: {
+                                        ...dataCrown,
+                                        area: area,
+                                        ramp: ramp,
+                                        path: path
+                                    }
+                                });
+                            }
                         }
                         // Crown holder data not available or still default crown holder data
                         else
@@ -676,7 +727,8 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
         await prisma.carCrownDetect.create({
             data:{
                 carId: body.carId,
-                status: 'retire'
+                status: 'retire',
+                playedAt: body.playedAt
             }
         });
     }

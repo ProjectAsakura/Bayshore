@@ -28,14 +28,66 @@ export async function getCar(carId: number)
         }
     });
 
-    // Error handling if ghostLevel accidentally set to 0 or more than 10
-    if(car!.ghostLevel < 1)
+    // Error handling if car tune is more than 34 game default
+    if(car!.tunePower + car!.tuneHandling > 34)
     {
-        car!.ghostLevel = 1;
+        car!.tunePower = 17;
+        car!.tuneHandling = 17;
+
+        await prisma.car.update({
+            where: {
+                carId: car!.carId
+            },
+            data: {
+                tunePower: 17,
+                tuneHandling: 17
+            }
+        });
     }
-    if(car!.ghostLevel > 11)
-    {
-        car!.ghostLevel = 10;
+
+    // Error handling if ghostLevel accidentally set to 0 or more than 11
+    if (car!.ghostLevel < 1)
+    {    
+        car!.ghostLevel = 1;
+
+        await prisma.car.update({
+            where: {
+                carId: car!.carId
+            },
+            data: {
+                ghostLevel: 1
+            }
+        });
+    }
+
+    if (car!.ghostLevel > 12)
+    {    
+        if(car!.rgWinCount > 1000)
+        {
+            car!.ghostLevel = 11;
+
+            await prisma.car.update({
+                where: {
+                    carId: car!.carId
+                },
+                data: {
+                    ghostLevel: 11
+                }
+            });
+        }
+        else
+        {
+            car!.ghostLevel = 10;
+
+            await prisma.car.update({
+                where: {
+                    carId: car!.carId
+                },
+                data: {
+                    ghostLevel: 10
+                }
+            });
+        }
     }
 
     // Convert the database lose bits to a Long
@@ -650,8 +702,8 @@ export async function updateCarCustomWing(body: wm.protobuf.UpdateCarRequest)
 }
 
 
-// Remove Used Ticket
-export async function checkCreatedCar(body: wm.protobuf.CreateCarRequest, car: any, itemId: number)
+// Check Create Car
+export async function checkCreatedCar(body: wm.protobuf.CreateCarRequest, itemId: number)
 {
     let cheated: boolean = false;
 
@@ -704,7 +756,7 @@ export async function checkCreatedCar(body: wm.protobuf.CreateCarRequest, car: a
     // Check if user item id is not set and its a special car
     for(let i=0; i<allCarVisualModel.length; i++)
     {
-        if(!(body.userItemId) && car.visualModel === allCarVisualModel[i])
+        if(!(body.userItemId) && body.car.visualModel === allCarVisualModel[i])
         {
             cheated = true;
 
@@ -715,7 +767,7 @@ export async function checkCreatedCar(body: wm.protobuf.CreateCarRequest, car: a
     // Check if user item id is set and its a special car cannot be created from ticket
     for(let i=0; i<carVisualModelWithoutItem.length; i++)
     {
-        if(body.userItemId && car.visualModel === carVisualModelWithoutItem[i])
+        if(body.userItemId && body.car.visualModel! === carVisualModelWithoutItem[i])
         {
             cheated = true;
 
@@ -724,49 +776,49 @@ export async function checkCreatedCar(body: wm.protobuf.CreateCarRequest, car: a
     }
 
     // Check if user item id is set and its a special car created from ticket
-    if(car.visualModel === 122)
+    if(body.car.visualModel! === 122)
     {
         if(itemId < 7 || itemId > 15)
         {
             cheated = true;
         }
     }
-    else if(car.visualModel === 130)
+    else if(body.car.visualModel! === 130)
     {
         if(itemId < 22 || itemId > 27)
         {
             cheated = true;
         }
     }
-    else if(car.visualModel === 131)
+    else if(body.car.visualModel! === 131)
     {
         if(itemId < 28 || itemId > 36)
         {
             cheated = true;
         }
     }
-    else if(car.visualModel === 137)
+    else if(body.car.visualModel! === 137)
     {
         if(itemId !== 37)
         {
             cheated = true;
         }
     }
-    else if(car.visualModel === 138)
+    else if(body.car.visualModel! === 138)
     {
         if(itemId !== 39)
         {
             cheated = true;
         }
     }
-    else if(car.visualModel === 139)
+    else if(body.car.visualModel! === 139)
     {
         if(itemId !== 38)
         {
             cheated = true;
         }
     }
-    else if(car.visualModel > 144)
+    else if(body.car.visualModel! > 144)
     {
         cheated = true;
     }
