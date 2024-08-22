@@ -5,7 +5,6 @@ import { wm } from "../../wmmt/wm.proto";
 
 // Import Util
 import * as common from "../util/common";
-import * as carFunctions from "../cars/functions";
 
 
 // Save versus battle result
@@ -15,7 +14,7 @@ export async function saveVersusBattleResult(body: wm.protobuf.SaveGameResultReq
     {
         // Get the car
         let cars = body?.car;
-        
+
         // Get the vs result for the car
         let vsResult = body?.vsResult;
 

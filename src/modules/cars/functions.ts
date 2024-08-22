@@ -63,7 +63,7 @@ export async function getCar(carId: number)
     if (car!.ghostLevel > 12)
     {    
         if(car!.rgWinCount > 1000)
-        {    
+        {
             car!.ghostLevel = 11;
 
             await prisma.car.update({
@@ -76,7 +76,7 @@ export async function getCar(carId: number)
             });
         }
         else
-        {    
+        {
             car!.ghostLevel = 10;
 
             await prisma.car.update({
