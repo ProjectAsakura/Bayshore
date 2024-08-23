@@ -28,66 +28,14 @@ export async function getCar(carId: number)
         }
     });
 
-    // Error handling if car tune is more than 34 game default
-    if(car!.tunePower + car!.tuneHandling > 34)
+    // Error handling if ghostLevel accidentally set to 0 or more than 10
+    if(car!.ghostLevel < 1)
     {
-        car!.tunePower = 17;
-        car!.tuneHandling = 17;
-
-        await prisma.car.update({
-            where: {
-                carId: car!.carId
-            },
-            data: {
-                tunePower: 17,
-                tuneHandling: 17
-            }
-        });
-    }
-
-    // Error handling if ghostLevel accidentally set to 0 or more than 11
-    if (car!.ghostLevel < 1)
-    {    
         car!.ghostLevel = 1;
-
-        await prisma.car.update({
-            where: {
-                carId: car!.carId
-            },
-            data: {
-                ghostLevel: 1
-            }
-        });
     }
-
-    if (car!.ghostLevel > 12)
-    {    
-        if(car!.rgWinCount > 1000)
-        {
-            car!.ghostLevel = 11;
-
-            await prisma.car.update({
-                where: {
-                    carId: car!.carId
-                },
-                data: {
-                    ghostLevel: 11
-                }
-            });
-        }
-        else
-        {
-            car!.ghostLevel = 10;
-
-            await prisma.car.update({
-                where: {
-                    carId: car!.carId
-                },
-                data: {
-                    ghostLevel: 10
-                }
-            });
-        }
+    if(car!.ghostLevel > 11)
+    {
+        car!.ghostLevel = 10;
     }
 
     // Convert the database lose bits to a Long
