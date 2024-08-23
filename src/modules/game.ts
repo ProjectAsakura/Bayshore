@@ -239,7 +239,8 @@ export default class GameModule extends Module {
 			// Check retire crown
 			let getCarCrown = await prisma.carCrownDetect.findFirst({
 				where:{
-					carId: body.carId
+					carId: body.carId,
+					playedAt: body.playedAt,
 				}
 			});
 
