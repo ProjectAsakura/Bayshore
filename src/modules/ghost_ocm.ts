@@ -518,7 +518,7 @@ export default class GhostModule extends Module {
 				cars = wm.wm.protobuf.Car.create({ 
 					carId: 999999999, // Don't change this
 					name: 'Ｓ６６０',
-					regionId: 18, // IDN (福井)
+					regionId: Math.floor(Math.random() * 47) + 1, // Random Region, old code -> // 18, // IDN (福井)
 					manufacturer: 12, // HONDA
 					model: 105, // S660 [JW5]
 					visualModel: 130, // S660 [JW5]
@@ -545,7 +545,7 @@ export default class GhostModule extends Module {
 					title: 'Don\'t have S660?',
 					level: 65, // SSSSS
 					lastPlayedAt: checkGhostTrail!.playedAt,
-					country: 'IDN',
+					country: 'JPN', // Change to JPN, old code -> 'IDN',
 					lastPlayedPlace: playedPlace
 				});
 				
