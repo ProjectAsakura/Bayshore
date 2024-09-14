@@ -12,7 +12,7 @@ import * as scratch from "./terminal/scratch";
 import * as common from "./util/common";
 
 
-export default class TerminalModule extends Module {
+export default class TerminalModule {
     register(app: Application): void {
 
         // Load upon enter terminal

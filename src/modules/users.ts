@@ -11,7 +11,7 @@ import * as scratch from "./terminal/scratch";
 import * as common from "./util/common";
 
 
-export default class UserModule extends Module {
+export default class UserModule {
     register(app: Application): void {
 
         // Load user data when entering the game or after tapping the bannapass card

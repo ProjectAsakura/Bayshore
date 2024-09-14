@@ -118,10 +118,10 @@ let dirs = fs.readdirSync(path.join(path.dirname(__filename), 'modules'));
 for (let i of dirs) 
 {
     // If the file is a .js file
-    if (i.endsWith('.js')) 
+    if (i.endsWith('.js') || i.endsWith('.ts')) // if running directly from ts files 
     {
         // Require the module file
-        let mod = require(`./modules/${i.substring(0, i.length - 3)}`); // .js extension
+        let mod = require(`./modules/${i.substring(0, i.length - 3)}`);
 
         // Create an instance of the module
         let inst = new mod.default();
@@ -135,7 +135,7 @@ for (let i of dirs)
 app.use('/', appRouter);
 app.use('/wmmt6/', appRouter);
 
-app.all('*', (req, res) => {
+app.all('*', (req, res) => { 
     common.writeLog(`[  MAIN] ${req.method} ${req.url} is unhandled`);
     res.status(200).end();
 })

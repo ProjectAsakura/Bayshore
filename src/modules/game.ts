@@ -16,7 +16,7 @@ import * as ghost from "./game/ghost";
 import * as versus from "./game/versus";
 
 
-export default class GameModule extends Module {
+export default class GameModule {
     register(app: Application): void {
 
 		// Saving the game result on mileage screen

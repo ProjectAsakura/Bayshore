@@ -88,7 +88,7 @@ export function sendResponse(message: Writer, res: Response, headers: string[]) 
 
         // Send the response to the client
         r.send(Buffer.from(end));
-    }
+        }
     catch (e) // Failed to send response
     {
         writeLog(`Failed to send response: ${String(e)}`);
