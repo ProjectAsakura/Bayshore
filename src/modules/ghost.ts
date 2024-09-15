@@ -16,7 +16,7 @@ import * as ghost_trail from "./ghost/ghost_util/ghost_trail";
 import * as ghost_area from "./ghost/ghost_util/ghost_area";
 
 
-export default class GhostModule extends Module {
+export default class GhostModule {
     register(app: Application): void {
 
         // Load Ghost Battle Info
@@ -307,10 +307,10 @@ export default class GhostModule extends Module {
 			let actualSessionId: number = 0;
 
 			// If the session are set, and are long data
-            if(Long.isLong(body.ghostSessionId))
+            if(Long.isLong(body.ghostSessionId) && body && body.ghostSessionId)
             {
                 // Convert them to BigInt and add to the data
-                actualSessionId = common.getBigIntFromLong(body.ghostSessionId);
+                actualSessionId = common.getBigIntFromLong(body.ghostSessionId as Long);
             }
 
 			// -----------------------------------------------------------------------------------------

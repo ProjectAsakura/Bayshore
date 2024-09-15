@@ -9,7 +9,7 @@ import * as wm from "../wmmt/wm.proto";
 import * as common from "./util/common";
 
 
-export default class TimeAttackModule extends Module {
+export default class TimeAttackModule {
     register(app: Application): void {
 
         // Load time Attack Record

@@ -42,10 +42,10 @@ export async function saveStoryResult(body: wm.protobuf.SaveGameResultRequest, c
             }
 
             // If the lose bits are set, and are long data
-            if (Long.isLong(storyResult.stLoseBits))
+            if (Long.isLong(storyResult.stLoseBits) && storyResult && storyResult.stLoseBits)
             {
                 // Convert them to BigInt and add to the data
-                data.stLoseBits = common.getBigIntFromLong(storyResult.stLoseBits);
+                data.stLoseBits = common.getBigIntFromLong(storyResult.stLoseBits as Long);
                 stLoseBits = data.stLoseBits
 
                 // If a loss has been recorded

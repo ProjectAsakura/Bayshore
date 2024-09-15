@@ -10,3 +10,4 @@ config.json
 ecosystem.config.js
 static/*
 screenshot/*
+yarn.lock
