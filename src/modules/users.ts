@@ -23,10 +23,8 @@ export default class UserModule {
 			// Block blank card.ini data and vanilla TP blank card data
 			// Code for checking array, https://stackoverflow.com/questions/12623272/how-to-check-if-a-string-array-contains-one-string-in-javascript
 			// If used regex as per before, would block AIME IDs such as 012E555142B06D1D0078000000000000, would be picked up by the regex
-			let blankids = ["000000000000000000000000000000000", "000000000000000000000"];
-			if(body.cardChipId.match(/7F5C9744F11111114326.*/) || 
-			blankids.indexOf(body.cardChipId) > -1 || 
-			blankids.indexOf(body.accessCode) > -1)
+			let blankids = ["000000000000000000000000000000000", "000000000000000000000", "7F5C9744F111111143262C3300040610", "30764352518498791337"];
+			if(blankids.indexOf(body.cardChipId) > -1 || blankids.indexOf(body.accessCode) > -1)
 			{
 				body.cardChipId = '';
 				body.accessCode = '';
