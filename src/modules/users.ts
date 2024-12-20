@@ -21,7 +21,12 @@ export default class UserModule {
 			let body = wm.wm.protobuf.LoadUserRequest.decode(req.body);
 			
 			// Block blank card.ini data and vanilla TP blank card data
-			if(body.cardChipId.match(/7F5C9744F11111114326.*/) || body.cardChipId.match(/0000000000.*/))
+			// Code for checking array, https://stackoverflow.com/questions/12623272/how-to-check-if-a-string-array-contains-one-string-in-javascript
+			// If used regex as per before, would block AIME IDs such as 012E555142B06D1D0078000000000000, would be picked up by the regex
+			let blankids = ["000000000000000000000000000000000", "000000000000000000000"];
+			if(body.cardChipId.match(/7F5C9744F11111114326.*/) || 
+			blankids.indexOf(body.cardChipId) > -1 || 
+			blankids.indexOf(body.accessCode) > -1)
 			{
 				body.cardChipId = '';
 				body.accessCode = '';
