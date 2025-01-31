@@ -177,9 +177,6 @@ export async function getOpponentsTarget(carId: number, registeredargetAvailable
             where:{
                 stampTargetCarId: carId,
                 recommended: true,
-            },
-            orderBy:{
-                locked: 'desc'
             }
         });
 
@@ -231,9 +228,6 @@ export async function getOpponentsTarget(carId: number, registeredargetAvailable
                     {
                         id: 'asc'
                     },
-                    {
-                        recommended: 'desc'
-                    }   
                 ],
                 skip: random,
                 take: 1,

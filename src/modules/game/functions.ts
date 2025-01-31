@@ -39,13 +39,21 @@ export async function getItem(body: wm.protobuf.SaveGameResultRequest)
         console.log('User Item reward available, continuing ...');
 
         for(let i=0; i<body.earnedUserItems.length; i++){
+            let type = 0;
+
+            if (body.earnedUserItems[i].category == 201) {
+                type = 1
+            } else {
+                type = 0
+            };
+
             await prisma.userItem.create({
                 data: {
                     category: body.earnedUserItems[i].category,
                     itemId: body.earnedUserItems[i].itemId,
                     userId: body.car!.userId!,
                     earnedAt: 0,
-                    type: 0
+                    type: type
                 }
             });
         }
