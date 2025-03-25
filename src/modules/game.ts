@@ -127,7 +127,7 @@ export default class GameModule {
 				}
 
 				// Check ghost trail for n days old
-				let ghostTrailDays = Config.getConfig().gameOptions.ghostTrailDays;
+				let ghostTrailDays = Config.getConfig().gameOptions.ghostTrailAutodeleteDays;
 
 				// Call delete ghost trail function
 				if(ghostTrailDays != 0)

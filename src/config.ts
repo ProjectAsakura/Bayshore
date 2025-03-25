@@ -64,7 +64,7 @@ export interface GameOptions {
     enableScreenshot: number; // 1 is on, 0 is off
 
     // auto remove ghost trail based on n amount of days old
-    ghostTrailDays: number; // set amount of days, 0 is off
+    ghostTrailAutodeleteDays: number; // set amount of days, 0 is off
 }
 
 export class Config {

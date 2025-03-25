@@ -15,6 +15,6 @@
 		"newCardsBanned": 0,
         "revisionCheck": 1,
 		"enableScreenshot": 0,
-        "ghostTrailDays": 0
+        "ghostTrailAutodeleteDays": 0
     }
 }
