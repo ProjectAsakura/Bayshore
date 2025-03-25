@@ -106,15 +106,20 @@ export default class CarModule {
 			let getCarTune = await carFunctions.getCarTune(tune, carInsert);
 			let additionalInsert = getCarTune.additionalInsert;
 
-			// Check created car and item used
+			// Check created car and item used and Check total created car
+			let numOfOwnedCars = await prisma.car.count({
+				where: {
+					userId: body.userId
+				}
+			});
+
 			let checkCreatedCars = await carFunctions.checkCreatedCar(body, carInsert, itemId);
-			if(checkCreatedCars.cheated === true)
+			if(checkCreatedCars.cheated === true || numOfOwnedCars >= 200)
 			{
 				let msg = {
 					error: wm.wm.protobuf.ErrorCode.ERR_FORBIDDEN,
 					carId: -1,
-					userId: -1,
-					rgStamp: -1
+					userId: -1
 				}
 
 				// Generate the load car response message

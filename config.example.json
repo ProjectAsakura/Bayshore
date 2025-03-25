@@ -14,6 +14,7 @@
         "giveMeterReward": 0,
 		"newCardsBanned": 0,
         "revisionCheck": 1,
-		"enableScreenshot": 0
+		"enableScreenshot": 0,
+        "ghostTrailAutodeleteDays": 0
     }
 }

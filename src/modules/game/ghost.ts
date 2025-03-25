@@ -16,7 +16,7 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
     let ghostModePlay: boolean = false;
     let updateNewTrail: boolean = false;
     let OCMModePlay: boolean = false;
-
+    
     // If the game was not retired / timed out
     if (!(body.retired || body.timeup)) 
     {
@@ -733,4 +733,30 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
 
     // Return the value to 'BASE_PATH/src/modules/game.ts'
     return { ghostModePlay, updateNewTrail, OCMModePlay }
-} 
+}
+
+export async function deleteGhostTrail(body: wm.protobuf.SaveGameResultRequest, ghostTrailDays: number)
+{
+    // if is not retired or time up
+    if (!(body.retired || body.timeup))
+    {
+        // if n days of ghost trail is set
+        if(ghostTrailDays != 0)
+        {
+            // Get current date
+            let date = Math.floor(new Date().getTime() / 1000);
+            
+            // Calculate the cutoff date (n days ago)
+            let cutoffDate = date - (ghostTrailDays * 24 * 60 * 60);
+            
+            // Delete ghost trails older than n days
+            await prisma.ghostTrail.deleteMany({
+                where: {
+                    playedAt: {
+                        lt: cutoffDate
+                    }
+                }
+            });
+        }
+    }
+}

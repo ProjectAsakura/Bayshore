@@ -126,6 +126,14 @@ export default class GameModule {
 					await meter_reward.giveMeterRewards(body);
 				}
 
+				// Check ghost trail for n days old
+				let ghostTrailDays = Config.getConfig().gameOptions.ghostTrailAutodeleteDays;
+
+				// Call delete ghost trail function
+				if(ghostTrailDays != 0)
+				{
+					await ghost.deleteGhostTrail(body, ghostTrailDays); 
+				}
 
 				// -----------------------------------------------------------------------------------------------
 				// Additional Message for Response Data
@@ -259,7 +267,7 @@ export default class GameModule {
 			// Perform the save screenshot request for the car
 			await gameFunction.saveScreenshot(body);
 
-			// Check retire crown
+			// Check obtained crown
 			let getCarCrown = await prisma.carCrownDetect.findFirst({
 				where:{
 					carId: body.carId,
@@ -320,7 +328,6 @@ export default class GameModule {
 							}
 						});
 
-
 						// Banned the user
 						let getUserId = await prisma.car.findFirst({
 							where:{
@@ -342,14 +349,6 @@ export default class GameModule {
 								}
 							});
 						}
-					}
-					else
-					{
-						await prisma.carCrownDetect.delete({
-							where:{
-								id: getCarCrown.id
-							}
-						});
 					}
 				}
 			}

@@ -60,9 +60,11 @@ export interface GameOptions {
     // and from connecting to the server
     revisionCheck: number; // 1 is on, 0 is off
 
-    // revision check
     // set this option to 1 to enable screenshot feature
     enableScreenshot: number; // 1 is on, 0 is off
+
+    // auto remove ghost trail based on n amount of days old
+    ghostTrailAutodeleteDays: number; // set amount of days, 0 is off
 }
 
 export class Config {
