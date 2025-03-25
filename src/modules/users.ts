@@ -333,6 +333,13 @@ export default class UserModule {
 				}
 			}
 
+			// proper number of owned cars including deleted
+			let numOfOwnedCars = await prisma.car.count({
+				where: {
+					userId: user.id
+				}
+			});
+
 			// Change Ghost Stamp tutorial to true
 			if(user.tutorials[20] === false)
 			{
@@ -365,7 +372,7 @@ export default class UserModule {
 				userId: user.id,
 
 				// 5 cars in-game, 200 cars on terminal
-				numOfOwnedCars: user.cars.length,
+				numOfOwnedCars: numOfOwnedCars,
 				cars: user.cars.slice(0, body.maxCars), 
 				carStates,
 

@@ -727,7 +727,6 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
             data:{
                 carId: body.carId,
                 status: 'retire',
-                playedAt: body.playedAt
             }
         });
     }
