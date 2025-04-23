@@ -1,4 +1,5 @@
-FROM node:18-alpine AS builder
+FROM node:18-alpine AS base
+FROM base AS builder
 
 WORKDIR /server
 
@@ -12,7 +13,7 @@ RUN npm ci
 # Compile the application source code
 RUN npm run build
 
-FROM node:18-alpine AS runner
+FROM base AS runner
 
 # Install OS dependencies
 RUN apk add --no-cache openssl
