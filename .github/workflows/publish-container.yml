@@ -1,0 +1,76 @@
+name: Publish container
+
+on:
+  push:
+    branches: [dockerized-node22]
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        build-targets:
+          - label: ubuntu-latest
+            arch: amd64
+            manifest-name: x64
+          - label: ubuntu-24.04-arm
+            arch: arm64
+            manifest-name: arm64
+    permissions:
+      contents: read
+      packages: write
+    name: Build Container for ${{ matrix.build-targets.manifest-name }}
+    runs-on: ${{ matrix.build-targets.label }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build image
+        run: |
+          # First, lowercase-ify owner
+          export owner=${{ github.repository_owner }}
+          export owner=${owner,,}
+          docker buildx build \
+            --platform linux/${{ matrix.build-targets.arch }} \
+            --push \
+            -t "ghcr.io/${owner}/bayshore:${{ matrix.build-targets.manifest-name }}-${{ github.sha }}" \
+            -t "ghcr.io/${owner}/bayshore:${{ matrix.build-targets.manifest-name }}-latest" \
+            --provenance false \
+            .
+  merge-container:
+    runs-on: ubuntu-latest
+    needs:
+      - build
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Merge images
+        run: |
+          # First, lowercase-ify owner
+          export owner=${{ github.repository_owner }}
+          export owner=${owner,,}
+          docker manifest create "ghcr.io/${owner}/bayshore:latest" \
+            --amend "ghcr.io/${owner}/bayshore:arm64-${{ github.sha }}" \
+            --amend "ghcr.io/${owner}/bayshore:x64-${{ github.sha }}"
+          docker manifest push "ghcr.io/${owner}/bayshore:latest"
+
+          docker manifest create "ghcr.io/${owner}/bayshore:${{ github.sha }}" \
+            --amend "ghcr.io/${owner}/bayshore:arm64-${{ github.sha }}" \
+            --amend "ghcr.io/${owner}/bayshore:x64-${{ github.sha }}"
+          docker manifest push "ghcr.io/${owner}/bayshore:${{ github.sha }}"
