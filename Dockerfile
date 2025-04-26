@@ -40,7 +40,9 @@ RUN npm ci && \
 COPY --from=builder /server/dist /home/node/dist
 
 # Copy game configuration file and certificate
-COPY server_wangan.key server_wangan.crt config.json ./
+COPY server_wangan.key server_wangan.crt ./
+
+VOLUME [ "/home/node/config.json" ]
 
 # This ensures that the final dist files are readonly to this node user when running the application.
 USER node
