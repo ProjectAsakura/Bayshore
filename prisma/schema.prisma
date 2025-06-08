@@ -48,7 +48,6 @@ model UserItem {
     itemId     Int
     User       User @relation(fields: [userId], references: [id])
     userId     Int
-    type       Int  @default(0)
     earnedAt   Int  @default(0)
 }
 
@@ -174,6 +173,7 @@ model CarItem {
     category Int
     itemId   Int
     amount   Int
+    earnedAt Int @default(0)
 }
 
 model CarSettings {

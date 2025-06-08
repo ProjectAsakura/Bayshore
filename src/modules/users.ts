@@ -181,8 +181,7 @@ export default class UserModule {
 								data: {
 									userId: user.id,
 									category: wm.wm.protobuf.ItemCategory.CAT_CAR_TICKET_FREE,
-									itemId: 5, 
-									type: Number(0) // Car Ticket
+									itemId: 5,
 								}
 							});
 						}
@@ -286,14 +285,19 @@ export default class UserModule {
 			let tickets = await prisma.userItem.findMany({
 				where: {
 					userId: user.id, 
-					type: 0
+					category: {
+						in: [
+							203, // wm.wm.protobuf.ItemCategory.CAT_CAR_TICKET_FREE
+							201  // wm.wm.protobuf.ItemCategory.CAT_CAR_TICKET
+						]
+					}
 				}, 
 				select: {
 					itemId: true, 
 					category: true, 
-					userItemId: true
+					userItemId: true 
 				}
-			})
+			});
 
 
 			// Error handling if windowStickerString and windowStickerFont is undefined or null
@@ -666,15 +670,20 @@ export default class UserModule {
 			// Get all of the user's tickets
 			let tickets = await prisma.userItem.findMany({
 				where: {
-					userId: body.userId, 
-					type: 0
+					userId: body.userId,
+					category: {
+						in: [
+							203, // wm.wm.protobuf.ItemCategory.CAT_CAR_TICKET_FREE
+							201  // wm.wm.protobuf.ItemCategory.CAT_CAR_TICKET
+						]
+					}
 				}, 
 				select: {
 					itemId: true, 
 					category: true, 
 					userItemId: true 
 				}
-			})
+			});
 
             // TODO: Add notices to config
 			let notice = (Config.getConfig().notices || []);

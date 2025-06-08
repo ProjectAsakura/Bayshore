@@ -59,15 +59,27 @@ export default class TerminalModule {
 				// Item is returned
 				if (item)
 				{
-					// Insert the item into the car items
-					await prisma.carItem.create({
-						data: {
-							carId: body.carId, 
-							category: item.category, 
-							itemId: item.itemId, 
-							amount: 1
-						}
-					});
+					let itemCheck = await prisma.carItem.findFirst({
+							where: {
+								carId: body.carId,
+								category: item.category, 
+								itemId: item.itemId, 
+								amount: 1
+							}
+						});
+
+					if (!itemCheck){
+						// Insert the item into the car items
+						await prisma.carItem.create({
+							data: {
+								carId: body.carId, 
+								category: item.category, 
+								itemId: item.itemId, 
+								amount: 1,
+								earnedAt: Math.floor(new Date().getTime() / 1000)
+							}
+						});
+					}
 
 					// Delete the accepted item
 					await prisma.userItem.delete({
@@ -88,7 +100,7 @@ export default class TerminalModule {
 			}
 
             // Encode the response
-			let message = wm.wm.protobuf.LoadBookmarksResponse.encode(msg);
+			let message = wm.wm.protobuf.ReceiveUserItemsResponse.encode(msg);
 			
             // Send the response to the client
             common.sendResponse(message, res, req.rawHeaders);
@@ -314,7 +326,7 @@ export default class TerminalModule {
 			let user = await prisma.user.findFirst({
 				where: { 
 					id: body.userId 
-				},
+				}
 			});
 
 			if(user)
@@ -336,7 +348,6 @@ export default class TerminalModule {
 				});
 
 				// If the car order was modified
-
 				// Update the car order in the table
 				if (body.carOrder.length > 0)
 				{
@@ -526,8 +537,7 @@ export default class TerminalModule {
 					data: {
 						userId: body.userId,
 						category: scratchSquare.category, 
-						itemId: scratchSquare.itemId, 
-						type: 1,  // Scratch item
+						itemId: scratchSquare.itemId,
 						earnedAt: date
 					}
 				});
@@ -682,13 +692,13 @@ export default class TerminalModule {
 							},
 							{
 								periodId: 'desc'
-							}   
+							}
 						],
 						include:{
 							car: true
 						},
 						distinct: ["carId"],
-						take: 100
+						take: 150
 					});
 
 					let numOfParticipantsLength = [{ count: 0 }];
@@ -885,7 +895,7 @@ export default class TerminalModule {
 							car: true
 						},
 						distinct: ["carId"],
-						take: 25
+						take: 150
 					});
 
 					let numOfParticipantsLength = [{ count: 0 }];

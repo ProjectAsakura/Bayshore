@@ -218,14 +218,26 @@ export default class CarModule {
 				{
 					console.log('Car Item reward available, continuing ...');
 					for(let i=0; i<body.earnedItems.length; i++){
-						await prisma.carItem.create({
-							data: {
-								carId: body.carId,
-								category: body.earnedItems[i].category,
-								itemId: body.earnedItems[i].itemId,
-								amount: 1
-							}
-						});
+						let itemCheck = await prisma.carItem.findFirst({
+								where: {
+									carId: body.carId,
+									category: body.earnedItems[i].category,
+									itemId: body.earnedItems[i].itemId,
+									amount: 1
+								}
+							});
+
+						if (!itemCheck){
+							await prisma.carItem.create({
+								data: {
+									carId: body.carId,
+									category: body.earnedItems[i].category,
+									itemId: body.earnedItems[i].itemId,
+									amount: 1,
+									earnedAt: Math.floor(new Date().getTime() / 1000)
+								}
+							});
+						}
 					}
 				}
 			}
