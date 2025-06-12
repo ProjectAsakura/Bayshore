@@ -350,68 +350,69 @@ export async function saveOCMGhostHistory(body: wm.protobuf.SaveGameResultReques
             let OCM_periodId = await prisma.oCMPeriod.findFirst({ 
                 where:{
                     competitionId: ocmEventDate!.competitionId,
-                },
-                orderBy:{
-                    periodId: 'desc'
+                    startAt: 
+                    {
+                        lte: date - ocmEventDate!.lengthOfInterval, // competitionStartAt is less than current date
+                    },
+                    closeAt:
+                    {
+                        gte: date - ocmEventDate!.lengthOfInterval, // competitionCloseAt is greater than current date
+                    }
                 },
                 select:{
                     periodId: true
                 }
             });
 
-            // Period ID not found
-            if(!(OCM_periodId))
+            if (OCM_periodId)
             {
-                OCM_periodId = await prisma.oCMPeriod.findFirst({ 
-                    where:{
-                        competitionId: ocmEventDate!.competitionId,
-                        startAt: 
-                        {
-                            lte: date - ocmEventDate!.lengthOfInterval, // competitionStartAt is less than current date
-                        },
-                        closeAt:
-                        {
-                            gte: date - ocmEventDate!.lengthOfInterval, // competitionCloseAt is greater than current date
-                        }
-                    },
-                    select:{
-                        periodId: true
-                    }
-                });
-            }
-
-            // Update ghost battle record
-            await prisma.oCMGhostBattleRecord.create({
-                data: {
-                    ...saveExGhostHistory,
-                    competitionId: ocmEventDate!.competitionId,
-                    periodId: OCM_periodId!.periodId
-                }
-            });
-
-            let ocmTallyfind = await prisma.oCMTally.findFirst({
-                where:{
-                    carId: saveExGhostHistory.carId,
-                    competitionId: ocmEventDate!.competitionId,
-                },
-            });
-
-            if(ocmTallyfind)
-            {
-                console.log('Updating OCM Tally Record');
-
-                // Update the OCM Tally Record
-                await prisma.oCMTally.update({
-                    where:{
-                        dbId: ocmTallyfind.dbId
-                    },
+                // Update ghost battle record
+                await prisma.oCMGhostBattleRecord.create({
                     data: {
-                        periodId: OCM_periodId!.periodId,
-                        result: body.rgResult!.opponents![0].result,
-                        tunePower: body.car?.tunePower!,
-                        tuneHandling: body.car?.tuneHandling!
+                        ...saveExGhostHistory,
+                        competitionId: ocmEventDate!.competitionId,
+                        periodId: OCM_periodId!.periodId
                     }
                 });
+
+                let ocmTallyfind = await prisma.oCMTally.findFirst({
+                    where:{
+                        carId: saveExGhostHistory.carId,
+                        competitionId: ocmEventDate!.competitionId,
+                    },
+                });
+
+                if(ocmTallyfind)
+                {
+                    console.log('Updating OCM Tally Record');
+
+                    // Update the OCM Tally Record
+                    await prisma.oCMTally.update({
+                        where:{
+                            dbId: ocmTallyfind.dbId
+                        },
+                        data: {
+                            periodId: OCM_periodId!.periodId,
+                            result: body.rgResult!.opponents![0].result,
+                            tunePower: body.car?.tunePower!,
+                            tuneHandling: body.car?.tuneHandling!
+                        }
+                    });
+                }
+                else
+                {
+                    // Create the OCM Tally Record
+                    await prisma.oCMTally.create({
+                        data: {
+                            carId: body.car?.carId!,
+                            competitionId: ocmEventDate!.competitionId,
+                            periodId: OCM_periodId!.periodId,
+                            result: body.rgResult!.opponents![0].result,
+                            tunePower: body.car?.tunePower!,
+                            tuneHandling: body.car?.tuneHandling!
+                        }
+                    });
+                }
             }
         }
         // Current date is OCM Qualifying
