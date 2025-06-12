@@ -6,129 +6,131 @@ export async function checkScratchCar(userId: number, visualModel: number)
 {
     let checkUserItem: any;
 
-    if(visualModel === 55) // R2
+    switch (visualModel)
     {
-        checkUserItem = await prisma.userItem.findMany({
-            where:{
-                userId: userId,
-                category: 201,
-                itemId: 4
-            }
-        })
-    }
-    else if(visualModel === 73) // Corolla
-    {
-        checkUserItem = await prisma.userItem.findMany({
-            where:{
-                userId: userId,
-                category: 201,
-                itemId: 3
-            }
-        })
-    }
-    else if(visualModel === 98) // HIACE Van
-    {
-        checkUserItem = await prisma.userItem.findMany({
-            where:{
-                userId: userId,
-                category: 201,
-                itemId: 1
-            }
-        })
-    }
-    else if(visualModel === 26) // Pajero Evolution
-    {
-        checkUserItem = await prisma.userItem.findMany({
-            where:{
-                userId: userId,
-                category: 201,
-                itemId: 2
-            }
-        })
-    }
-    else if(visualModel === 118) // GT-R Nismo
-    {
-        checkUserItem = await prisma.userItem.findMany({
-            where:{
-                userId: userId,
-                category: 201,
-                itemId: 5
-            }
-        })
-    }
-    else if(visualModel === 119) // Z34 Nismo
-    {
-        checkUserItem = await prisma.userItem.findMany({
-            where:{
-                userId: userId,
-                category: 201,
-                itemId: 6
-            }
-        })
-    }
-    else if(visualModel === 72) // Aristo Taxi
-    {
-        checkUserItem = await prisma.userItem.findMany({
-            where:{
-                userId: userId,
-                category: 201,
-                itemId: 16
-            }
-        })
-    }
-    else if(visualModel === 11) // Atenza Taxi
-    {
-        checkUserItem = await prisma.userItem.findMany({
-            where:{
-                userId: userId,
-                category: 201,
-                itemId: 17
-            }
-        })
-    }
-    else if(visualModel === 66) // Celsior Taxi
-    {
-        checkUserItem = await prisma.userItem.findMany({
-            where:{
-                userId: userId,
-                category: 201,
-                itemId: 18
-            }
-        })
-    }
-    else if(visualModel === 75) // HIACE Wagon
-    {
-        checkUserItem = await prisma.userItem.findMany({
-            where:{
-                userId: userId,
-                category: 201,
-                itemId: 19
-            }
-        })
-    }
-    else if(visualModel === 132) // GT-R Pure Edition
-    {
-        checkUserItem = await prisma.userItem.findMany({
-            where:{
-                userId: userId,
-                category: 201,
-                itemId: 20
-            }
-        })
-    }
-    else if(visualModel === 129) // NSX-R
-    {
-        checkUserItem = await prisma.userItem.findMany({
-            where:{
-                userId: userId,
-                category: 201,
-                itemId: 21
-            }
-        })
-    }
-    else
-    {
-        checkUserItem = [];
+        case 55: // R2
+            checkUserItem = await prisma.userItem.findMany({
+                where:{
+                    userId: userId,
+                    category: 201,
+                    itemId: 4
+                }
+            })
+            break;
+
+        case 73: // Corolla
+            checkUserItem = await prisma.userItem.findMany({
+                where:{
+                    userId: userId,
+                    category: 201,
+                    itemId: 3
+                }
+            })
+            break;
+
+        case 98: // HIACE Van
+            checkUserItem = await prisma.userItem.findMany({
+                where:{
+                    userId: userId,
+                    category: 201,
+                    itemId: 1
+                }
+            })
+            break;
+
+        case 26: // Pajero Evolution
+            checkUserItem = await prisma.userItem.findMany({
+                where:{
+                    userId: userId,
+                    category: 201,
+                    itemId: 2
+                }
+            })
+            break;
+
+        case 118: // GT-R Nismo
+            checkUserItem = await prisma.userItem.findMany({
+                where:{
+                    userId: userId,
+                    category: 201,
+                    itemId: 5
+                }
+            })
+            break;
+
+        case 119: // Z34 Nismo
+            checkUserItem = await prisma.userItem.findMany({
+                where:{
+                    userId: userId,
+                    category: 201,
+                    itemId: 6
+                }
+            })
+            break;
+
+        case 72: // Aristo Taxi
+            checkUserItem = await prisma.userItem.findMany({
+                where:{
+                    userId: userId,
+                    category: 201,
+                    itemId: 16
+                }
+            })
+            break;
+
+        case 11: // Atenza Taxi
+            checkUserItem = await prisma.userItem.findMany({
+                where:{
+                    userId: userId,
+                    category: 201,
+                    itemId: 17
+                }
+            })
+            break;
+
+        case 66: // Celsior Taxi
+            checkUserItem = await prisma.userItem.findMany({
+                where:{
+                    userId: userId,
+                    category: 201,
+                    itemId: 18
+                }
+            })
+            break;
+
+        case 75: // HIACE Wagon
+            checkUserItem = await prisma.userItem.findMany({
+                where:{
+                    userId: userId,
+                    category: 201,
+                    itemId: 19
+                }
+            })
+            break;
+
+        case 132: // GT-R Pure Edition
+            checkUserItem = await prisma.userItem.findMany({
+                where:{
+                    userId: userId,
+                    category: 201,
+                    itemId: 20
+                }
+            })
+            break;
+
+        case 129: // NSX-R
+            checkUserItem = await prisma.userItem.findMany({
+                where:{
+                    userId: userId,
+                    category: 201,
+                    itemId: 21
+                }
+            })
+            break;
+
+        default:
+            checkUserItem = [];
+            break;
     }
 
     // Check if user item is available or not

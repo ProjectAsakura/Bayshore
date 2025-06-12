@@ -20,15 +20,43 @@ export async function getItem(body: wm.protobuf.SaveGameResultRequest)
     {
         console.log('Car Item reward available, continuing ...');
 
-        for(let i=0; i<body.earnedItems.length; i++){
-            await prisma.carItem.create({
-                data: {
+        for (let i = 0; i < body.earnedItems.length; i++) {
+            let { category, itemId } = body.earnedItems[i];
+            
+            // Find all matching items (not just first)
+            let existingItems = await prisma.carItem.findMany({
+                where: {
                     carId: body.carId,
-                    category: body.earnedItems[i].category,
-                    itemId: body.earnedItems[i].itemId,
-                    amount: 1
+                    category,
+                    itemId
+                },
+                orderBy: {
+                    dbId: 'asc' // Keep the oldest one
                 }
             });
+            
+            if (existingItems.length === 0) {
+                // Create new item if none exists
+                await prisma.carItem.create({
+                    data: {
+                        carId: body.carId,
+                        category,
+                        itemId,
+                        amount: 1,
+                        earnedAt: Math.floor(new Date().getTime() / 1000)
+                    }
+                });
+            } else {
+                // If duplicates exist, delete all except the first
+                if (existingItems.length > 1) {
+                    let duplicateIds = existingItems.slice(1).map(item => item.dbId);
+                    await prisma.carItem.deleteMany({
+                        where: {
+                            dbId: { in: duplicateIds }
+                        }
+                    });
+                }
+            }
         }
     }
 
@@ -39,13 +67,6 @@ export async function getItem(body: wm.protobuf.SaveGameResultRequest)
         console.log('User Item reward available, continuing ...');
 
         for(let i=0; i<body.earnedUserItems.length; i++){
-            let type = 0;
-
-            if (body.earnedUserItems[i].category == 201) {
-                type = 1
-            } else {
-                type = 0
-            };
 
             await prisma.userItem.create({
                 data: {
@@ -53,7 +74,6 @@ export async function getItem(body: wm.protobuf.SaveGameResultRequest)
                     itemId: body.earnedUserItems[i].itemId,
                     userId: body.car!.userId!,
                     earnedAt: 0,
-                    type: type
                 }
             });
         }

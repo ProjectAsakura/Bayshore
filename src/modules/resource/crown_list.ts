@@ -27,10 +27,10 @@ export async function getCrownList()
         let counter = 0;  
 
         // Loop GID_RUNAREA
-        for(let i=0; i<19; i++)
+        for(let i=0; i<15; i++) // set to loop 14 times is enough
         { 
             // After Kobe is Hiroshima then Fukuoka and the rest
-            if(i > 14)
+            if(i >= 14)
             { 
                 i = 18; // GID_RUNAREA_HIROSHIMA
             }
@@ -138,10 +138,10 @@ export async function getCrownList()
     else
     {
         // Loop GID_RUNAREA
-        for(let i=0; i<19; i++)
+        for(let i=0; i<15; i++) // set to loop 14 times is enough
         { 
             // After Kobe is Hiroshima then Fukuoka and the rest
-            if(i > 14)
+            if(i >= 14)
             { 
                 i = 18; // GID_RUNAREA_HIROSHIMA
             }
