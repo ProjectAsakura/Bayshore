@@ -400,26 +400,28 @@ export default class GhostModule {
 			let pathVal: number = OCMArea.pathVal;
 
             // Get url query parameter (period_id)
-			let period_id = Number(req.query.period_id); 
+			let period_id = Number(req.query.period_id);
 
             // Get current date
 			let date = Math.floor(new Date().getTime() / 1000);
 
             // Get currently active OCM event
-			let ocmEventDate = await prisma.oCMEvent.findFirst({ 
+			let ocmEventDate = await prisma.oCMEvent.findFirst({
                 where: {
+					// competitionId
+					competitionId: competition_id
 					// qualifyingPeriodStartAt is less than current date
-					qualifyingPeriodStartAt: { lte: date },
+					// qualifyingPeriodStartAt: { lte: date },
 		
 					// competitionEndAt is greater than current date
-					competitionEndAt: { gte: date },
+					// competitionEndAt: { gte: date },
 				},
                 orderBy:{
                     competitionId: 'desc'
                 }
             });
 
-			if(!(ocmEventDate))
+			if(!ocmEventDate)
 			{
 				ocmEventDate = await prisma.oCMEvent.findFirst({
                     orderBy:{
@@ -432,7 +434,7 @@ export default class GhostModule {
 			let ghostCars: wm.wm.protobuf.GhostCar;
 			let ghostTypes;
 			let cars: wm.wm.protobuf.ICar | null;
-			let playedPlace = wm.wm.protobuf.Place.create({ 
+			let playedPlace = wm.wm.protobuf.Place.create({
 				placeId: Config.getConfig().placeId,
                 regionId: Config.getConfig().regionId,
                 shopName: Config.getConfig().shopName,
@@ -460,7 +462,7 @@ export default class GhostModule {
 				});
 
                 // Get Top 1 qualifying ghost trail id
-				let checkGhostTrail = await prisma.oCMTop1GhostTrail.findFirst({ 
+				let checkGhostTrail = await prisma.oCMTop1GhostTrail.findFirst({
 					where:{
 						carId: ocmTallyRecord!.carId,
 						competitionId: ocmEventDate!.competitionId,
@@ -473,7 +475,7 @@ export default class GhostModule {
 
                 // Top 1 OCM Ghost trail data available
 				if(checkGhostTrail)
-				{ 
+				{
                     // Get the Top 1 OCM car data
 					cars = await prisma.car.findFirst({ 
 						where:{
@@ -502,10 +504,10 @@ export default class GhostModule {
 			}
             // Current date is OCM qualifying day
 			else if(ocmEventDate!.qualifyingPeriodStartAt < date && ocmEventDate!.qualifyingPeriodCloseAt > date)
-			{ 
+			{
 				console.log('OCM Qualifying Day');
 
-                // Get the default ghost trail
+				// Get the default ghost trail
 				let checkGhostTrail = await prisma.oCMTop1GhostTrail.findFirst({ 
 					where:{
 						carId: 999999999,
@@ -561,7 +563,7 @@ export default class GhostModule {
 				ghostTypes = wm.wm.protobuf.GhostType.GHOST_NORMAL;
 			}
 			else if(ocmEventDate!.competitionCloseAt < date && ocmEventDate!.competitionEndAt > date)
-			{ 
+			{
 				// TODO: Actual stuff here
             	// This is literally just bare-bones so the shit boots
 			}
@@ -577,7 +579,7 @@ export default class GhostModule {
 					},
 					orderBy:{
 						result: 'desc'
-					},
+					}
 				});
 
                 // Get Top 1 qualifying ghost trail id
@@ -588,12 +590,12 @@ export default class GhostModule {
 					},
 					orderBy:{
 						playedAt: 'desc'
-					},
+					}
 				});
 
                 // Top 1 OCM Ghost trail data available
 				if(checkGhostTrail)
-				{ 
+				{
                     // Get the Top 1 OCM car data
 					cars = await prisma.car.findFirst({ 
 						where:{
@@ -606,7 +608,7 @@ export default class GhostModule {
 					});
 
                     // Set the tunePower used when playing ghost crown
-					cars!.tunePower = ocmTallyRecord!.tunePower; 
+					cars!.tunePower = ocmTallyRecord!.tunePower;
 
                     // Set the tuneHandling used when playing ghost crown
 					cars!.tuneHandling = ocmTallyRecord!.tuneHandling;
@@ -630,7 +632,6 @@ export default class GhostModule {
 					{
 						cars!.lastPlayedPlace!.shopName = checkShopName.playedShopName;
 					}
-
 
 					let ocmEventDate = await prisma.oCMEvent.findFirst({
 						where:{

@@ -63,7 +63,7 @@ export default class UserModule {
 					transferState: wm.wm.protobuf.TransferState.NOT_REGISTERED,
 				};
 
-				if (!body.cardChipId || !body.accessCode) 
+				if (!(body.cardChipId || body.accessCode)) 
 				{
 					msg.error = wm.wm.protobuf.ErrorCode.ERR_USER_SUCCEEDED;
 
@@ -207,31 +207,14 @@ export default class UserModule {
 			}
 
 			// Get the number of scratch cards for the user
-			let scratchSheetCount = await prisma.scratchSheet.count({
-				where: {
-					userId: user!.id
-				}
-			})
-
-			console.log("Current sheet count: ", scratchSheetCount);
-
-			// If the user has no scratch sheets
-			if (scratchSheetCount === 0)
-			{
-				console.log("Generating first sheet ...");
-
-				// Generate a new scratch sheet for the user
-				await scratch.generateScratchSheet(user!.id, Number(1));
-
-				// Set the current scratch sheet to 1
-				await prisma.user.update({
+			if (user.tutorials[23] === true) {
+				let scratchSheetCount = await prisma.scratchSheet.count({
 					where: {
-						id: user!.id
-					}, 
-					data: {
-						currentSheet: Number(1)
+						userId: user!.id
 					}
-				});
+				})
+
+				console.log("Current sheet count: ", scratchSheetCount);
 			}
 
 			// If the car order array has not been created
@@ -685,7 +668,7 @@ export default class UserModule {
 				}
 			});
 
-            // TODO: Add notices to config
+            // Get notices from config
 			let notice = (Config.getConfig().notices || []);
 
             // Create the notice window objects

@@ -321,7 +321,6 @@ export async function saveNormalGhostTrail(body: wm.protobuf.RegisterGhostTrailR
             where:{
                 carId: ghostResult.car.carId!,
                 area: ghostResult.area!,
-                path: ghostResult.path!,
                 crownBattle: false,
             },
             orderBy: {

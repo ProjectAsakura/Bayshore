@@ -199,92 +199,117 @@ export async function getTimeAttackRecord(body: wm.protobuf.LoadGameHistoryReque
     // Empty list of time attack records for the player's car
     let ta_records : wmproto.wm.protobuf.LoadGameHistoryResponse.TimeAttackRecord[] = [];
 
-    // Get the car's time attack records
-    let records = await prisma.timeAttackRecord.findMany({
+    let car = await prisma.car.findFirst({
         where: {
             carId: body.carId
         }
     });
 
-    // Loop over all of the records
-    for(let record of records)
+    for(let i=0; i<25; i++) // GID_TACOURSE ID
     {
-        // This code could probably be done with less DB calls in the future
+        // Initialize variables
+        let time = null;
+        let tunePower = null;
+        let tuneHandling = null;
+        let wholeParticipants = null;
+        let modelParticipants = null;
+
+        // Whole rank (default: null)
+        let wholeRank = null;
+
+        // Model rank (default: null)
+        let modelRank = null;
 
         // Calculate the total rank, total participants for the record
         let wholeData = await prisma.timeAttackRecord.findMany({
             where: {
-                course: record.course
-            }, 
+                course: i
+            },
             orderBy: {
                 time: 'asc'
             }
         });
 
-        // Get the overall number of participants
-        let wholeParticipants = wholeData.length;
-
-        // Whole rank (default: 1)
-        let wholeRank = 1;
-
-        // Loop over all of the participants
-        for(let row of wholeData)
-        {
-            // If the car ID does not match
-            if (row.carId !== body.carId)
-            {
-                // Increment whole rank
-                wholeRank++; 
+        let record = await prisma.timeAttackRecord.findFirst({
+            where: {
+                course: i,
+                carId: body.carId
             }
-            else // Model ID matches
-            {
-                // Break the loop
-                break;
-            }
-        }
+        });
 
         // Calculate the model rank, model participants for the record
         let modelData = await prisma.timeAttackRecord.findMany({
             where: {
-                course: record.course, 
-                model: record.model
-            }, 
+                course: i,
+                model: car?.model
+            },
             orderBy: {
                 time: 'asc'
             }
         });
 
-        // Get the overall number of participants (with the same car model)
-        let modelParticipants = modelData.length;
-
-        // Model rank (default: 1)
-        let modelRank = 1;
-
-        // Loop over all of the participants
-        for(let row of modelData)
+        if (wholeData)
         {
-            // If the car ID does not match
-            if (row.carId !== body.carId)
+            // Get the overall number of participants
+            wholeParticipants = wholeData.length;
+        }
+
+        if (modelData)
+        {
+            // Get the overall number of participants (with the same car model)
+            modelParticipants = modelData.length;
+        }
+
+        if (record)
+        {
+            time = record.time;
+            tunePower = record.tunePower;
+            tuneHandling = record.tuneHandling;
+
+            wholeRank = 1;
+            // Loop over all of the participants
+            for(let row of wholeData)
             {
-                // Increment whole rank
-                modelRank++; 
+                // If the car ID does not match
+                if (row.carId !== body.carId)
+                {
+                    // Increment whole rank
+                    wholeRank++;
+                }
+                else // Model ID matches
+                {
+                    // Break the loop
+                    break;
+                }
             }
-            else // Model ID matches
+
+            modelRank = 1;
+            // Loop over all of the participants
+            for(let row of modelData)
             {
-                // Break the loop
-                break;
+                // If the car ID does not match
+                if (row.carId !== body.carId)
+                {
+                    // Increment whole rank
+                    modelRank++; 
+                }
+                else // Model ID matches
+                {
+                    // Break the loop
+                    break;
+                }
             }
         }
 
         // Generate the time attack record object and add it to the list
         ta_records.push(wmproto.wm.protobuf.LoadGameHistoryResponse.TimeAttackRecord.create({
-            course: record.course, 
-            time: record.time, 
-            tunePower: record.tunePower,
-            tuneHandling: record.tuneHandling,
-            wholeParticipants: wholeParticipants, 
-            wholeRank: wholeRank, 
-            modelParticipants: modelParticipants, 
+            course: i,
+            time: time,
+            tunePower: tunePower,
+            tuneHandling: tuneHandling,
+            wholeParticipants: wholeParticipants!,
+            wholeRank: wholeRank,
+            modelParticipants: modelParticipants!,
             modelRank: modelRank
         }));
     }
@@ -328,8 +353,8 @@ export async function getGhostBattleRecord(body: wm.protobuf.LoadGameHistoryRequ
         });
 
         // If opponent is default ghost or random ghost
-        if(!(ghostOpponentCar))
-        { 
+        if(!ghostOpponentCar)
+        {
             ghostOpponentCar = await prisma.car.findFirst({});
             ghostOpponentCar!.name = 'Ｓ６６０';
             ghostOpponentCar!.manufacturer = 12;
@@ -366,7 +391,7 @@ export async function getGhostBattleRecord(body: wm.protobuf.LoadGameHistoryRequ
             });
 
             // If opponent is default ghost or random ghost
-            if(!(ghostOpponentCar2))
+            if(!ghostOpponentCar2)
             {
                 ghostOpponentCar2 = await prisma.car.findFirst({});
                 ghostOpponentCar2!.name = 'Ｓ６６０';
@@ -401,8 +426,8 @@ export async function getGhostBattleRecord(body: wm.protobuf.LoadGameHistoryRequ
             });
 
             // If opponent is default ghost or random ghost
-            if(!(ghostOpponentCar3))
-            { 
+            if(!ghostOpponentCar3)
+            {
                 ghostOpponentCar3 = await prisma.car.findFirst({});
                 ghostOpponentCar3!.name = 'Ｓ６６０';
                 ghostOpponentCar3!.manufacturer = 12;

@@ -348,6 +348,13 @@ export function dayPassed(a: Date, b: Date)
     return daysSinceEpoch(a) > daysSinceEpoch(b) ? 0 : 1;
 }
 
+// Get the days passed between dates as boolean
+export function dayPassedBool(a: Date, b: Date)
+{
+    // Return true if a day has passed since the last scratch, false otherwise
+    return daysSinceEpoch(a) > daysSinceEpoch(b) ? false : true;
+}
+
 // Async function for generating a new scratch sheet
 export async function generateScratchSheet (userId: number, sheetNo: number)
 {
@@ -361,7 +368,6 @@ export async function generateScratchSheet (userId: number, sheetNo: number)
     switch(scratchType)
     {
         // More options maybe added in the future
-        
         case 0: // Same as actual game (randomised after last set)
 
             // If the sheet number has associated data
@@ -373,7 +379,7 @@ export async function generateScratchSheet (userId: number, sheetNo: number)
             else // Sheet is out of range
             {
                 // Generate a random (standard) scratch sheet
-                // scratchItems = getRandomScratchSheet(sheetNo-1);
+                scratchItems = getRandomScratchSheet(sheetNo-1);
             }
             break;
 

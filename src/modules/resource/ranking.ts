@@ -13,7 +13,6 @@ export async function getTimeAttackRanking()
     // Get TA Ranking
     for(let i=0; i<25; i++) // GID_TACOURSE ID
     { 
-
         // Get the TA time per course
         let ta_time = await prisma.timeAttackRecord.findMany({ 
             where: {

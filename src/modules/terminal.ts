@@ -21,7 +21,18 @@ export default class TerminalModule {
             // Get the request body for the load terminal information request
             let body = wm.wm.protobuf.LoadTerminalInformationRequest.decode(req.body);
 
+			// Get the current date/time (unix epoch)
+			let date = Math.floor(new Date().getTime() / 1000)
+
+			// Get user
+			let user = await prisma.user.findFirst({
+				where: {
+					id: body.userId
+				}
+			});
+			
 			let prizeReceivable = false;
+			let freeScratched = true;
 
 			// Get all of the user's items from the database
 			let userItems = await prisma.userItem.findMany({
@@ -41,6 +52,12 @@ export default class TerminalModule {
 
 			if (userItems.length > 0) { prizeReceivable = true; }
 
+			// If a day has passed, allow the user to scratch again
+			freeScratched = scratch.dayPassedBool(
+				new Date(date*1000), // Todays date
+				new Date(user!.lastScratched*1000) // Last Scratched date
+			);
+
             // Response data
 			let msg = {
 				error: wm.wm.protobuf.ErrorCode.ERR_SUCCESS,
@@ -49,7 +66,7 @@ export default class TerminalModule {
 					needToSeeTransferred: false
 				},
 				announceFeature: false,
-				freeScratched: true,
+				freeScratched: freeScratched,
 				availableTickets: userItems,
 			}
 
@@ -511,8 +528,65 @@ export default class TerminalModule {
 			// Get the information from the request
 			let body = wm.wm.protobuf.SaveScratchSheetRequest.decode(req.body);
 
-			// Get the current date/time (unix epoch)
-			let date = Math.floor(new Date().getTime() / 1000)
+			let user = await prisma.user.findFirst({
+				where: {
+					id: body.userId
+				}
+			});
+
+			// Skip update last scratched timestamp if is from tutorial
+			if (user?.tutorials[23] != false) {
+				// Update the last scratched timestamp
+				await prisma.user.update({
+					where: {
+						id: body.userId
+					},
+					data: {
+						lastScratched: body.timestamp
+					}
+				});
+			}
+
+			if (user!.tutorials[23] != true) {
+				// Get the number of scratch cards for the user
+				let scratchSheetCount = await prisma.scratchSheet.count({
+					where: {
+						userId: user!.id
+					}
+				});
+
+				// If the user has no scratch sheets
+				if (scratchSheetCount === 0)
+				{
+					console.log("Generating first sheet ...");
+
+					// Generate a new scratch sheet for the user
+					await scratch.generateScratchSheet(user!.id, Number(1));
+
+					// Set the current scratch sheet to 1
+					await prisma.user.update({
+						where: {
+							id: user!.id
+						},
+						data: {
+							currentSheet: Number(1)
+						}
+					});
+				}
+
+				// Set terminal scratch tutorial to true
+				user!.tutorials[23] = true;
+
+				// Update the tutorial
+				await prisma.user.update({
+					where: {
+						id: body.userId
+					},
+					data: {
+						tutorials: user!.tutorials
+					}
+				});
+			}
 
 			// Get all of the scratch sheets for the user
 			let scratchSheets = await prisma.scratchSheet.findMany({
@@ -548,7 +622,7 @@ export default class TerminalModule {
 			let earnedItem = wm.wm.protobuf.UserItem.create({
 				category: scratchSquare.category, 
 				itemId: scratchSquare.itemId, 
-				earnedAt: date
+				earnedAt: body.timestamp
 			});
 
 			try // Attempt to update scratch sheet
@@ -559,7 +633,7 @@ export default class TerminalModule {
 						userId: body.userId,
 						category: scratchSquare.category, 
 						itemId: scratchSquare.itemId,
-						earnedAt: date
+						earnedAt: body.timestamp
 					}
 				});
 
@@ -572,16 +646,6 @@ export default class TerminalModule {
 						earned: true
 					}
 				});
-
-				// Update the last scratched timestamp
-				await prisma.user.update({
-					where: {
-						id: body.userId
-					}, 
-					data: {
-						lastScratched: date
-					}
-				}); 
 				
 				// If the box we uncovered is the car... hehe boi
 				if (scratchSquare.category === 201)
@@ -650,7 +714,7 @@ export default class TerminalModule {
 			});
 
 			// Declare GhostCompetitionSchedule
-            let compeSch; 
+            let compeSch;
 			let msg: any;
 
             if(ocmEventDate)
@@ -794,7 +858,7 @@ export default class TerminalModule {
 							}));
 						}
 
-						if(!(ownRecords))
+						if(!ownRecords)
 						{
 							let ocmPersonalRank = [{ result: 0, position: 0 }];
 
@@ -991,7 +1055,7 @@ export default class TerminalModule {
 							}));
 						}
 
-						if(!(ownRecords))
+						if(!ownRecords)
 						{
 							let ocmPersonalRank = [{ result: 0, position: 0 }];
 
@@ -1091,7 +1155,7 @@ export default class TerminalModule {
 					}
 				});
 
-				if(!(checkRegisteredGhost))
+				if(!checkRegisteredGhost)
 				{
 					await prisma.ghostRegisteredFromTerminal.create({
 						data:{

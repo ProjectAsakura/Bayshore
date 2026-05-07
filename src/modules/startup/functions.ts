@@ -43,7 +43,7 @@ export async function competitionSchedule(date: any, competitionId: any)
 
     // Currently no Active Competition (OCM) Event.. Getting Previous Competition (OCM) Event
     let pastEvent = 0;
-    if(!(ghostCompetitionSchedule))
+    if(!ghostCompetitionSchedule)
     {
         ghostCompetitionSchedule = await prisma.oCMEvent.findFirst({
             orderBy:{
@@ -96,6 +96,11 @@ export async function competitionSchedule(date: any, competitionId: any)
                 // idk what this is
                 minigamePatternId: ghostCompetitionSchedule.minigamePatternId 
             });
+
+            // hof menu while OCM is ongoing
+            if(ghostCompetitionSchedule.competitionId > 1) {
+                lastCompetitionId = ghostCompetitionSchedule.competitionId -1;
+            }
         }
 
         // It's previous Competition (OCM) event
@@ -112,7 +117,6 @@ export async function competitionSchedule(date: any, competitionId: any)
                     competitionId: 'desc'
                 }
             });
-    
 
             lastCompetitionId = lastScheduleCompetitionId?.competitionId || 0;
         }

@@ -10,7 +10,7 @@ export async function saveTimeAttackResult(body: wm.protobuf.SaveGameResultReque
     let cheatedTime: boolean = false;
 
     // If the game was not retired / timed out
-    if (!(body.retired || body.timeup)) 
+    if (!(body.retired || body.timeup))
     {
         console.log('Game not retired / timed out, continuing ...')
 

@@ -13,7 +13,7 @@ import * as check_step from "./games_util/check_step";
 export async function saveStoryResult(body: wm.protobuf.SaveGameResultRequest, car: any)
 {
     // If the game was not retired / timed out
-    if (!(body.retired || body.timeup)) 
+    if (!(body.retired || body.timeup))
     {
         console.log('Game not retired / timed out, continuing ...')
 

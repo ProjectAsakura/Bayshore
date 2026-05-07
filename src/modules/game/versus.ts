@@ -10,7 +10,7 @@ import * as common from "../util/common";
 // Save versus battle result
 export async function saveVersusBattleResult(body: wm.protobuf.SaveGameResultRequest, car: any)
 {
-    if (!(body.retired)) 
+    if (!body.retired)
     {
         // Get the car
         let cars = body?.car;

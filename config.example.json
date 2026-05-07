@@ -16,5 +16,6 @@
         "revisionCheck": 1,
 		"enableScreenshot": 0,
         "ghostTrailAutodeleteDays": 0
-    }
+    },
+    "notices": []
 }

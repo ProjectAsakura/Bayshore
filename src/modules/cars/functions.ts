@@ -721,10 +721,7 @@ export async function checkCreatedCar(body: wm.protobuf.CreateCarRequest, car: a
         126, // DIABLO
         130, // JW5
         131, // AP2
-        133, // PS13
-        137, // NDERC
-        138, // UF31
-        139, // GS130
+        133  // PS13
     ];
 
     let carVisualModelWithoutItem = [

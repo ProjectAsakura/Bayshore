@@ -232,7 +232,7 @@ export async function saveOCMGhostHistory(body: wm.protobuf.SaveGameResultReques
                 });
 
                 // Period ID not found
-                if(!(OCM_periodId))
+                if(!OCM_periodId)
                 {
                     OCM_periodId = await prisma.oCMPeriod.findFirst({ 
                         where:{

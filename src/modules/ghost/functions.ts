@@ -253,7 +253,7 @@ export async function getGhostCar(car: any, area: number, ramp: number, path: nu
             }
 
             // Push user's car data without ghost trail
-            if(!(ghost_trails))
+            if(!ghost_trails)
             { 
                 lists_ghostcar.push(wmproto.wm.protobuf.GhostCar.create({
                     car: car[random]

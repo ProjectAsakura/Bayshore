@@ -74,25 +74,16 @@ export default class GhostModule {
 				}
 			});
 
-			if(getUserId)
+			if(getUserId?.userBanned)
 			{
-				if(getUserId.userBanned === false)
-				{
-					// Encode the response
-					let message = wm.wm.protobuf.LoadGhostBattleInfoResponse.encode(msg);
-
-					// Send the response to the client
-					common.sendResponse(message, res, req.rawHeaders);
-				}
-			} 
-			else
-			{
-				// Encode the response
-				let message = wm.wm.protobuf.LoadGhostBattleInfoResponse.encode(msg);
-
-				// Send the response to the client
-				common.sendResponse(message, res, req.rawHeaders);
+				return res.status(500);
 			}
+
+			// Encode the response
+			let message = wm.wm.protobuf.LoadGhostBattleInfoResponse.encode(msg);
+
+			// Send the response to the client
+			common.sendResponse(message, res, req.rawHeaders);
         })
 
 
@@ -326,7 +317,7 @@ export default class GhostModule {
 			else if(actualSessionId > 0 && actualSessionId < 101)
 			{
                 // Check if it is crown ghost battle or not (crown ghost battle don't have time, driveData, trendBinaryByArea, trendBinaryByCar, trendBinaryByUser value from request body)
-				if(!(body.trendBinaryByArea) && !(body.trendBinaryByCar) && !(body.trendBinaryByUser))
+				if(!body.trendBinaryByArea && !body.trendBinaryByCar && !body.trendBinaryByUser)
 				{
 					console.log('Crown Ghost Battle Game found');
 
@@ -431,7 +422,7 @@ export default class GhostModule {
 			let carTbyP: wm.wm.protobuf.LoadPathsAndTuningsResponse.CarTuningsByPath[] = [];
 
             // Loop GID_RUNAREA_*
-			for(let j=0; j<19; j++)
+			for(let j=0; j<15; j++)
 			{
                 // 14 - 16 are dummy area, 17 is C1 Closed
 				if(j >= 14){

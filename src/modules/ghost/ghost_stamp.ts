@@ -91,7 +91,7 @@ export async function sendStamp(body: wm.protobuf.SaveGameResultRequest)
                 })
 
                 // No record found
-                if(!(stampTarget))
+                if(!stampTarget)
                 {
                     console.log('Creating new stamp entry');
 

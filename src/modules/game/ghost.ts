@@ -18,7 +18,7 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
     let OCMModePlay: boolean = false;
     
     // If the game was not retired / timed out
-    if (!(body.retired || body.timeup)) 
+    if (!(body.retired || body.timeup))
     {
         console.log('Saving Ghost Battle Result');
         
@@ -288,7 +288,7 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                             }
                             else if(body.rgResult?.path >= 56 && body.rgResult?.path <= 57){ // GID_PATH_HS
                                 area = Number(18);
-                                ramp = Number(Math.floor(Math.random() * 2) + 27);
+                                ramp = Number(Math.floor(Math.random() * 2) + 37);
                             }
 
                             path = Number(body.rgResult.path);
@@ -323,10 +323,12 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                                     data: {
                                         carId: body.carId,
                                         status: 'finish',
-                                        area: area,
-                                        ramp: ramp,
-                                        path: path,
-                                        ...dataCrown
+                                        area: carCrowns.area,
+                                        ramp: carCrowns.ramp,
+                                        path: carCrowns.path,
+                                        playedAt: carCrowns.playedAt,
+                                        tunePower: carCrowns.tunePower,
+                                        tuneHandling: carCrowns.tuneHandling
                                     }
                                 });
 
@@ -350,10 +352,12 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
                                     data: {
                                         carId: body.carId,
                                         status: 'finish',
-                                        area: area,
-                                        ramp: ramp,
-                                        path: path,
-                                        ...dataCrown
+                                        area: carCrowns.area,
+                                        ramp: carCrowns.ramp,
+                                        path: carCrowns.path,
+                                        playedAt: carCrowns.playedAt,
+                                        tunePower: carCrowns.tunePower,
+                                        tuneHandling: carCrowns.tuneHandling
                                     }
                                 });
 
@@ -726,7 +730,7 @@ export async function saveGhostBattleResult(body: wm.protobuf.SaveGameResultRequ
 export async function deleteGhostTrail(body: wm.protobuf.SaveGameResultRequest, ghostTrailDays: number)
 {
     // if is not retired or time up
-    if (!(body.retired || body.timeup))
+    if  (!(body.retired || body.timeup))
     {
         // if n days of ghost trail is set
         if(ghostTrailDays != 0)
